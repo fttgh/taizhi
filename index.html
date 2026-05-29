@@ -273,15 +273,7 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
   <aside class="sidebar">
     <div class="sidebar-block">
       <div class="sb-title">📂 品類</div>
-      <div class="cat-list" id="catList">
-        <div class="cat-item active" onclick="filterCat(this,'全部')">全部 <span class="cat-n" id="catAllN">12</span></div>
-        <div class="cat-item" onclick="filterCat(this,'生活用品')">🏠 生活用品 <span class="cat-n">3</span></div>
-        <div class="cat-item" onclick="filterCat(this,'紡織寢具')">🛏 紡織寢具 <span class="cat-n">2</span></div>
-        <div class="cat-item" onclick="filterCat(this,'工具五金')">🔧 工具五金 <span class="cat-n">2</span></div>
-        <div class="cat-item" onclick="filterCat(this,'食品')">🍱 食品 <span class="cat-n">2</span></div>
-        <div class="cat-item" onclick="filterCat(this,'保養美妝')">✨ 保養美妝 <span class="cat-n">2</span></div>
-        <div class="cat-item" onclick="filterCat(this,'戶外運動')">🚴 戶外運動 <span class="cat-n">1</span></div>
-      </div>
+      <div class="cat-list" id="catList"></div>
     </div>
 
     <div class="sidebar-block">
@@ -493,9 +485,35 @@ function updateStats() {
   document.getElementById('mitCount').textContent = allBrands.filter(b=>b.mit).length;
 }
 
-// ── 更新品類數量 ──
+// ── 品類 emoji 對照 ──
+const catEmoji = {
+  '生活用品':'🏠','紡織寢具':'🛏','工具五金':'🔧','食品':'🍱',
+  '保養美妝':'✨','服飾':'👕','戶外運動':'🚴','廚房餐具':'🍳',
+  '寵物用品':'🐾','兒童玩具':'🧸','家具':'🪑','清潔用品':'🧴',
+  '醫療保健':'💊','文具':'✏️','其他':'📦'
+};
+
+// ── 更新品類數量（動態從資料計算）──
 function updateCatCounts() {
-  document.getElementById('catAllN').textContent = allBrands.length;
+  // 統計各品類數量
+  const counts = {};
+  allBrands.forEach(b => {
+    counts[b.cat] = (counts[b.cat] || 0) + 1;
+  });
+
+  // 重建品類清單
+  const catList = document.getElementById('catList');
+  let html = `<div class="cat-item active" onclick="filterCat(this,'全部')">全部 <span class="cat-n" id="catAllN">${allBrands.length}</span></div>`;
+
+  // 按數量排序
+  Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .forEach(([cat, count]) => {
+      const emoji = catEmoji[cat] || '📦';
+      html += `<div class="cat-item" onclick="filterCat(this,'${cat}')">${emoji} ${cat} <span class="cat-n">${count}</span></div>`;
+    });
+
+  catList.innerHTML = html;
 }
 
 // ── 渲染品牌卡片 ──
