@@ -205,6 +205,14 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
 .hero-inner>*:nth-child(3){animation-delay:.25s}
 .hero-inner>*:nth-child(4){animation-delay:.35s}
 </style>
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-EB5JCJMXE6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-EB5JCJMXE6');
+</script>
 </head>
 <body>
 
@@ -243,17 +251,17 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
     <h1>找台灣製造<br><em>不用再估狗</em></h1>
     <p class="hero-sub">台灣製造商品目錄。消費者找得到，廠商被找到。<br>不收費、不業配、中資品牌不上架。</p>
     <div class="hero-search">
-      <input type="text" id="heroSearch" placeholder="你想找什麼？例如：冰桶、毛巾、工具、保養品⋯" onkeypress="if(event.key==='Enter')doSearch(this.value)">
+      <input type="text" id="heroSearch" placeholder="你想找什麼？例如：手工皂、童鞋、保養品、帆布包⋯" onkeypress="if(event.key==='Enter')doSearch(this.value)">
       <button class="hero-search-btn" onclick="doSearch(document.getElementById('heroSearch').value)">搜尋 →</button>
     </div>
     <div class="chips">
-      <span class="chip" onclick="doSearch('冰桶')">🧊 冰桶</span>
-      <span class="chip" onclick="doSearch('毛巾')">🛁 毛巾</span>
-      <span class="chip" onclick="doSearch('工具')">🔧 工具</span>
-      <span class="chip" onclick="doSearch('保養品')">✨ 保養品</span>
-      <span class="chip" onclick="doSearch('寢具')">🛏 寢具</span>
+      <span class="chip" onclick="doSearch('手工皂')">🧼 手工皂</span>
+      <span class="chip" onclick="doSearch('童鞋')">👟 童鞋</span>
+      <span class="chip" onclick="doSearch('保養')">✨ 保養品</span>
       <span class="chip" onclick="doSearch('食品')">🍱 食品</span>
-      <span class="chip" onclick="doSearch('運動')">🚴 運動</span>
+      <span class="chip" onclick="doSearch('手作')">🎨 手作飾品</span>
+      <span class="chip" onclick="doSearch('母嬰')">🍼 母嬰</span>
+      <span class="chip" onclick="doSearch('家具')">🪑 家具</span>
     </div>
   </div>
 </section>
@@ -401,6 +409,7 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
       </div>
     </div>
     <div class="ft-disclaimer">
+      資料來源致謝：部分品牌資料整理自 Threads @vk123_zoomin 及社群貢獻者，特此致謝。<br>
       免責聲明：本平台所有品牌資料均由廠商自行提供或由社群貢獻，台製通不對任何商品之產地、品質、安全性作出保證。
       消費者如需確認 MIT 認證，請以經濟部產業發展署 MIT 微笑標章官方資料庫為準。
       本站與所有列載品牌無商業合作關係，所有連結不含業配或廣告費用。
@@ -443,7 +452,8 @@ function parseCSV(text) {
     const mitRaw  = (cols[3] || '').trim();
     const link    = cols[4] || '';
     const desc    = cols[5] || '';
-    const status  = cols[6] || '待確認';
+    const status   = cols[6] || '待確認';
+    const imageUrl = (cols[7] || '').trim();
 
     // MIT認證：欄位填「是」或「TRUE」或打勾符號都算 true
     const mit = ['是','true','TRUE','✓','v','V','yes','YES'].includes(mitRaw);
@@ -452,7 +462,7 @@ function parseCSV(text) {
     const avatar = name.charAt(0) || '?';
 
     return { id: idx + 1, name, cat, origin, desc, mit, verified,
-             hasLink, link, status, avatar, isNew: false };
+             hasLink, link, status, avatar, imageUrl, isNew: false };
   }).filter(b => b.name); // 過濾空白行
 }
 
@@ -563,7 +573,9 @@ function renderBrands() {
   grid.innerHTML = list.map(b => `
     <div class="bcard">
       <div class="bcard-top">
-        <div class="bcard-avatar">${b.avatar}</div>
+        ${b.imageUrl
+          ? `<div class="bcard-avatar" style="background:var(--paper-2);padding:0;overflow:hidden;"><img src="${b.imageUrl}" alt="${b.name}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='${b.avatar}';this.parentElement.style.cssText='background:var(--red-lt);display:flex;align-items:center;justify-content:center;font-family:Noto Serif TC,serif;font-weight:900;font-size:17px;color:var(--red)'"></div>`
+          : `<div class="bcard-avatar">${b.avatar}</div>`}
         <div class="bcard-badges">
           ${b.mit ? '<span class="badge b-mit">MIT認證</span>' : ''}
           ${b.verified ? '<span class="badge b-ok">已驗證</span>' : ''}
@@ -596,6 +608,10 @@ function renderBrands() {
 // ── 搜尋 ──
 function doSearch(q) {
   currentSearch = q.trim();
+  // 追蹤搜尋事件
+  if (typeof gtag !== 'undefined' && currentSearch) {
+    gtag('event', 'search', { search_term: currentSearch });
+  }
   currentCat = '全部';
   document.querySelectorAll('.cat-item').forEach(i => i.classList.remove('active'));
   document.querySelector('.cat-item').classList.add('active');
