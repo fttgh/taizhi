@@ -116,11 +116,22 @@ nav{display:flex;gap:4px;align-items:center}
 /* ── BRAND CARDS ── */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
 
-.bcard{background:var(--white);border:1px solid var(--ink-15);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:14px;transition:all .25s;cursor:default;position:relative}
+.bcard{background:var(--white);border:1px solid var(--ink-15);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;gap:0;transition:all .25s;cursor:default;position:relative}
 .bcard:hover{border-color:rgba(200,40,30,.3);box-shadow:0 8px 32px rgba(0,0,0,.08);transform:translateY(-2px)}
+.bcard-img{width:100%;height:140px;object-fit:cover;object-position:center;display:block;background:var(--paper-2)}
+.bcard-img-placeholder{width:100%;height:140px;background:var(--red-lt);display:flex;align-items:center;justify-content:center;font-family:"Noto Serif TC",serif;font-weight:900;font-size:48px;color:var(--red)}
+.bcard-body{padding:16px;display:flex;flex-direction:column;gap:12px;flex:1}
 
 .bcard-top{display:flex;justify-content:space-between;align-items:flex-start}
 .bcard-avatar{width:46px;height:46px;border-radius:10px;background:var(--red-lt);display:flex;align-items:center;justify-content:center;font-family:'Noto Serif TC',serif;font-weight:900;font-size:17px;color:var(--red);flex-shrink:0}
+.bcard-banner{width:calc(100% + 40px);margin:-20px -20px 14px;height:140px;background:var(--paper-2);overflow:hidden;border-radius:14px 14px 0 0;flex-shrink:0}
+.bcard-banner img{width:100%;height:100%;object-fit:cover;display:block}
+.bcard-banner-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-family:'Noto Serif TC',serif;font-weight:900;font-size:48px;color:var(--red);opacity:0.15}
+.bcard-img{width:100%;height:140px;object-fit:cover;border-radius:10px 10px 0 0;display:block;background:var(--paper-2)}
+.bcard-img-wrap{margin:-20px -20px 14px -20px;height:140px;background:var(--paper-2);border-radius:10px 10px 0 0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:'Noto Serif TC',serif;font-weight:900;font-size:40px;color:var(--red-lt)}
+.bcard-img{width:100%;height:160px;background:var(--paper-2);border-radius:10px 10px 0 0;overflow:hidden;margin:-20px -20px 14px -20px;width:calc(100% + 40px);position:relative}
+.bcard-img img{width:100%;height:100%;object-fit:cover}
+.bcard-img-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-family:'Noto Serif TC',serif;font-weight:900;font-size:48px;color:var(--red);opacity:.15}
 .bcard-badges{display:flex;flex-direction:column;gap:4px;align-items:flex-end}
 
 .badge{font-size:10px;font-family:'DM Mono',monospace;padding:3px 8px;border-radius:4px;white-space:nowrap}
@@ -580,29 +591,33 @@ function renderBrands() {
   }
 
   grid.innerHTML = list.map(b => `
-    <div class="bcard">
-      <div class="bcard-top">
+    <div class="bcard" style="padding:0;overflow:hidden">
+      <div style="position:relative">
         ${b.imageUrl
-          ? `<div class="bcard-avatar" style="background:var(--paper-2);padding:0;overflow:hidden;"><img src="${b.imageUrl}" alt="${b.name}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='${b.avatar}';this.parentElement.style.cssText='background:var(--red-lt);display:flex;align-items:center;justify-content:center;font-family:Noto Serif TC,serif;font-weight:900;font-size:17px;color:var(--red)'"></div>`
-          : `<div class="bcard-avatar">${b.avatar}</div>`}
-        <div class="bcard-badges">
+          ? `<img src="${b.imageUrl}" alt="${b.name}" loading="lazy"
+               style="width:100%;height:160px;object-fit:cover;object-position:center top;display:block;background:var(--paper-2)"
+               onerror="this.outerHTML='<div style=\\'width:100%;height:160px;background:var(--red-lt);display:flex;align-items:center;justify-content:center;font-family:Noto Serif TC,serif;font-weight:900;font-size:56px;color:var(--red)\\'>${b.avatar}</div>'">`
+          : `<div style="width:100%;height:160px;background:var(--red-lt);display:flex;align-items:center;justify-content:center;font-family:'Noto Serif TC',serif;font-weight:900;font-size:56px;color:var(--red)">${b.avatar}</div>`}
+        <div style="position:absolute;top:8px;right:8px;display:flex;flex-direction:column;gap:4px;align-items:flex-end">
           ${b.mit ? '<span class="badge b-mit">MIT認證</span>' : ''}
           ${b.verified ? '<span class="badge b-ok">已驗證</span>' : ''}
           ${b.status === '待確認' ? '<span class="badge b-warn">待確認</span>' : ''}
         </div>
       </div>
-      <div>
-        <div class="bcard-name">${b.name}</div>
-        <div class="bcard-origin">📍 ${b.origin || '產地待確認'}</div>
-      </div>
-      <div class="bcard-desc">${b.desc || '品牌介紹整理中⋯'}</div>
-      <div class="bcard-tags"><span class="tag">${b.cat}</span></div>
-      <div class="bcard-footer">
-        <div class="bcard-actions" style="margin-left:auto">
-          <button class="btn-report" onclick="openReport('${b.name.replace(/'/g,"\\'")}')">⚑ 回報</button>
-          ${b.hasLink
-            ? `<a href="${b.link}" class="btn-buy" target="_blank" rel="noopener">購買 →</a>`
-            : '<span style="font-size:11px;color:var(--ink-40)">暫無連結</span>'}
+      <div style="padding:16px;display:flex;flex-direction:column;gap:10px;flex:1">
+        <div>
+          <div class="bcard-name">${b.name}</div>
+          <div class="bcard-origin">📍 ${b.origin || '產地待確認'}</div>
+        </div>
+        <div class="bcard-desc">${b.desc || '品牌介紹整理中⋯'}</div>
+        <div class="bcard-tags"><span class="tag">${b.cat}</span></div>
+        <div class="bcard-footer" style="margin-top:auto">
+          <div class="bcard-actions" style="margin-left:auto">
+            <button class="btn-report" onclick="openReport('${b.name.replace(/'/g,"\\'")}')">⚑ 回報</button>
+            ${b.hasLink
+              ? `<a href="${b.link}" class="btn-buy" target="_blank" rel="noopener">購買 →</a>`
+              : '<span style="font-size:11px;color:var(--ink-40)">暫無連結</span>'}
+          </div>
         </div>
       </div>
     </div>
