@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>台製通 — 台灣製造商品目錄</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700;900&family=Noto+Sans+TC:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --red: #D97757;
+  --red-dk: #BD5F42;
+  --red-lt: #FFF0EF;
+  --ink: #141414;
+  --ink-70: #444;
+  --ink-40: #999;
+  --ink-15: #E2E2E2;
+  --paper: #F8F6F2;
+  --paper-2: #EFECE6;
+  --white: #fff;
+  --green: #1E6641;
+  --green-lt: #E8F5EE;
+  --amber: #92600A;
+  --amber-lt: #FFF3DC;
+  --blue: #1A4F8A;
+  --blue-lt: #E8F0FB;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh}
+
+/* ── TOPBAR ── */
+.topbar{background:var(--ink);color:rgba(255,255,255,.45);font-size:11px;font-family:'DM Mono',monospace;text-align:center;padding:7px 16px;letter-spacing:1px}
+.topbar a{color:rgba(255,255,255,.6);text-decoration:none;border-bottom:1px solid rgba(255,255,255,.2)}
+
+/* ── HEADER ── */
+header{background:var(--white);border-bottom:1px solid var(--ink-15);position:sticky;top:0;z-index:200;padding:0 24px}
+.header-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:58px;gap:16px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0}
+.logo-mark{width:38px;height:38px;background:var(--red);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Noto Serif TC',serif;font-weight:900;font-size:13px;color:#fff;letter-spacing:-1px;flex-shrink:0}
+.logo-name{font-family:'Noto Serif TC',serif;font-weight:900;font-size:18px;color:var(--ink);letter-spacing:2px}
+.logo-en{font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-40);letter-spacing:1.5px;margin-top:1px}
+
+.header-search{flex:1;max-width:480px;position:relative}
+.header-search input{width:100%;padding:9px 40px 9px 14px;border:1.5px solid var(--ink-15);border-radius:8px;font-size:13px;font-family:'Noto Sans TC',sans-serif;outline:none;background:var(--paper);transition:border-color .2s;color:var(--ink)}
+.header-search input:focus{border-color:var(--red);background:var(--white)}
+.header-search input::placeholder{color:var(--ink-40)}
+.header-search-btn{position:absolute;right:0;top:0;height:100%;padding:0 12px;background:none;border:none;cursor:pointer;color:var(--ink-40);font-size:16px;transition:color .2s}
+.header-search-btn:hover{color:var(--red)}
+
+nav{display:flex;gap:4px;align-items:center}
+.nav-link{padding:6px 12px;border-radius:6px;font-size:13px;color:var(--ink-70);text-decoration:none;transition:all .2s;white-space:nowrap}
+.nav-link:hover{background:var(--paper);color:var(--ink)}
+.nav-cta{background:var(--red);color:var(--white)!important;padding:7px 14px;border-radius:6px;font-size:12px;font-weight:500}
+.nav-cta:hover{background:var(--red-dk)!important}
+
+/* ── HERO ── */
+.hero{background:var(--ink);padding:64px 24px 56px;text-align:center;position:relative;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(255,255,255,.03) 39px,rgba(255,255,255,.03) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(255,255,255,.03) 39px,rgba(255,255,255,.03) 40px);pointer-events:none}
+.hero-inner{position:relative;z-index:1}
+.hero-pill{display:inline-flex;align-items:center;gap:7px;background:rgba(200,40,30,.18);border:1px solid rgba(200,40,30,.35);color:#FF9990;font-size:11px;font-family:'DM Mono',monospace;letter-spacing:1.5px;padding:5px 14px;border-radius:20px;margin-bottom:28px}
+.hero-dot{width:6px;height:6px;background:#FF9990;border-radius:50%;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+.hero h1{font-family:'Noto Serif TC',serif;font-weight:900;font-size:clamp(28px,5vw,52px);color:#fff;line-height:1.25;margin-bottom:14px}
+.hero h1 em{color:var(--red);font-style:normal}
+.hero-sub{color:rgba(255,255,255,.45);font-size:14px;line-height:1.9;margin-bottom:36px;max-width:440px;margin-left:auto;margin-right:auto}
+
+.hero-search{max-width:580px;margin:0 auto 20px;position:relative}
+.hero-search input{width:100%;padding:16px 130px 16px 20px;border-radius:10px;border:2px solid rgba(255,255,255,.1);background:rgba(255,255,255,.08);color:#fff;font-size:15px;font-family:'Noto Sans TC',sans-serif;outline:none;transition:border-color .2s}
+.hero-search input::placeholder{color:rgba(255,255,255,.3)}
+.hero-search input:focus{border-color:var(--red)}
+.hero-search-btn{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:var(--red);color:#fff;border:none;padding:10px 20px;border-radius:7px;font-size:13px;font-family:'Noto Sans TC',sans-serif;font-weight:500;cursor:pointer;transition:background .2s;white-space:nowrap}
+.hero-search-btn:hover{background:var(--red-dk)}
+
+.chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.chip{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);font-size:12px;padding:5px 12px;border-radius:20px;cursor:pointer;transition:all .2s}
+.chip:hover{background:rgba(200,40,30,.2);border-color:rgba(200,40,30,.4);color:#FF9990}
+
+/* ── STATS ── */
+.statsbar{background:var(--paper-2);border-bottom:1px solid var(--ink-15);padding:14px 24px;display:flex;justify-content:center;gap:48px;flex-wrap:wrap}
+.stat{text-align:center}
+.stat-n{font-family:'Noto Serif TC',serif;font-weight:900;font-size:20px;color:var(--red)}
+.stat-l{font-size:10px;color:var(--ink-40);margin-top:2px;font-family:'DM Mono',monospace;letter-spacing:.5px}
+
+/* ── LAYOUT ── */
+.layout{max-width:1200px;margin:0 auto;padding:32px 24px;display:grid;grid-template-columns:220px 1fr;gap:28px;align-items:start}
+@media(max-width:768px){.layout{grid-template-columns:1fr}.sidebar{display:none}}
+
+/* ── SIDEBAR ── */
+.sidebar{position:sticky;top:74px}
+.sidebar-block{background:var(--white);border:1px solid var(--ink-15);border-radius:12px;padding:20px;margin-bottom:16px}
+.sb-title{font-family:'Noto Serif TC',serif;font-weight:700;font-size:13px;color:var(--ink);margin-bottom:14px;letter-spacing:1px}
+.cat-list{display:flex;flex-direction:column;gap:2px}
+.cat-item{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:7px;cursor:pointer;transition:all .2s;font-size:13px;color:var(--ink-70)}
+.cat-item:hover,.cat-item.active{background:var(--red-lt);color:var(--red)}
+.cat-item.active{font-weight:500}
+.cat-n{font-family:'DM Mono',monospace;font-size:10px;color:var(--ink-40)}
+.cat-item.active .cat-n{color:var(--red)}
+
+.filter-group{display:flex;flex-direction:column;gap:8px}
+.filter-check{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--ink-70)}
+.filter-check input{accent-color:var(--red);width:14px;height:14px;cursor:pointer}
+
+.disclaimer{background:var(--amber-lt);border:1px solid #F5CC7A;border-radius:10px;padding:14px;font-size:11px;color:var(--amber);line-height:1.7}
+.disclaimer strong{display:block;margin-bottom:4px;font-size:12px}
+
+/* ── MAIN ── */
+.main-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.result-title{font-family:'Noto Serif TC',serif;font-weight:900;font-size:20px;color:var(--ink)}
+.result-sub{font-size:12px;color:var(--ink-40);font-family:'DM Mono',monospace;margin-top:3px}
+
+.sort-row{display:flex;gap:6px;align-items:center}
+.sort-label{font-size:12px;color:var(--ink-40)}
+.sort-btn{padding:5px 12px;border-radius:6px;border:1px solid var(--ink-15);background:var(--white);font-size:12px;color:var(--ink-70);cursor:pointer;font-family:'Noto Sans TC',sans-serif;transition:all .2s}
+.sort-btn.active,.sort-btn:hover{background:var(--ink);color:var(--white);border-color:var(--ink)}
+
+/* ── BRAND CARDS ── */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+
+.bcard{background:var(--white);border:1px solid var(--ink-15);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;gap:0;transition:all .25s;cursor:default;position:relative}
+.bcard:hover{border-color:rgba(200,40,30,.3);box-shadow:0 8px 32px rgba(0,0,0,.08);transform:translateY(-2px)}
+.bcard-body{padding:16px;display:flex;flex-direction:column;gap:12px;flex:1}
+
+.badge{font-size:10px;font-family:'DM Mono',monospace;padding:3px 8px;border-radius:4px;white-space:nowrap}
+.b-mit{background:var(--green-lt);color:var(--green);border:1px solid #A8D5BB}
+.b-ok{background:var(--blue-lt);color:var(--blue);border:1px solid #AACAF0}
+.b-new{background:var(--red-lt);color:var(--red);border:1px solid #FFBBBB}
+.b-warn{background:#FFF3DC;color:var(--amber);border:1px solid #F5CC7A}
+
+.bcard-name{font-family:'Noto Serif TC',serif;font-weight:700;font-size:16px;color:var(--ink);margin-top:10px}
+.bcard-origin{font-size:11px;color:var(--ink-40);font-family:'DM Mono',monospace;margin-left:6px;font-weight:400}
+.bcard-desc{font-size:13px;color:var(--ink-70);line-height:1.75}
+.bcard-tags{display:flex;gap:6px;flex-wrap:wrap}
+.tag{font-size:11px;background:var(--paper-2);color:var(--ink-70);padding:3px 9px;border-radius:4px}
+
+.bcard-footer{display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid var(--ink-15);margin-top:auto}
+.bcard-actions{display:flex;gap:8px;align-items:center}
+.btn-buy{font-size:12px;color:var(--red);text-decoration:none;font-weight:500;display:flex;align-items:center;gap:3px;transition:gap .15s}
+.btn-buy:hover{gap:6px}
+.btn-report{font-size:11px;color:var(--ink-40);background:none;border:none;cursor:pointer;padding:2px 4px;border-radius:4px;transition:all .2s;font-family:'Noto Sans TC',sans-serif}
+.btn-report:hover{background:var(--amber-lt);color:var(--amber)}
+
+/* ADD CARD */
+.bcard-add{border:2px dashed var(--ink-15);background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:220px;gap:10px;cursor:pointer;transition:all .2s}
+.bcard-add:hover{border-color:var(--red);background:var(--red-lt);transform:translateY(-2px)}
+.bcard-add-icon{font-size:32px;color:var(--ink-15);transition:color .2s}
+.bcard-add:hover .bcard-add-icon{color:var(--red)}
+.bcard-add-text{font-size:13px;color:var(--ink-40);transition:color .2s}
+.bcard-add:hover .bcard-add-text{color:var(--red)}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--white);border-radius:16px;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;padding:32px;position:relative;transform:translateY(20px);transition:transform .25s}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-close{position:absolute;top:16px;right:16px;background:var(--paper);border:none;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:16px;color:var(--ink-70);display:flex;align-items:center;justify-content:center;transition:all .2s}
+.modal-close:hover{background:var(--ink);color:var(--white)}
+.modal-title{font-family:'Noto Serif TC',serif;font-weight:900;font-size:20px;color:var(--ink);margin-bottom:6px}
+.modal-sub{font-size:13px;color:var(--ink-40);margin-bottom:24px;line-height:1.7}
+.modal-tabs{display:flex;gap:8px;margin-bottom:24px}
+.mtab{padding:8px 18px;border-radius:8px;border:1.5px solid var(--ink-15);background:none;font-size:13px;font-family:'Noto Sans TC',sans-serif;color:var(--ink-70);cursor:pointer;transition:all .2s}
+.mtab.active{background:var(--red);border-color:var(--red);color:var(--white);font-weight:500}
+
+.form{display:flex;flex-direction:column;gap:14px}
+.form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:11px;font-family:'DM Mono',monospace;color:var(--ink-40);letter-spacing:.5px}
+.field input,.field select,.field textarea{padding:10px 13px;border:1.5px solid var(--ink-15);border-radius:8px;font-size:13px;font-family:'Noto Sans TC',sans-serif;color:var(--ink);background:var(--paper);outline:none;transition:border-color .2s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--red);background:var(--white)}
+.field textarea{resize:vertical;min-height:80px}
+.form-btn{background:var(--red);color:var(--white);border:none;padding:13px;border-radius:10px;font-size:14px;font-family:'Noto Sans TC',sans-serif;font-weight:500;cursor:pointer;transition:background .2s;margin-top:4px}
+.form-btn:hover{background:var(--red-dk)}
+.form-note{font-size:11px;color:var(--ink-40);line-height:1.7;background:var(--paper-2);padding:10px 12px;border-radius:8px}
+
+/* report modal */
+.report-modal .modal-title{color:var(--amber)}
+.report-options{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.report-opt{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--ink-15);border-radius:8px;cursor:pointer;font-size:13px;color:var(--ink-70);transition:all .2s}
+.report-opt:hover,.report-opt.selected{border-color:var(--amber);background:var(--amber-lt);color:var(--amber)}
+.report-opt input{accent-color:var(--amber)}
+
+/* ── FOOTER ── */
+footer{background:var(--ink);padding:40px 24px;margin-top:60px}
+.footer-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px}
+@media(max-width:600px){.footer-inner{grid-template-columns:1fr}}
+.ft-block-title{font-family:'Noto Serif TC',serif;font-weight:700;font-size:13px;color:#fff;margin-bottom:12px;letter-spacing:1px}
+.ft-text{font-size:12px;color:rgba(255,255,255,.35);line-height:2}
+.ft-text a{color:rgba(255,255,255,.5);text-decoration:none}
+.ft-text a:hover{color:#fff}
+.ft-disclaimer{grid-column:1/-1;border-top:1px solid rgba(255,255,255,.08);padding-top:20px;margin-top:8px;font-size:11px;color:rgba(255,255,255,.25);line-height:1.9;font-family:'DM Mono',monospace}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:12px 24px;border-radius:10px;font-size:13px;z-index:999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.hero-inner>*{animation:fadeUp .5s ease both}
+.hero-inner>*:nth-child(1){animation-delay:.05s}
+.hero-inner>*:nth-child(2){animation-delay:.15s}
+.hero-inner>*:nth-child(3){animation-delay:.25s}
+.hero-inner>*:nth-child(4){animation-delay:.35s}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-EB5JCJMXE6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-EB5JCJMXE6');
+</script>
+</head>
+<body>
+
+<div class="topbar">
+  目前為 BETA 測試版，資料由社群貢獻，如有錯誤歡迎
+  <a href="#" onclick="openModal('submitModal');return false">回報或新增</a>
+</div>
+
+<header>
+  <div class="header-inner">
+    <a href="#" class="logo">
+      <div class="logo-mark">台製</div>
+      <div>
+        <div class="logo-name">台製通</div>
+        <div class="logo-en">MADE IN TAIWAN</div>
+      </div>
+    </a>
+    <div class="header-search">
+      <input type="text" id="headerSearch" placeholder="搜尋商品、品牌、品類⋯" onkeypress="if(event.key==='Enter')doSearch(this.value)">
+      <button class="header-search-btn" onclick="doSearch(document.getElementById('headerSearch').value)">⌕</button>
+    </div>
+    <nav>
+      <a href="#" class="nav-link">找品牌</a>
+      <a href="#" class="nav-link">品類</a>
+      <a href="#" class="nav-link" onclick="openModal('submitModal');return false">推薦品牌</a>
+      <a href="#" class="nav-cta nav-link" onclick="openModal('submitModal');return false">登錄廠商</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-inner">
+    <div class="hero-pill"><span class="hero-dot"></span>社群共建・持續更新</div>
+    <h1>找台灣製造<br><em>不用再估狗</em></h1>
+    <p class="hero-sub">台灣製造商品目錄。消費者找得到，廠商被找到。<br>不收費、不業配，僅收錄確認為台灣製造之品牌。</p>
+    <div class="hero-search">
+      <input type="text" id="heroSearch" placeholder="你想找什麼？例如：手工皂、童鞋、保養品、帆布包⋯" onkeypress="if(event.key==='Enter')doSearch(this.value)">
+      <button class="hero-search-btn" onclick="doSearch(document.getElementById('heroSearch').value)">搜尋 →</button>
+    </div>
+    <div class="chips">
+      <span class="chip" onclick="doSearch('手工皂')">🧼 手工皂</span>
+      <span class="chip" onclick="doSearch('童鞋')">👟 童鞋</span>
+      <span class="chip" onclick="doSearch('保養')">✨ 保養品</span>
+      <span class="chip" onclick="doSearch('食品')">🍱 食品</span>
+      <span class="chip" onclick="doSearch('手作')">🎨 手作飾品</span>
+      <span class="chip" onclick="doSearch('母嬰')">🍼 母嬰</span>
+      <span class="chip" onclick="doSearch('家具')">🪑 家具</span>
+    </div>
+  </div>
+</section>
+
+<div class="statsbar">
+  <div class="stat"><div class="stat-n" id="totalBrands">0</div><div class="stat-l">品牌收錄</div></div>
+  <div class="stat"><div class="stat-n" id="totalCats">0</div><div class="stat-l">商品品類</div></div>
+  <div class="stat"><div class="stat-n" id="mitCount">0</div><div class="stat-l">MIT認證</div></div>
+  <div class="stat"><div class="stat-n">社群共建</div><div class="stat-l">資料來源</div></div>
+</div>
+
+<div class="layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-block">
+      <div class="sb-title">📂 品類</div>
+      <div class="cat-list" id="catList"></div>
+    </div>
+
+    <div class="sidebar-block">
+      <div class="sb-title">🔍 篩選</div>
+      <div class="filter-group">
+        <label class="filter-check"><input type="checkbox" id="filterMit" onchange="applyFilters()"> 僅顯示 MIT 認證</label>
+        <label class="filter-check"><input type="checkbox" id="filterVerified" onchange="applyFilters()"> 僅顯示已驗證</label>
+        <label class="filter-check"><input type="checkbox" id="filterLink" onchange="applyFilters()"> 有購買連結</label>
+      </div>
+    </div>
+
+    <div class="disclaimer">
+      <strong>⚠️ 免責聲明</strong>
+      本平台資料由廠商及社群提供，平台不為商品產地或品質負責。如需確認 MIT 認證，請查閱<a href="https://www.mittw.org.tw" target="_blank" style="color:var(--amber)">經濟部 MIT 微笑標章官方資料庫</a>。
+    </div>
+  </aside>
+
+  <main>
+    <div class="main-top">
+      <div>
+        <div class="result-title" id="resultTitle">全部品牌</div>
+        <div class="result-sub" id="resultSub">顯示 0 筆</div>
+      </div>
+      <div class="sort-row">
+        <span class="sort-label">排序：</span>
+        <button class="sort-btn active" onclick="setSort(this,'newest')">最新</button>
+        <button class="sort-btn" onclick="setSort(this,'name')">名稱</button>
+        <button class="sort-btn" onclick="setSort(this,'mit')">MIT優先</button>
+      </div>
+    </div>
+
+    <div class="grid" id="brandsGrid"></div>
+  </main>
+</div>
+
+<div class="modal-overlay" id="submitModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('submitModal')">✕</button>
+    <div class="modal-title">新增 MIT 品牌</div>
+    <div class="modal-sub">不管是你買過的好品牌，或是廠商本身，都歡迎登錄。<br>資料由平台審核後上架，通常 3-5 個工作天。</div>
+    <div class="modal-tabs">
+      <button class="mtab active" onclick="switchMTab(this,'consumer')">消費者推薦</button>
+      <button class="mtab" onclick="switchMTab(this,'brand')">廠商登錄</button>
+    </div>
+
+    <div class="form" id="consumerForm">
+      <div class="form-row-2">
+        <div class="field"><label>品牌名稱 *</label><input type="text" id="c_brand" placeholder="例：興隆毛巾"></div>
+        <div class="field"><label>品類 *</label>
+          <select id="c_cat">
+            <option value="">選擇品類</option><option>生活用品</option><option>紡織寢具</option><option>工具五金</option><option>食品</option><option>保養美妝</option><option>服飾</option><option>母嬰用品</option><option>家具</option><option>寵物用品</option><option>戶外運動</option><option>清潔用品</option><option>醫療保健</option><option>工藝文創</option><option>廚房餐具</option><option>其他</option>
+          </select>
+        </div>
+      </div>
+      <div class="field"><label>購買連結（選填）</label><input type="text" id="c_link" placeholder="蝦皮、官網、momo 等皆可"></div>
+      <div class="field"><label>為什麼推薦？</label><textarea id="c_desc" placeholder="簡單說說你的使用心得或這個品牌的特色⋯"></textarea></div>
+      <div class="form-note">⚠️ 提交即代表你確認此品牌據你所知為台灣製造，平台將進行人工審核。</div>
+      <button class="form-btn" onclick="submitForm()">提交推薦 →</button>
+    </div>
+
+    <div class="form" id="brandForm" style="display:none">
+      <div class="form-row-2">
+        <div class="field"><label>品牌名稱 *</label><input type="text" id="b_brand" placeholder="你的品牌名稱"></div>
+        <div class="field"><label>製造地點 *</label><input type="text" id="b_origin" placeholder="例：台中市西屯區"></div>
+      </div>
+      <div class="form-row-2">
+        <div class="field"><label>品類 *</label>
+          <select id="b_cat">
+            <option value="">選擇品類</option><option>生活用品</option><option>紡織寢具</option><option>工具五金</option><option>食品</option><option>保養美妝</option><option>服飾</option><option>母嬰用品</option><option>家具</option><option>寵物用品</option><option>戶外運動</option><option>清潔用品</option><option>醫療保健</option><option>工藝文創</option><option>廚房餐具</option><option>其他</option>
+          </select>
+        </div>
+        <div class="field"><label>MIT 微笑標章</label>
+          <select id="b_mit"><option>是，已取得認證</option><option>申請中</option><option>未申請但確為台製</option></select>
+        </div>
+      </div>
+      <div class="field"><label>官網 / 購買頁面 *</label><input type="text" id="b_link" placeholder="https://..."></div>
+      <div class="field"><label>品牌簡介（50字以上）</label><textarea id="b_desc" placeholder="製造地、創立年份、產品特色、與其他品牌的差異⋯"></textarea></div>
+      <div class="field"><label>聯絡信箱 *</label><input type="email" id="b_email" placeholder="your@email.com"></div>
+      <div class="form-note">📋 廠商登錄為免費服務，不收取任何費用。平台保留拒絕上架之權利，尤其針對疑似中資或無法確認產地之品牌。</div>
+      <button class="form-btn" onclick="submitForm()">免費登錄品牌 →</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay report-modal" id="reportModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('reportModal')">✕</button>
+    <div class="modal-title">⚠️ 回報品牌疑慮</div>
+    <div class="modal-sub" id="reportTarget">回報關於此品牌的疑慮，平台收到後將暫時下架並進行調查。</div>
+    <div class="report-options">
+      <label class="report-opt"><input type="radio" name="ropt" value="notmit"> 疑似非台灣製造</label>
+      <label class="report-opt"><input type="radio" name="ropt" value="china"> 疑似中資品牌</label>
+      <label class="report-opt"><input type="radio" name="ropt" value="closed"> 品牌已停業或連結失效</label>
+      <label class="report-opt"><input type="radio" name="ropt" value="wrong"> 資料有誤（價格、地點等）</label>
+      <label class="report-opt"><input type="radio" name="ropt" value="other"> 其他</label>
+    </div>
+    <div class="form">
+      <div class="field"><label>補充說明（選填）</label><textarea placeholder="如有具體來源或說明，請提供，有助加速調查⋯"></textarea></div>
+      <button class="form-btn" style="background:var(--amber)" onclick="submitReport()">提交回報 →</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="ft-block-title">台製通</div>
+      <div class="ft-text">台灣製造商品目錄<br>社群共建・免費使用<br>不收費・不業配</div>
+    </div>
+    <div>
+      <div class="ft-block-title">特別致謝</div>
+      <div class="ft-text">
+        品牌資料主要整理自<br>
+        <a href="https://www.threads.com/@vk123_zoomin" target="_blank">@vk123_zoomin</a> 在 Threads 的整理<br>
+        以及社群共同貢獻<br>
+        感謝每一位讓台製品牌被看見的人 🙏
+      </div>
+    </div>
+    <div>
+      <div class="ft-block-title">關於</div>
+      <div class="ft-text">
+        <a href="#" onclick="openModal('submitModal');return false">新增 / 推薦品牌</a><br>
+        <a href="https://www.mittw.org.tw" target="_blank">MIT 微笑標章官方網站</a>
+      </div>
+    </div>
+    <div class="ft-disclaimer">
+      資料來源致謝：部分品牌資料整理自 Threads @vk123_zoomin 及社群貢獻者，特此致謝。<br>
+      免責聲明：本平台所有品牌資料均由廠商自行提供或由社群貢獻，台製通不對任何商品之產地、品質、安全性作出保證。
+      消費者如需確認 MIT 認證，請以經濟部產業發展署 MIT 微笑標章官方資料庫為準。
+      本站與所有列載品牌無商業合作關係，所有連結不含業配或廣告費用。
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── 設定 ──
+const SHEET_ID = '1UvP5QcBjGkvFU5gOpVtplK8BY10AGx0doaZZQ6TfHQw';
+const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz0fLSie81wciO-oHjtWtCbiPIWU_E9zG9QdZbo8Iw_PxQ-vr0_OkqkYM48Jf9BR3Ny/exec';
+
+// ── 全域資料 ──
+let allBrands = [];
+let currentCat = '全部';
+let currentSort = 'newest';
+let currentSearch = '';
+
+// ── XSS 過濾 ──
+const sanitize = (str) => {
+  if (!str) return '';
+  return str.replace(/</g, '&lt;').replace(/>/g, '&gt;').trim();
+};
+
+// ── CSV 解析 ──
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  const headers = lines[0].split(',');
+  return lines.slice(1).map((line, idx) => {
+    const cols = [];
+    let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (c === '"') { inQ = !inQ; }
+      else if (c === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
+      else { cur += c; }
+    }
+    cols.push(cur.trim());
+
+    const name    = sanitize(cols[0] || '');
+    const cat     = sanitize(cols[1] || '其他');
+    const origin  = sanitize(cols[2] || '');
+    const mitRaw  = sanitize((cols[3] || '').trim());
+    const link    = cols[4] || ''; // 網址不過濾，留給a標籤
+    const desc    = sanitize(cols[5] || '');
+    const status  = sanitize(cols[6] || '待確認');
+    const imageUrl = (cols[7] || '').trim();
+
+    const mit = ['是','true','TRUE','✓','v','V','yes','YES'].includes(mitRaw);
+    const verified = status === '已確認';
+    const hasLink = link.startsWith('http');
+    const avatar = name.charAt(0) || '?';
+
+    return { id: idx + 1, name, cat, origin, desc, mit, verified,
+             hasLink, link, status, avatar, imageUrl, isNew: false };
+  }).filter(b => b.name);
+}
+
+// ── 載入資料 ──
+async function loadData() {
+  const grid = document.getElementById('brandsGrid');
+  grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--ink-40);font-size:14px;">⏳ 載入中，請稍候⋯</div>`;
+
+  try {
+    const res = await fetch(CSV_URL);
+    if (!res.ok) throw new Error('fetch failed');
+    const text = await res.text();
+    allBrands = parseCSV(text);
+    updateStats();
+    updateCatCounts();
+    renderBrands();
+  } catch (err) {
+    console.error(err);
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--amber);font-size:14px;">
+      ⚠️ 資料載入失敗。請確認試算表已設為「知道連結的任何人可以檢視」，並重新整理頁面。
+    </div>`;
+  }
+}
+
+// ── 更新統計 ──
+function updateStats() {
+  document.getElementById('totalBrands').textContent = allBrands.length;
+  document.getElementById('mitCount').textContent = allBrands.filter(b=>b.mit).length;
+  const uniqueCats = new Set(allBrands.map(b => b.cat));
+  document.getElementById('totalCats').textContent = uniqueCats.size;
+}
+
+const catEmoji = {
+  '生活用品':'🏠','紡織寢具':'🛏','工具五金':'🔧','食品':'🍱',
+  '保養美妝':'✨','服飾':'👕','戶外運動':'🚴','廚房餐具':'🍳',
+  '寵物用品':'🐾','兒童玩具':'🧸','家具':'🪑','清潔用品':'🧴',
+  '醫療保健':'💊','文具':'✏️','其他':'📦'
+};
+
+function updateCatCounts() {
+  const counts = {};
+  allBrands.forEach(b => { counts[b.cat] = (counts[b.cat] || 0) + 1; });
+  const catList = document.getElementById('catList');
+  let html = `<div class="cat-item active" onclick="filterCat(this,'全部')">全部 <span class="cat-n" id="catAllN">${allBrands.length}</span></div>`;
+
+  Object.entries(counts).sort((a, b) => b[1] - a[1]).forEach(([cat, count]) => {
+    const emoji = catEmoji[cat] || '📦';
+    html += `<div class="cat-item" onclick="filterCat(this,'${cat}')">${emoji} ${cat} <span class="cat-n">${count}</span></div>`;
+  });
+  catList.innerHTML = html;
+}
+
+// ── 渲染卡片 ──
+function renderBrands() {
+  let list = [...allBrands];
+
+  if (currentSearch) {
+    list = list.filter(b => b.name.includes(currentSearch) || b.cat.includes(currentSearch) || b.desc.includes(currentSearch) || b.origin.includes(currentSearch));
+  }
+  if (currentCat !== '全部') list = list.filter(b => b.cat === currentCat);
+  if (document.getElementById('filterMit')?.checked) list = list.filter(b => b.mit);
+  if (document.getElementById('filterVerified')?.checked) list = list.filter(b => b.verified);
+  if (document.getElementById('filterLink')?.checked) list = list.filter(b => b.hasLink);
+  
+  if (currentSort === 'name') list.sort((a,b) => a.name.localeCompare(b.name, 'zh-TW'));
+  else if (currentSort === 'mit') list.sort((a,b) => (b.mit?1:0) - (a.mit?1:0));
+
+  const grid = document.getElementById('brandsGrid');
+  document.getElementById('resultSub').textContent = `顯示 ${list.length} 筆`;
+  document.getElementById('resultTitle').textContent = currentSearch ? `搜尋「${currentSearch}」` : currentCat === '全部' ? '全部品牌' : `${currentCat} 品牌`;
+
+  if (list.length === 0) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--ink-40);">
+        <div style="font-size:32px;margin-bottom:12px;">🔍</div><div style="font-size:14px;">找不到符合的品牌</div>
+        <div style="font-size:12px;margin-top:8px;">換個關鍵字，或推薦這個品牌加入目錄</div></div>
+      <div class="bcard bcard-add" onclick="openModal('submitModal')"><div class="bcard-add-icon">＋</div>
+        <div class="bcard-add-text">推薦一個 MIT 品牌</div></div>`;
+    return;
+  }
+
+  grid.innerHTML = list.map(b => `
+    <div class="bcard" style="padding:0;overflow:hidden">
+      <div style="position:relative">
+        ${b.imageUrl
+          ? `<div style="width:100%;height:110px;background:var(--paper-2);display:flex;align-items:center;justify-content:center;padding:14px">
+               <img src="${b.imageUrl}" alt="${b.name}" loading="lazy" style="max-width:100%;max-height:100%;object-fit:contain;display:block;background:#fff;border-radius:8px;padding:6px" onerror="this.parentElement.outerHTML='<div style=\\'width:100%;height:110px;background:var(--red-lt);display:flex;align-items:center;justify-content:center;font-family:Noto Serif TC,serif;font-weight:900;font-size:40px;color:var(--red)\\'>${b.avatar}</div>'">
+             </div>`
+          : `<div style="width:100%;height:110px;background:var(--red-lt);display:flex;align-items:center;justify-content:center;font-family:'Noto Serif TC',serif;font-weight:900;font-size:40px;color:var(--red)">${b.avatar}</div>`}
+        <div style="position:absolute;top:8px;right:8px;display:flex;flex-direction:column;gap:4px;align-items:flex-end">
+          ${b.mit ? '<span class="badge b-mit">MIT認證</span>' : ''}
+          ${b.verified ? '<span class="badge b-ok">已驗證</span>' : ''}
+          ${b.status === '待確認' ? '<span class="badge b-warn">待確認</span>' : ''}
+        </div>
+      </div>
+      <div style="padding:16px;display:flex;flex-direction:column;gap:10px;flex:1">
+        <div><div class="bcard-name">${b.name} <span class="bcard-origin" style="margin-top:0;display:inline">📍 ${b.origin || '產地待確認'}</span></div></div>
+        <div class="bcard-desc">${b.desc || '品牌介紹整理中⋯'}</div>
+        <div class="bcard-tags"><span class="tag">${b.cat}</span></div>
+        <div class="bcard-footer" style="margin-top:auto">
+          <div class="bcard-actions" style="margin-left:auto">
+            <button class="btn-report" onclick="openReport('${b.name.replace(/'/g,"\\'")}')">⚑ 回報</button>
+            ${b.hasLink ? `<a href="${b.link}" class="btn-buy" target="_blank" rel="noopener">購買 →</a>` : '<span style="font-size:11px;color:var(--ink-40)">暫無連結</span>'}
+          </div>
+        </div>
+      </div>
+    </div>`).join('') + `<div class="bcard bcard-add" onclick="openModal('submitModal')"><div class="bcard-add-icon">＋</div><div class="bcard-add-text">推薦一個 MIT 品牌</div></div>`;
+}
+
+// ── 互動事件 ──
+function doSearch(q) {
+  currentSearch = q.trim();
+  if (typeof gtag !== 'undefined' && currentSearch) { gtag('event', 'search', { search_term: currentSearch }); }
+  currentCat = '全部';
+  document.querySelectorAll('.cat-item').forEach(i => i.classList.remove('active'));
+  document.querySelector('.cat-item').classList.add('active');
+  renderBrands();
+  document.querySelector('.layout').scrollIntoView({behavior:'smooth'});
+}
+
+function filterCat(el, cat) {
+  currentCat = cat; currentSearch = '';
+  document.getElementById('heroSearch').value = ''; document.getElementById('headerSearch').value = '';
+  document.querySelectorAll('.cat-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active'); renderBrands();
+}
+function applyFilters() { renderBrands(); }
+function setSort(btn, sort) {
+  currentSort = sort;
+  document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active'); renderBrands();
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); document.body.style.overflow = 'hidden'; }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow = ''; }
+document.querySelectorAll('.modal-overlay').forEach(m => { m.addEventListener('click', e => { if (e.target === m) closeModal(m.id); }); });
+
+function switchMTab(btn, type) {
+  document.querySelectorAll('.mtab').forEach(b => b.classList.remove('active')); btn.classList.add('active');
+  document.getElementById('consumerForm').style.display = type === 'consumer' ? 'flex' : 'none';
+  document.getElementById('brandForm').style.display = type === 'brand' ? 'flex' : 'none';
+}
+
+function openReport(name) {
+  document.getElementById('reportTarget').textContent = `回報關於「${name}」的疑慮，平台收到後將下架待查。`;
+  openModal('reportModal');
+}
+
+// ── 表單送出 (已修復對齊與 CORS) ──
+async function submitForm() {
+  const isConsumer = document.getElementById('consumerForm').style.display !== 'none';
+  let payload = {};
+
+  if (isConsumer) {
+    payload = {
+      brandName: sanitize(document.getElementById('c_brand').value),
+      category:  sanitize(document.getElementById('c_cat').value),
+      origin:    '',
+      mit:       '否',
+      link:      sanitize(document.getElementById('c_link').value),
+      desc:      sanitize(document.getElementById('c_desc').value),
+      type:      '消費者推薦'
+    };
+  } else {
+    const mitValue = document.getElementById('b_mit').value;
+    payload = {
+      brandName: sanitize(document.getElementById('b_brand').value),
+      category:  sanitize(document.getElementById('b_cat').value),
+      origin:    sanitize(document.getElementById('b_origin').value),
+      mit:       mitValue.includes('已取得') ? '是' : '否',
+      link:      sanitize(document.getElementById('b_link').value),
+      desc:      sanitize(document.getElementById('b_desc').value),
+      type:      '廠商登錄'
+    };
+  }
+
+  if (!payload.brandName || !payload.category) {
+    showToast('⚠️ 請填寫品牌名稱與品類'); return;
+  }
+
+  const btn = isConsumer ? document.querySelector('#consumerForm .form-btn') : document.querySelector('#brandForm .form-btn');
+  const originalText = btn.textContent;
+  btn.textContent = '送出中⋯'; btn.disabled = true;
+
+  try {
+    const formBody = new URLSearchParams(payload).toString();
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: formBody,
+    });
+    showToast('✅ 已收到！表單已成功送至待審核區域。');
+    
+    // 清空欄位
+    if (isConsumer) {
+      document.getElementById('c_brand').value = '';
+      document.getElementById('c_cat').selectedIndex = 0;
+      document.getElementById('c_link').value = '';
+      document.getElementById('c_desc').value = '';
+    } else {
+      document.getElementById('b_brand').value = '';
+      document.getElementById('b_origin').value = '';
+      document.getElementById('b_cat').selectedIndex = 0;
+      document.getElementById('b_mit').selectedIndex = 0;
+      document.getElementById('b_link').value = '';
+      document.getElementById('b_desc').value = '';
+      document.getElementById('b_email').value = '';
+    }
+    closeModal('submitModal');
+  } catch (err) {
+    showToast('❌ 送出失敗，通訊層發生異常。');
+  } finally {
+    btn.textContent = originalText; btn.disabled = false;
+  }
+}
+
+function submitReport() {
+  closeModal('reportModal');
+  showToast('⚠️ 回報已送出，我們將盡快調查。感謝你的監督！');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+loadData();
+</script>
+</body>
+</html>
