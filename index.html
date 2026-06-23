@@ -83,7 +83,19 @@ nav{display:flex;gap:4px;align-items:center}
 
 /* ── LAYOUT ── */
 .layout{max-width:1200px;margin:0 auto;padding:32px 24px;display:grid;grid-template-columns:220px 1fr;gap:28px;align-items:start}
-@media(max-width:768px){.layout{grid-template-columns:1fr}.sidebar{display:none}}
+
+/* --- 手機版橫向導覽列修復補丁 --- */
+@media(max-width:768px){
+  .layout { grid-template-columns: 1fr; padding-top: 16px; }
+  .sidebar { position: static; display: block; }
+  .sidebar-block { padding: 0; border: none; background: transparent; margin-bottom: 12px; }
+  .sb-title, .filter-group, .disclaimer { display: none; }
+  .cat-list { flex-direction: row; overflow-x: auto; padding-bottom: 4px; gap: 8px; scrollbar-width: none; }
+  .cat-list::-webkit-scrollbar { display: none; }
+  .cat-item { white-space: nowrap; background: var(--white); border: 1px solid var(--ink-15); padding: 8px 14px; border-radius: 20px; }
+  .cat-item.active { background: var(--red); color: var(--white); border-color: var(--red); }
+  .cat-item.active .cat-n { color: rgba(255,255,255,0.7); }
+}
 
 /* ── SIDEBAR ── */
 .sidebar{position:sticky;top:74px}
@@ -242,7 +254,7 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
   <div class="hero-inner">
     <div class="hero-pill"><span class="hero-dot"></span>社群共建・持續更新</div>
     <h1>找台灣製造<br><em>不用再估狗</em></h1>
-    <p class="hero-sub">台灣製造商品目錄。消費者找得到，廠商被找到。<br>不收費、不業配，僅收錄確認為台灣製造之品牌。</p>
+    <p class="hero-sub">社群把關的台灣製造目錄。<br>消費者找得到，好工廠被看見。不收費、不業配，為你整理看得見產地的台灣好物。</p>
     <div class="hero-search">
       <input type="text" id="heroSearch" placeholder="你想找什麼？例如：手工皂、童鞋、保養品、帆布包⋯" onkeypress="if(event.key==='Enter')doSearch(this.value)">
       <button class="hero-search-btn" onclick="doSearch(document.getElementById('heroSearch').value)">搜尋 →</button>
