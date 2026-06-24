@@ -481,19 +481,19 @@ function parseCSV(text) {
     const desc    = sanitize(cols[5] || '');
     const status  = sanitize(cols[6] || '待確認');
     
-    // 🛡️ 終極無痕模式與破圖剋星：自動洗白並掛上隱形代理
+   // 🛡️ 終極版：回歸純淨 Clearbit，善用超美字母卡防呆機制
     const imageUrlRaw = (cols[7] || '').trim();
     let imageUrl = imageUrlRaw;
-    let targetDomain = '';
     
-    // 抓出真實的網域 (無論資料庫存的是 Clearbit 還是 Google 版)
-    if (imageUrl.includes('logo.clearbit.com')) {
-      targetDomain = imageUrl.split('logo.clearbit.com/')[1]?.split('?')[0];
-    } else if (imageUrl.includes('www.google.com/s2/favicons')) {
+    // 如果舊資料庫存的是會變成「醜醜破地球」的 Google 網址，我們把它洗回 Clearbit
+    if (imageUrl.includes('www.google.com/s2/favicons')) {
       const urlParams = new URLSearchParams(imageUrl.split('?')[1]);
-      targetDomain = urlParams.get('domain');
+      const targetDomain = urlParams.get('domain');
+      if (targetDomain) {
+        imageUrl = 'https://logo.clearbit.com/' + targetDomain;
+      }
     }
-
+    // 隱形代理伺服器已被移除，直接讓 Adblock 攔截並觸發我們漂亮的 64px 字母卡！
     if (targetDomain) {
       // 透過 wsrv.nl 代理伺服器包裝：
       // 1. 完美躲避 Adblock 無痕攔截。
