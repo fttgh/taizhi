@@ -493,13 +493,52 @@ function parseCSV(text) {
         imageUrl = 'https://logo.clearbit.com/' + targetDomain;
       }
     }
-    // 隱形代理伺服器已被移除，直接讓 Adblock 攔截並觸發我們漂亮的 64px 字母卡！
-    if (targetDomain) {
-      // 透過 wsrv.nl 代理伺服器包裝：
-      // 1. 完美躲避 Adblock 無痕攔截。
-      // 2. 找不到 Logo 時會正確觸發 404，讓備用的漂亮字母卡順利登場！
-      imageUrl = `https://wsrv.nl/?url=logo.clearbit.com/${targetDomain}`;
+   // ── CSV 解析 ──
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  const headers = lines[0].split(',');
+  return lines.slice(1).map((line, idx) => {
+    const cols = [];
+    let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (c === '"') { inQ = !inQ; }
+      else if (c === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
+      else { cur += c; }
     }
+    cols.push(cur.trim());
+
+    const name    = sanitize(cols[0] || '');
+    const cat     = sanitize(cols[1] || '其他');
+    const origin  = sanitize(cols[2] || '');
+    const mitRaw  = sanitize((cols[3] || '').trim());
+    const link    = cols[4] || ''; 
+    const desc    = sanitize(cols[5] || '');
+    const status  = sanitize(cols[6] || '待確認');
+    
+    // 🛡️ 終極版：回歸純淨 Clearbit，善用超美字母卡防呆機制
+    const imageUrlRaw = (cols[7] || '').trim();
+    let imageUrl = imageUrlRaw;
+    
+    // 如果舊資料庫存的是會變成「醜醜破地球」的 Google 網址，我們把它洗回 Clearbit
+    if (imageUrl.includes('www.google.com/s2/favicons')) {
+      const urlParams = new URLSearchParams(imageUrl.split('?')[1]);
+      const targetDomain = urlParams.get('domain');
+      if (targetDomain) {
+        imageUrl = 'https://logo.clearbit.com/' + targetDomain;
+      }
+    }
+    // (代理伺服器已徹底拔除，程式碼乾淨溜溜)
+
+    const mit = ['是','true','TRUE','✓','v','V','yes','YES'].includes(mitRaw);
+    const verified = status === '已確認';
+    const hasLink = link.startsWith('http');
+    const avatar = name.charAt(0) || '?';
+
+    return { id: idx + 1, name, cat, origin, desc, mit, verified,
+             hasLink, link, status, avatar, imageUrl, isNew: false };
+  }).filter(b => b.name);
+}
 
     const mit = ['是','true','TRUE','✓','v','V','yes','YES'].includes(mitRaw);
     const verified = status === '已確認';
