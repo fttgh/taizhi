@@ -404,7 +404,7 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
         品牌資料主要整理自<br>
         <a href="https://www.threads.com/@vk123_zoomin" target="_blank">@vk123_zoomin</a> 在 Threads 的整理<br>
         以及社群共同貢獻<br>
-        感謝每一位讓台製品牌被看見的人 🙏
+        感謝每一位讓台製通被看見的人 🙏
       </div>
     </div>
     <div>
@@ -462,10 +462,20 @@ function parseCSV(text) {
     const cat     = sanitize(cols[1] || '其他');
     const origin  = sanitize(cols[2] || '');
     const mitRaw  = sanitize((cols[3] || '').trim());
-    const link    = cols[4] || ''; // 網址不過濾，留給a標籤
+    const link    = cols[4] || ''; 
     const desc    = sanitize(cols[5] || '');
     const status  = sanitize(cols[6] || '待確認');
-    const imageUrl = (cols[7] || '').trim();
+    
+    // 🛡️ 無痕模式剋星：自動將舊資料庫裡的 Clearbit 網址轉換為 Google 官方圖庫
+    const imageUrlRaw = (cols[7] || '').trim();
+    let imageUrl = imageUrlRaw;
+    if (imageUrl.includes('logo.clearbit.com')) {
+      let domain = imageUrl.split('logo.clearbit.com/')[1];
+      if (domain) {
+        domain = domain.split('?')[0]; 
+        imageUrl = 'https://www.google.com/s2/favicons?domain=' + domain + '&sz=256';
+      }
+    }
 
     const mit = ['是','true','TRUE','✓','v','V','yes','YES'].includes(mitRaw);
     const verified = status === '已確認';
@@ -558,10 +568,10 @@ function renderBrands() {
     <div class="bcard" style="padding:0;overflow:hidden">
       <div style="position:relative">
         ${b.imageUrl
-          ? `<div style="width:100%;height:140px;background:var(--white);border-bottom:1px solid var(--ink-15);display:flex;align-items:center;justify-content:center;padding:12px">
-               <img src="${b.imageUrl}" alt="${b.name}" loading="lazy" style="width:100%;height:100%;object-fit:contain;display:block;" onerror="this.parentElement.outerHTML='<div style=\\'width:100%;height:140px;background:var(--red-lt);display:flex;align-items:center;justify-content:center;font-family:Noto Serif TC,serif;font-weight:900;font-size:40px;color:var(--red)\\'>${b.avatar}</div>'">
+          ? `<div style="width:100%;height:140px;background:var(--white);border-bottom:1px solid var(--ink-15);display:flex;align-items:center;justify-content:center;padding:6px">
+               <img src="${b.imageUrl}" alt="${b.name}" loading="lazy" style="width:100%;height:100%;object-fit:contain;display:block;" onerror="this.parentElement.outerHTML='<div style=\\'width:100%;height:140px;background:var(--red-lt);display:flex;align-items:center;justify-content:center;font-family:Noto Serif TC,serif;font-weight:900;font-size:64px;color:var(--red)\\'>${b.avatar}</div>'">
              </div>`
-          : `<div style="width:100%;height:140px;background:var(--red-lt);display:flex;align-items:center;justify-content:center;font-family:'Noto Serif TC',serif;font-weight:900;font-size:40px;color:var(--red)">${b.avatar}</div>`}
+          : `<div style="width:100%;height:140px;background:var(--red-lt);display:flex;align-items:center;justify-content:center;font-family:'Noto Serif TC',serif;font-weight:900;font-size:64px;color:var(--red)">${b.avatar}</div>`}
         <div style="position:absolute;top:8px;right:8px;display:flex;flex-direction:column;gap:4px;align-items:flex-end">
           ${b.mit ? '<span class="badge b-mit">MIT認證</span>' : ''}
           ${b.verified ? '<span class="badge b-ok">已驗證</span>' : ''}
