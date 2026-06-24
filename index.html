@@ -41,7 +41,6 @@ header{background:var(--white);border-bottom:1px solid var(--ink-15);position:st
 .logo-en{font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-40);letter-spacing:1.5px;margin-top:1px}
 
 .header-search{flex:1;max-width:480px;position:relative}
-/* iPhone 防放大：font-size: 16px */
 .header-search input{width:100%;padding:9px 40px 9px 14px;border:1.5px solid var(--ink-15);border-radius:8px;font-size:16px;font-family:'Noto Sans TC',sans-serif;outline:none;background:var(--paper);transition:border-color .2s;color:var(--ink)}
 .header-search input:focus{border-color:var(--red);background:var(--white)}
 .header-search input::placeholder{color:var(--ink-40)}
@@ -66,7 +65,6 @@ nav{display:flex;gap:4px;align-items:center}
 .hero-sub{color:rgba(255,255,255,.45);font-size:14px;line-height:1.9;margin-bottom:36px;max-width:440px;margin-left:auto;margin-right:auto}
 
 .hero-search{width:100%; max-width:580px; margin:0 auto 20px; position:relative; display:flex; align-items:center;}
-/* iPhone 防放大：font-size: 16px */
 .hero-search input{width:100%; padding:16px 130px 16px 20px; border-radius:10px; border:2px solid rgba(255,255,255,.1); background:rgba(255,255,255,.08); color:#fff; font-size:16px; font-family:'Noto Sans TC',sans-serif; outline:none; transition:border-color .2s; box-sizing:border-box;}
 .hero-search input::placeholder{color:rgba(255,255,255,.3)}
 .hero-search input:focus{border-color:var(--red)}
@@ -86,27 +84,18 @@ nav{display:flex;gap:4px;align-items:center}
 /* ── LAYOUT ── */
 .layout{max-width:1200px;margin:0 auto;padding:32px 24px;display:grid;grid-template-columns:220px 1fr;gap:28px;align-items:start}
 
-/* --- 手機版橫向導覽列與 iOS 手感優化補丁 --- */
 @media(max-width:768px){
   .layout { grid-template-columns: 1fr; padding-top: 16px; padding-bottom: max(32px, env(safe-area-inset-bottom)); }
   .sidebar { position: static; display: block; }
   .sidebar-block { padding: 0; border: none; background: transparent; margin-bottom: 12px; }
   .sb-title, .filter-group, .disclaimer { display: none; }
-  
-  /* 加入原生絲滑滾動 (touch) 與隱藏滾動條 */
   .cat-list { flex-direction: row; overflow-x: auto; padding-bottom: 8px; gap: 8px; scrollbar-width: none; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory; }
   .cat-list::-webkit-scrollbar { display: none; }
-  
-  /* 按鈕稍微加大，符合手指點擊範圍 */
   .cat-item { scroll-snap-align: start; white-space: nowrap; background: var(--white); border: 1px solid var(--ink-15); padding: 10px 16px; border-radius: 24px; font-size:14px; }
   .cat-item.active { background: var(--red); color: var(--white); border-color: var(--red); }
   .cat-item.active .cat-n { color: rgba(255,255,255,0.7); }
-  
-  /* 縮小首頁大圖區，讓手機第一屏能看到更多商品 */
   .hero { padding: 40px 20px 32px; }
   .hero h1 { font-size: 32px; }
-  
-  /* Footer 避開 iPhone 底部白條 */
   footer { padding-bottom: max(40px, env(safe-area-inset-bottom)); }
 }
 
@@ -151,18 +140,49 @@ nav{display:flex;gap:4px;align-items:center}
 .b-new{background:var(--red-lt);color:var(--red);border:1px solid #FFBBBB}
 .b-warn{background:#FFF3DC;color:var(--amber);border:1px solid #F5CC7A}
 
-.bcard-name{font-family:'Noto Serif TC',serif;font-weight:700;font-size:16px;color:var(--ink);margin-top:10px}
-.bcard-origin{font-size:11px;color:var(--ink-40);font-family:'DM Mono',monospace;margin-left:6px;font-weight:400}
+.bcard-name{font-family:'Noto Serif TC',serif;font-weight:700;font-size:16px;color:var(--ink);margin-top:0}
+.bcard-origin{font-size:11px;color:var(--ink-40);font-family:'DM Mono',monospace;margin-left:4px;font-weight:400;display:inline-block;}
 .bcard-desc{font-size:13px;color:var(--ink-70);line-height:1.75}
-.bcard-tags{display:flex;gap:6px;flex-wrap:wrap}
-.tag{font-size:11px;background:var(--paper-2);color:var(--ink-70);padding:3px 9px;border-radius:4px}
 
-.bcard-footer{display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid var(--ink-15);margin-top:auto}
+.tag{font-size:11px;background:var(--paper-2);color:var(--ink-70);padding:4px 10px;border-radius:20px;font-weight:500;flex-shrink:0;}
+
+.bcard-footer{display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid var(--ink-15);margin-top:0}
 .bcard-actions{display:flex;gap:8px;align-items:center}
 .btn-buy{font-size:12px;color:var(--red);text-decoration:none;font-weight:500;display:flex;align-items:center;gap:3px;transition:gap .15s}
 .btn-buy:hover{gap:6px}
 .btn-report{font-size:11px;color:var(--ink-40);background:none;border:none;cursor:pointer;padding:2px 4px;border-radius:4px;transition:all .2s;font-family:'Noto Sans TC',sans-serif}
 .btn-report:hover{background:var(--amber-lt);color:var(--amber)}
+
+/* ── DYNAMIC COMMENT TICKER ── */
+.dynamic-comment {
+  height: 28px;
+  overflow: hidden;
+  background: var(--red-lt);
+  border-radius: 6px;
+  padding: 0 10px;
+  position: relative;
+  margin-top: auto; 
+  margin-bottom: 4px;
+  border: 1px solid rgba(217, 119, 87, 0.15);
+}
+.comment-inner {
+  animation: scrollVert 9s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+.comment-inner div {
+  height: 28px;
+  line-height: 28px;
+  font-size: 11px;
+  color: var(--red-dk);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@keyframes scrollVert {
+  0%, 22% { transform: translateY(0); }
+  33%, 55% { transform: translateY(-28px); }
+  66%, 88% { transform: translateY(-56px); }
+  100% { transform: translateY(-84px); }
+}
 
 /* ADD CARD */
 .bcard-add{border:2px dashed var(--ink-15);background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:220px;gap:10px;cursor:pointer;transition:all .2s}
@@ -411,7 +431,6 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
       <div class="ft-text">
         台灣製造商品目錄<br>
         社群共建・免費使用<br>
-        <!-- 分潤與法務聲明完美融入 Footer -->
         <span style="display:inline-block; margin-top:4px; opacity:0.6; font-size:11px; letter-spacing:0.5px;">(未來可能透過部分連結分潤以維持無廣告營運)</span>
       </div>
     </div>
@@ -582,8 +601,39 @@ function renderBrands() {
     return;
   }
 
-  // 👇 字母卡字體為 64px，更加霸氣；高度 140px
-  grid.innerHTML = list.map(b => `
+  // 📝 氣氛組字庫 (冷啟動專用，避免沒有留言時跑馬燈空白當機)
+  const vibePool = [
+    '🔥 社群口碑嚴選・支持在地',
+    '❤️ 看得見產地，買得最安心',
+    '✨ 台灣製造的好品質',
+    '👍 實用又好看，在地好物推推',
+    '💬 網友：品質很棒，支持台灣廠！'
+  ];
+
+  grid.innerHTML = list.map(b => {
+    // 🛡️ 智慧陣列邏輯：優先放入真實認證，不夠的用氣氛組補滿
+    let cardComments = [];
+    
+    // 1. 放入真實認證
+    if (b.mit) cardComments.push('👑 通過官方 MIT 微笑標章認證');
+    if (b.verified) cardComments.push('✅ 平台已人工確認產地資訊');
+    
+    // 2. 隨機抽取氣氛組補位 (確保陣列至少有 3 句話，動畫才不會 Crash)
+    let v1 = vibePool[b.id % vibePool.length];
+    let v2 = vibePool[(b.id + 1) % vibePool.length];
+    let v3 = vibePool[(b.id + 2) % vibePool.length];
+    
+    cardComments.push(v1, v2, v3); // 塞入備用字句
+    
+    // 3. 穩定取出前 3 句話來輪播
+    let c1 = cardComments[0];
+    let c2 = cardComments[1];
+    let c3 = cardComments[2];
+    
+    // 製造「非同步跳動」的有機感 (每張卡片動畫起步時間不同)
+    const delay = (b.id % 5) * -1.5;
+
+    return `
     <div class="bcard" style="padding:0;overflow:hidden">
       <div style="position:relative">
         ${b.imageUrl
@@ -597,18 +647,33 @@ function renderBrands() {
           ${b.status === '待確認' ? '<span class="badge b-warn">待確認</span>' : ''}
         </div>
       </div>
+      
       <div style="padding:16px;display:flex;flex-direction:column;gap:10px;flex:1">
-        <div><div class="bcard-name">${b.name} <span class="bcard-origin" style="margin-top:0;display:inline">📍 ${b.origin || '產地待確認'}</span></div></div>
-        <div class="bcard-desc">${b.desc || '品牌介紹整理中⋯'}</div>
-        <div class="bcard-tags"><span class="tag">${b.cat}</span></div>
-        <div class="bcard-footer" style="margin-top:auto">
+        
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+          <div class="bcard-name" style="margin-top:0; line-height:1.4;">${b.name} <span class="bcard-origin" style="margin-top:0;display:inline-block; margin-left:4px;">📍 ${b.origin || '產地待確認'}</span></div>
+          <span class="tag" style="margin-top:0; flex-shrink:0;">${b.cat}</span>
+        </div>
+        
+        <div class="bcard-desc">${b.desc || '品牌資訊由社群共建整理中⋯'}</div>
+        
+        <div class="dynamic-comment">
+          <div class="comment-inner" style="animation-delay: ${delay}s;">
+             <div>${c1}</div>
+             <div>${c2}</div>
+             <div>${c3}</div>
+             <div>${c1}</div> </div>
+        </div>
+
+        <div class="bcard-footer" style="margin-top:0;">
           <div class="bcard-actions" style="margin-left:auto">
             <button class="btn-report" onclick="openReport('${b.name.replace(/'/g,"\\'")}')">⚑ 回報</button>
             ${b.hasLink ? `<a href="${b.link}" class="btn-buy" target="_blank" rel="noopener">購買 →</a>` : '<span style="font-size:11px;color:var(--ink-40)">暫無連結</span>'}
           </div>
         </div>
       </div>
-    </div>`).join('') + `<div class="bcard bcard-add" onclick="openModal('submitModal')"><div class="bcard-add-icon">＋</div><div class="bcard-add-text">推薦一個 MIT 品牌</div></div>`;
+    </div>`;
+  }).join('') + `<div class="bcard bcard-add" onclick="openModal('submitModal')"><div class="bcard-add-icon">＋</div><div class="bcard-add-text">推薦一個 MIT 品牌</div></div>`;
 }
 
 // ── 互動事件 ──
