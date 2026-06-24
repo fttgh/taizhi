@@ -41,6 +41,7 @@ header{background:var(--white);border-bottom:1px solid var(--ink-15);position:st
 .logo-en{font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-40);letter-spacing:1.5px;margin-top:1px}
 
 .header-search{flex:1;max-width:480px;position:relative}
+/* iPhone 防放大：font-size: 16px */
 .header-search input{width:100%;padding:9px 40px 9px 14px;border:1.5px solid var(--ink-15);border-radius:8px;font-size:16px;font-family:'Noto Sans TC',sans-serif;outline:none;background:var(--paper);transition:border-color .2s;color:var(--ink)}
 .header-search input:focus{border-color:var(--red);background:var(--white)}
 .header-search input::placeholder{color:var(--ink-40)}
@@ -65,6 +66,7 @@ nav{display:flex;gap:4px;align-items:center}
 .hero-sub{color:rgba(255,255,255,.45);font-size:14px;line-height:1.9;margin-bottom:36px;max-width:440px;margin-left:auto;margin-right:auto}
 
 .hero-search{width:100%; max-width:580px; margin:0 auto 20px; position:relative; display:flex; align-items:center;}
+/* iPhone 防放大：font-size: 16px */
 .hero-search input{width:100%; padding:16px 130px 16px 20px; border-radius:10px; border:2px solid rgba(255,255,255,.1); background:rgba(255,255,255,.08); color:#fff; font-size:16px; font-family:'Noto Sans TC',sans-serif; outline:none; transition:border-color .2s; box-sizing:border-box;}
 .hero-search input::placeholder{color:rgba(255,255,255,.3)}
 .hero-search input:focus{border-color:var(--red)}
@@ -481,44 +483,8 @@ function parseCSV(text) {
     const desc    = sanitize(cols[5] || '');
     const status  = sanitize(cols[6] || '待確認');
     
-   // 🛡️ 終極版：回歸純淨 Clearbit，善用超美字母卡防呆機制
-    const imageUrlRaw = (cols[7] || '').trim();
-    let imageUrl = imageUrlRaw;
-    
-    // 如果舊資料庫存的是會變成「醜醜破地球」的 Google 網址，我們把它洗回 Clearbit
-    if (imageUrl.includes('www.google.com/s2/favicons')) {
-      const urlParams = new URLSearchParams(imageUrl.split('?')[1]);
-      const targetDomain = urlParams.get('domain');
-      if (targetDomain) {
-        imageUrl = 'https://logo.clearbit.com/' + targetDomain;
-      }
-    }
-   // ── CSV 解析 ──
-function parseCSV(text) {
-  const lines = text.trim().split('\n');
-  const headers = lines[0].split(',');
-  return lines.slice(1).map((line, idx) => {
-    const cols = [];
-    let cur = '', inQ = false;
-    for (let i = 0; i < line.length; i++) {
-      const c = line[i];
-      if (c === '"') { inQ = !inQ; }
-      else if (c === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
-      else { cur += c; }
-    }
-    cols.push(cur.trim());
-
-    const name    = sanitize(cols[0] || '');
-    const cat     = sanitize(cols[1] || '其他');
-    const origin  = sanitize(cols[2] || '');
-    const mitRaw  = sanitize((cols[3] || '').trim());
-    const link    = cols[4] || ''; 
-    const desc    = sanitize(cols[5] || '');
-    const status  = sanitize(cols[6] || '待確認');
-    
     // 🛡️ 終極版：回歸純淨 Clearbit，善用超美字母卡防呆機制
-    const imageUrlRaw = (cols[7] || '').trim();
-    let imageUrl = imageUrlRaw;
+    let imageUrl = (cols[7] || '').trim();
     
     // 如果舊資料庫存的是會變成「醜醜破地球」的 Google 網址，我們把它洗回 Clearbit
     if (imageUrl.includes('www.google.com/s2/favicons')) {
@@ -528,17 +494,6 @@ function parseCSV(text) {
         imageUrl = 'https://logo.clearbit.com/' + targetDomain;
       }
     }
-    // (代理伺服器已徹底拔除，程式碼乾淨溜溜)
-
-    const mit = ['是','true','TRUE','✓','v','V','yes','YES'].includes(mitRaw);
-    const verified = status === '已確認';
-    const hasLink = link.startsWith('http');
-    const avatar = name.charAt(0) || '?';
-
-    return { id: idx + 1, name, cat, origin, desc, mit, verified,
-             hasLink, link, status, avatar, imageUrl, isNew: false };
-  }).filter(b => b.name);
-}
 
     const mit = ['是','true','TRUE','✓','v','V','yes','YES'].includes(mitRaw);
     const verified = status === '已確認';
@@ -627,7 +582,7 @@ function renderBrands() {
     return;
   }
 
-  // 👇 字母卡字體從 40px 加大到 64px，更加霸氣
+  // 👇 字母卡字體為 64px，更加霸氣；高度 140px
   grid.innerHTML = list.map(b => `
     <div class="bcard" style="padding:0;overflow:hidden">
       <div style="position:relative">
