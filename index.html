@@ -256,8 +256,7 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
     <h1>找台灣製造<br><em>不用再估狗</em></h1>
     <p class="hero-sub">
       社群把關的台灣製造目錄。<br>
-      無付費上架、無業配干預，為你整理看得見產地的台灣好物。<br>
-      <span style="display:inline-block; margin-top:8px; font-size:11px; opacity:0.65; letter-spacing:0.5px;">（本站未來可能透過部分連結獲得微薄分潤，以維持無廣告營運）</span>
+      無付費上架、無業配干預，看得見產地的台灣好物。
     </p>
     
     <div class="hero-search">
@@ -396,7 +395,12 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
   <div class="footer-inner">
     <div>
       <div class="ft-block-title">台製通</div>
-      <div class="ft-text">台灣製造商品目錄<br>社群共建・免費使用<br>不收費・不業配</div>
+      <div class="ft-text">
+        台灣製造商品目錄<br>
+        社群共建・免費使用<br>
+        <!-- 分潤與法務聲明完美融入 Footer -->
+        <span style="display:inline-block; margin-top:4px; opacity:0.6; font-size:11px; letter-spacing:0.5px;">(未來可能透過部分連結分潤以維持無廣告營運)</span>
+      </div>
     </div>
     <div>
       <div class="ft-block-title">特別致謝</div>
@@ -466,15 +470,24 @@ function parseCSV(text) {
     const desc    = sanitize(cols[5] || '');
     const status  = sanitize(cols[6] || '待確認');
     
-    // 🛡️ 無痕模式剋星：自動將舊資料庫裡的 Clearbit 網址轉換為 Google 官方圖庫
+    // 🛡️ 終極無痕模式與破圖剋星：自動洗白並掛上隱形代理
     const imageUrlRaw = (cols[7] || '').trim();
     let imageUrl = imageUrlRaw;
+    let targetDomain = '';
+    
+    // 抓出真實的網域 (無論資料庫存的是 Clearbit 還是 Google 版)
     if (imageUrl.includes('logo.clearbit.com')) {
-      let domain = imageUrl.split('logo.clearbit.com/')[1];
-      if (domain) {
-        domain = domain.split('?')[0]; 
-        imageUrl = 'https://www.google.com/s2/favicons?domain=' + domain + '&sz=256';
-      }
+      targetDomain = imageUrl.split('logo.clearbit.com/')[1]?.split('?')[0];
+    } else if (imageUrl.includes('www.google.com/s2/favicons')) {
+      const urlParams = new URLSearchParams(imageUrl.split('?')[1]);
+      targetDomain = urlParams.get('domain');
+    }
+
+    if (targetDomain) {
+      // 透過 wsrv.nl 代理伺服器包裝：
+      // 1. 完美躲避 Adblock 無痕攔截。
+      // 2. 找不到 Logo 時會正確觸發 404，讓備用的漂亮字母卡順利登場！
+      imageUrl = `https://wsrv.nl/?url=logo.clearbit.com/${targetDomain}`;
     }
 
     const mit = ['是','true','TRUE','✓','v','V','yes','YES'].includes(mitRaw);
@@ -564,6 +577,7 @@ function renderBrands() {
     return;
   }
 
+  // 👇 字母卡字體從 40px 加大到 64px，更加霸氣
   grid.innerHTML = list.map(b => `
     <div class="bcard" style="padding:0;overflow:hidden">
       <div style="position:relative">
