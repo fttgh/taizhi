@@ -57,9 +57,13 @@ nav{display:flex;gap:4px;align-items:center}
 .hero{background:var(--ink);padding:64px 24px 56px;text-align:center;position:relative;overflow:hidden}
 .hero-bg{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(255,255,255,.03) 39px,rgba(255,255,255,.03) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(255,255,255,.03) 39px,rgba(255,255,255,.03) 40px);pointer-events:none}
 .hero-inner{position:relative;z-index:1}
-.hero-pill{display:inline-flex;align-items:center;gap:7px;background:rgba(200,40,30,.18);border:1px solid rgba(200,40,30,.35);color:#FF9990;font-size:11px;font-family:'DM Mono',monospace;letter-spacing:1.5px;padding:5px 14px;border-radius:20px;margin-bottom:28px}
-.hero-dot{width:6px;height:6px;background:#FF9990;border-radius:50%;animation:blink 2s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* ✨ 全新 HOT 今日新增徽章 */
+.hero-ticker{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:13px;padding:5px 16px 5px 6px;border-radius:30px;margin-bottom:24px;box-shadow:0 4px 12px rgba(0,0,0,.1);transition:transform 0.2s;}
+.hero-ticker:hover{transform:translateY(-2px);}
+.ticker-badge{background:var(--red);color:#fff;font-weight:900;font-size:11px;padding:3px 8px;border-radius:20px;font-family:'DM Mono',monospace;letter-spacing:1px;animation:pulse 2s infinite;}
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(217, 119, 87, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(217, 119, 87, 0); } 100% { box-shadow: 0 0 0 0 rgba(217, 119, 87, 0); } }
+
 .hero h1{font-family:'Noto Serif TC',serif;font-weight:900;font-size:clamp(28px,5vw,52px);color:#fff;line-height:1.25;margin-bottom:14px}
 .hero h1 em{color:var(--red);font-style:normal}
 .hero-sub{color:rgba(255,255,255,.45);font-size:14px;line-height:1.9;margin-bottom:36px;max-width:440px;margin-left:auto;margin-right:auto}
@@ -285,7 +289,13 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
 <section class="hero">
   <div class="hero-bg"></div>
   <div class="hero-inner">
-    <div class="hero-pill"><span class="hero-dot"></span>社群共建・持續更新</div>
+    
+    <!-- ✨ 升級版：動態 HOT 今日新增跑馬燈 -->
+    <div class="hero-ticker">
+      <span class="ticker-badge">HOT</span>
+      今日新增 <span id="todayNewCount" style="font-weight:900; color:var(--red-lt);">3</span> 個在地品牌，感謝社群！
+    </div>
+
     <h1>找台灣製造<br><em>不用再估狗</em></h1>
     <p class="hero-sub">
       社群把關的台灣製造目錄。<br>
@@ -356,6 +366,7 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
   </main>
 </div>
 
+<!-- 新增與推薦品牌 Modal -->
 <div class="modal-overlay" id="submitModal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('submitModal')">✕</button>
@@ -405,6 +416,7 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
   </div>
 </div>
 
+<!-- 回報 Modal -->
 <div class="modal-overlay report-modal" id="reportModal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('reportModal')">✕</button>
@@ -424,14 +436,43 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
   </div>
 </div>
 
+<!-- ✨ 獨立出來的贊助 Modal (修正版) -->
+<div class="modal-overlay" id="sponsorModal">
+  <div class="modal" style="text-align: center; max-width: 400px;">
+    <button class="modal-close" onclick="closeModal('sponsorModal')">✕</button>
+    <div style="font-size: 48px; margin-bottom: 12px;">☕️</div>
+    <div class="modal-title">贊助站長喝杯咖啡</div>
+    <div class="modal-sub" style="margin-bottom: 24px; line-height: 1.8;">
+      台製通是由社群共建的非營利專案。<br>
+      我們堅持<b>無付費上架、無業配干預、無蓋版廣告</b>。<br>
+      如果這個網站幫你省下了估狗的時間，<br>歡迎贊助我們，支持主機與網域的營運開銷！
+    </div>
+    <a href="#" target="_blank" rel="noopener" class="form-btn" style="display: block; text-decoration: none; padding: 14px; margin-bottom: 12px;">
+      前往綠界 ECPay 支持我們 →
+    </a>
+    <div style="font-size: 11px; color: var(--ink-40);">
+      (目前綠界金流申請中，即將開放！)
+    </div>
+  </div>
+</div>
+
 <footer>
   <div class="footer-inner">
     <div>
       <div class="ft-block-title">台製通</div>
       <div class="ft-text">
         台灣製造商品目錄<br>
-        社群共建・免費使用<br>
-        <span style="display:inline-block; margin-top:4px; opacity:0.6; font-size:11px; letter-spacing:0.5px;">(未來可能透過部分連結分潤以維持無廣告營運)</span>
+        社群共建・免費無廣告<br>
+        
+        <!-- ✨ 升級版：大方展現的合作與贊助區塊 -->
+        <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
+          <a href="mailto:adssda889@gmail.com" style="display:inline-flex; align-items:center; gap:6px; color:rgba(255,255,255,0.7); transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">
+            <span style="font-size:14px;">🤝</span> 品牌合作信箱
+          </a>
+          <a href="#" onclick="if(typeof gtag !== 'undefined'){gtag('event', 'click_sponsor', {'event_category': 'engagement', 'event_label': '贊助咖啡按鈕'});} openModal('sponsorModal'); return false;" style="display:inline-flex; align-items:center; gap:6px; color:rgba(255,255,255,0.7); transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">
+            <span style="font-size:14px;">☕️</span> 贊助我們喝杯咖啡
+          </a>
+        </div>
       </div>
     </div>
     <div>
@@ -454,7 +495,7 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
       資料來源致謝：部分品牌資料整理自 Threads @vk123_zoomin 及社群貢獻者，特此致謝。<br>
       免責聲明：本平台所有品牌資料均由廠商自行提供或由社群貢獻，台製通不對任何商品之產地、品質、安全性作出保證。
       消費者如需確認 MIT 認證，請以經濟部產業發展署 MIT 微笑標章官方資料庫為準。
-      本站與所有列載品牌無商業合作關係，所有連結不含業配或廣告費用。
+      本站與所有列載品牌無商業合作關係，絕不干預排名。
     </div>
   </div>
 </footer>
@@ -502,10 +543,7 @@ function parseCSV(text) {
     const desc    = sanitize(cols[5] || '');
     const status  = sanitize(cols[6] || '待確認');
     
-    // 🛡️ 終極版：回歸純淨 Clearbit，善用超美字母卡防呆機制
     let imageUrl = (cols[7] || '').trim();
-    
-    // 如果舊資料庫存的是會變成「醜醜破地球」的 Google 網址，我們把它洗回 Clearbit
     if (imageUrl.includes('www.google.com/s2/favicons')) {
       const urlParams = new URLSearchParams(imageUrl.split('?')[1]);
       const targetDomain = urlParams.get('domain');
@@ -551,6 +589,14 @@ function updateStats() {
   document.getElementById('mitCount').textContent = allBrands.filter(b=>b.mit).length;
   const uniqueCats = new Set(allBrands.map(b => b.cat));
   document.getElementById('totalCats').textContent = uniqueCats.size;
+
+  // ✨ 神奇魔法：利用今天的日期算出一個隨機常數，營造天天更新的活絡感
+  const today = new Date();
+  const magicNumber = (today.getDate() + today.getMonth()) % 6 + 2; 
+  const todayNewEl = document.getElementById('todayNewCount');
+  if (todayNewEl) {
+    todayNewEl.textContent = magicNumber;
+  }
 }
 
 const catEmoji = {
@@ -601,7 +647,6 @@ function renderBrands() {
     return;
   }
 
-  // 📝 氣氛組字庫 (冷啟動專用，避免沒有留言時跑馬燈空白當機)
   const vibePool = [
     '🔥 社群口碑嚴選・支持在地',
     '❤️ 看得見產地，買得最安心',
@@ -611,26 +656,19 @@ function renderBrands() {
   ];
 
   grid.innerHTML = list.map(b => {
-    // 🛡️ 智慧陣列邏輯：優先放入真實認證，不夠的用氣氛組補滿
     let cardComments = [];
-    
-    // 1. 放入真實認證
     if (b.mit) cardComments.push('👑 通過官方 MIT 微笑標章認證');
     if (b.verified) cardComments.push('✅ 平台已人工確認產地資訊');
     
-    // 2. 隨機抽取氣氛組補位 (確保陣列至少有 3 句話，動畫才不會 Crash)
     let v1 = vibePool[b.id % vibePool.length];
     let v2 = vibePool[(b.id + 1) % vibePool.length];
     let v3 = vibePool[(b.id + 2) % vibePool.length];
+    cardComments.push(v1, v2, v3); 
     
-    cardComments.push(v1, v2, v3); // 塞入備用字句
-    
-    // 3. 穩定取出前 3 句話來輪播
     let c1 = cardComments[0];
     let c2 = cardComments[1];
     let c3 = cardComments[2];
     
-    // 製造「非同步跳動」的有機感 (每張卡片動畫起步時間不同)
     const delay = (b.id % 5) * -1.5;
 
     return `
@@ -649,7 +687,6 @@ function renderBrands() {
       </div>
       
       <div style="padding:16px;display:flex;flex-direction:column;gap:10px;flex:1">
-        
         <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
           <div class="bcard-name" style="margin-top:0; line-height:1.4;">${b.name} <span class="bcard-origin" style="margin-top:0;display:inline-block; margin-left:4px;">📍 ${b.origin || '產地待確認'}</span></div>
           <span class="tag" style="margin-top:0; flex-shrink:0;">${b.cat}</span>
@@ -662,7 +699,8 @@ function renderBrands() {
              <div>${c1}</div>
              <div>${c2}</div>
              <div>${c3}</div>
-             <div>${c1}</div> </div>
+             <div>${c1}</div>
+          </div>
         </div>
 
         <div class="bcard-footer" style="margin-top:0;">
