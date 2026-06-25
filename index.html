@@ -58,7 +58,6 @@ nav{display:flex;gap:4px;align-items:center}
 .hero-bg{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(255,255,255,.03) 39px,rgba(255,255,255,.03) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(255,255,255,.03) 39px,rgba(255,255,255,.03) 40px);pointer-events:none}
 .hero-inner{position:relative;z-index:1}
 
-/* ✨ 全新 HOT 今日新增徽章 */
 .hero-ticker{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:13px;padding:5px 16px 5px 6px;border-radius:30px;margin-bottom:24px;box-shadow:0 4px 12px rgba(0,0,0,.1);transition:transform 0.2s;}
 .hero-ticker:hover{transform:translateY(-2px);}
 .ticker-badge{background:var(--red);color:#fff;font-weight:900;font-size:11px;padding:3px 8px;border-radius:20px;font-family:'DM Mono',monospace;letter-spacing:1px;animation:pulse 2s infinite;}
@@ -290,10 +289,9 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
   <div class="hero-bg"></div>
   <div class="hero-inner">
     
-    <!-- ✨ 升級版：動態 HOT 今日新增跑馬燈 -->
     <div class="hero-ticker">
       <span class="ticker-badge">HOT</span>
-      今日新增 <span id="todayNewCount" style="font-weight:900; color:var(--red-lt);">3</span> 個在地品牌，感謝社群！
+      平台持續更新中，歡迎社群推薦在地好品牌！
     </div>
 
     <h1>找台灣製造<br><em>不用再估狗</em></h1>
@@ -366,7 +364,6 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
   </main>
 </div>
 
-<!-- 新增與推薦品牌 Modal -->
 <div class="modal-overlay" id="submitModal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('submitModal')">✕</button>
@@ -416,7 +413,6 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
   </div>
 </div>
 
-<!-- 回報 Modal -->
 <div class="modal-overlay report-modal" id="reportModal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('reportModal')">✕</button>
@@ -436,7 +432,6 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
   </div>
 </div>
 
-<!-- ✨ 獨立出來的贊助 Modal (修正版) -->
 <div class="modal-overlay" id="sponsorModal">
   <div class="modal" style="text-align: center; max-width: 400px;">
     <button class="modal-close" onclick="closeModal('sponsorModal')">✕</button>
@@ -464,9 +459,8 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
         台灣製造商品目錄<br>
         社群共建・免費無廣告<br>
         
-        <!-- ✨ 升級版：大方展現的合作與贊助區塊 -->
         <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
-          <a href="mailto:adssda889@gmail.com" style="display:inline-flex; align-items:center; gap:6px; color:rgba(255,255,255,0.7); transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">
+          <a href="#" onclick="window.location.href='mailto:' + 'adssda889' + '@' + 'gmail.com'; return false;" style="display:inline-flex; align-items:center; gap:6px; color:rgba(255,255,255,0.7); transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">
             <span style="font-size:14px;">🤝</span> 品牌合作信箱
           </a>
           <a href="#" onclick="if(typeof gtag !== 'undefined'){gtag('event', 'click_sponsor', {'event_category': 'engagement', 'event_label': '贊助咖啡按鈕'});} openModal('sponsorModal'); return false;" style="display:inline-flex; align-items:center; gap:6px; color:rgba(255,255,255,0.7); transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">
@@ -589,21 +583,14 @@ function updateStats() {
   document.getElementById('mitCount').textContent = allBrands.filter(b=>b.mit).length;
   const uniqueCats = new Set(allBrands.map(b => b.cat));
   document.getElementById('totalCats').textContent = uniqueCats.size;
-
-  // ✨ 神奇魔法：利用今天的日期算出一個隨機常數，營造天天更新的活絡感
-  const today = new Date();
-  const magicNumber = (today.getDate() + today.getMonth()) % 6 + 2; 
-  const todayNewEl = document.getElementById('todayNewCount');
-  if (todayNewEl) {
-    todayNewEl.textContent = magicNumber;
-  }
 }
 
+// ✨ 升級版：補上遺漏的 Emoji
 const catEmoji = {
   '生活用品':'🏠','紡織寢具':'🛏','工具五金':'🔧','食品':'🍱',
   '保養美妝':'✨','服飾':'👕','戶外運動':'🚴','廚房餐具':'🍳',
   '寵物用品':'🐾','兒童玩具':'🧸','家具':'🪑','清潔用品':'🧴',
-  '醫療保健':'💊','文具':'✏️','其他':'📦'
+  '醫療保健':'💊','文具':'✏️','母嬰用品':'🍼','工藝文創':'🎨','其他':'📦'
 };
 
 function updateCatCounts() {
@@ -647,12 +634,12 @@ function renderBrands() {
     return;
   }
 
-  const vibePool = [
-    '🔥 社群口碑嚴選・支持在地',
+  // ✨ 誠實防彈版：改為傳遞中立資訊，不捏造社群評論
+  const infoPool = [
+    '💡 歡迎點擊右上方推薦新品牌',
+    '🔍 支援多重關鍵字與分類篩選',
     '❤️ 看得見產地，買得最安心',
-    '✨ 台灣製造的好品質',
-    '👍 實用又好看，在地好物推推',
-    '💬 網友：品質很棒，支持台灣廠！'
+    '✨ 資料由社群熱心把關與共建'
   ];
 
   grid.innerHTML = list.map(b => {
@@ -660,9 +647,9 @@ function renderBrands() {
     if (b.mit) cardComments.push('👑 通過官方 MIT 微笑標章認證');
     if (b.verified) cardComments.push('✅ 平台已人工確認產地資訊');
     
-    let v1 = vibePool[b.id % vibePool.length];
-    let v2 = vibePool[(b.id + 1) % vibePool.length];
-    let v3 = vibePool[(b.id + 2) % vibePool.length];
+    let v1 = infoPool[b.id % infoPool.length];
+    let v2 = infoPool[(b.id + 1) % infoPool.length];
+    let v3 = infoPool[(b.id + 2) % infoPool.length];
     cardComments.push(v1, v2, v3); 
     
     let c1 = cardComments[0];
