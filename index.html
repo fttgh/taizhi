@@ -15,7 +15,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
 <style>
-/* (所有現有 CSS 樣式完全保持不變) */
 :root {
   --red: #D97757; --red-dk: #BD5F42; --red-lt: #FFF0EF;
   --ink: #141414; --ink-70: #444; --ink-40: #999; --ink-15: #E2E2E2;
@@ -217,6 +216,7 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
 <section class="hero">
   <div class="hero-bg"></div>
   <div class="hero-inner">
+    
     <div class="hero-ticker">
       <span class="ticker-badge">HOT</span>
       平台持續更新中，歡迎社群推薦在地好品牌！
@@ -442,16 +442,15 @@ const sanitize = (str) => {
   return str.replace(/</g, '&lt;').replace(/>/g, '&gt;').trim();
 };
 
-// ── P0-1 引入 PapaParse 解析 CSV ──
+// ── 引入 PapaParse 解析 CSV ──
 function processParsedData(data) {
-  // 過濾標題行並處理每筆資料
   return data.slice(1).map((cols, idx) => {
     const name    = sanitize(cols[0] || '');
     const cat     = sanitize(cols[1] || '其他');
     const origin  = sanitize(cols[2] || '');
     const mitRaw  = sanitize((cols[3] || '').trim());
     
-    // ✨ P0-2 外部連結驗證 (Regex 限定 http/https)
+    // 外部連結驗證 (Regex 限定 http/https)
     let link      = (cols[4] || '').trim();
     if (!/^https?:\/\/.+/i.test(link)) {
         link = '';
@@ -500,7 +499,7 @@ async function loadData() {
     });
   } catch (err) {
     console.warn('Sheet failed, trying backup', err);
-    // ✨ P0-5 備援載入機制
+    // 備援載入機制
     try {
       const resBackup = await fetch('brands_backup.json');
       const backupData = await resBackup.json();
@@ -523,8 +522,10 @@ function updateStats() {
   document.getElementById('mitCount').textContent = allBrands.filter(b=>b.mit).length;
   const uniqueCats = new Set(allBrands.map(b => b.cat));
   document.getElementById('totalCats').textContent = uniqueCats.size;
+  // (移除假數字功能，保持真實的收錄數量)
 }
 
+// ✨ 補齊所有品類 Emoji
 const catEmoji = {
   '生活用品':'🏠','紡織寢具':'🛏','工具五金':'🔧','食品':'🍱',
   '保養美妝':'✨','服飾':'👕','戶外運動':'🚴','廚房餐具':'🍳',
@@ -573,6 +574,7 @@ function renderBrands() {
     return;
   }
 
+  // ✨ 改為客觀的系統與真實標籤，移除造假評論
   const infoPool = [
     '💡 歡迎點擊右上方推薦新品牌',
     '🔍 支援多重關鍵字與分類篩選',
@@ -642,7 +644,7 @@ function renderBrands() {
 // ── 互動事件 ──
 function doSearch(q) {
   currentSearch = q.trim();
-  // ✨ P1-7 GA 追蹤，search_term 已標準化
+  // GA 追蹤，search_term 已標準化
   if (typeof gtag !== 'undefined' && currentSearch) { gtag('event', 'search', { search_term: currentSearch }); }
   currentCat = '全部';
   document.querySelectorAll('.cat-item').forEach(i => i.classList.remove('active'));
@@ -687,7 +689,7 @@ async function submitForm() {
 
   if (isConsumer) {
     const linkValue = document.getElementById('c_link').value.trim();
-    // ✨ P0-3 表單驗證
+    // 表單驗證
     if (linkValue !== '' && !/^https?:\/\/.+/i.test(linkValue)) {
        showToast('⚠️ 購買連結請填寫 http:// 或 https:// 開頭的有效網址'); return;
     }
@@ -705,7 +707,7 @@ async function submitForm() {
     const linkValue = document.getElementById('b_link').value.trim();
     const mitValue = document.getElementById('b_mit').value;
     
-    // ✨ P0-3 表單驗證
+    // 表單驗證
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue)) {
         showToast('⚠️ 請填寫正確的 Email 格式'); return;
     }
@@ -763,7 +765,7 @@ async function submitForm() {
   }
 }
 
-// ✨ P0-4 真實回報 API
+// 真實回報 API
 async function submitReport() {
   const brandName = document.getElementById('reportModal').getAttribute('data-brand');
   const ropt = document.querySelector('input[name="ropt"]:checked');
