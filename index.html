@@ -11,7 +11,6 @@
 <meta property="og:type" content="website">
 
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700;900&family=Noto+Sans+TC:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
 <style>
@@ -436,6 +435,16 @@ let currentCat = '全部';
 let currentSort = 'newest';
 let currentSearch = '';
 
+// ✨ 產生/取得使用者的專屬防護 Token
+function getClientId() {
+  let id = localStorage.getItem('tz_client_id');
+  if (!id) {
+    id = 'tz_' + Math.random().toString(36).substr(2, 9) + Date.now();
+    localStorage.setItem('tz_client_id', id);
+  }
+  return id;
+}
+
 // ── XSS 過濾 ──
 const sanitize = (str) => {
   if (!str) return '';
@@ -450,7 +459,6 @@ function processParsedData(data) {
     const origin  = sanitize(cols[2] || '');
     const mitRaw  = sanitize((cols[3] || '').trim());
     
-    // 外部連結驗證 (Regex 限定 http/https)
     let link      = (cols[4] || '').trim();
     if (!/^https?:\/\/.+/i.test(link)) {
         link = '';
@@ -499,7 +507,6 @@ async function loadData() {
     });
   } catch (err) {
     console.warn('Sheet failed, trying backup', err);
-    // 備援載入機制
     try {
       const resBackup = await fetch('brands_backup.json');
       const backupData = await resBackup.json();
@@ -522,10 +529,9 @@ function updateStats() {
   document.getElementById('mitCount').textContent = allBrands.filter(b=>b.mit).length;
   const uniqueCats = new Set(allBrands.map(b => b.cat));
   document.getElementById('totalCats').textContent = uniqueCats.size;
-  // (移除假數字功能，保持真實的收錄數量)
 }
 
-// ✨ 補齊所有品類 Emoji
+// ✨ 補全的 Emoji 對照表
 const catEmoji = {
   '生活用品':'🏠','紡織寢具':'🛏','工具五金':'🔧','食品':'🍱',
   '保養美妝':'✨','服飾':'👕','戶外運動':'🚴','廚房餐具':'🍳',
@@ -574,7 +580,7 @@ function renderBrands() {
     return;
   }
 
-  // ✨ 改為客觀的系統與真實標籤，移除造假評論
+  // ✨ 真實客觀的資訊跑馬燈
   const infoPool = [
     '💡 歡迎點擊右上方推薦新品牌',
     '🔍 支援多重關鍵字與分類篩選',
@@ -644,7 +650,6 @@ function renderBrands() {
 // ── 互動事件 ──
 function doSearch(q) {
   currentSearch = q.trim();
-  // GA 追蹤，search_term 已標準化
   if (typeof gtag !== 'undefined' && currentSearch) { gtag('event', 'search', { search_term: currentSearch }); }
   currentCat = '全部';
   document.querySelectorAll('.cat-item').forEach(i => i.classList.remove('active'));
@@ -689,11 +694,13 @@ async function submitForm() {
 
   if (isConsumer) {
     const linkValue = document.getElementById('c_link').value.trim();
-    // 表單驗證
     if (linkValue !== '' && !/^https?:\/\/.+/i.test(linkValue)) {
        showToast('⚠️ 購買連結請填寫 http:// 或 https:// 開頭的有效網址'); return;
     }
+    // ✨ 加入 Action 與 Token
     payload = {
+      action:    'submit',
+      clientId:  getClientId(),
       brandName: sanitize(document.getElementById('c_brand').value),
       category:  sanitize(document.getElementById('c_cat').value),
       origin:    '',
@@ -707,7 +714,6 @@ async function submitForm() {
     const linkValue = document.getElementById('b_link').value.trim();
     const mitValue = document.getElementById('b_mit').value;
     
-    // 表單驗證
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue)) {
         showToast('⚠️ 請填寫正確的 Email 格式'); return;
     }
@@ -715,7 +721,10 @@ async function submitForm() {
         showToast('⚠️ 官網/購買頁面請填寫 http:// 或 https:// 開頭的有效網址'); return;
     }
 
+    // ✨ 加入 Action 與 Token
     payload = {
+      action:    'submit',
+      clientId:  getClientId(),
       brandName: sanitize(document.getElementById('b_brand').value),
       category:  sanitize(document.getElementById('b_cat').value),
       origin:    sanitize(document.getElementById('b_origin').value),
@@ -736,30 +745,36 @@ async function submitForm() {
 
   try {
     const formBody = new URLSearchParams(payload).toString();
-    await fetch(SCRIPT_URL, {
+    const response = await fetch(SCRIPT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: formBody,
     });
-    showToast('✅ 已收到！表單已成功送至待審核區域。');
     
-    if (isConsumer) {
-      document.getElementById('c_brand').value = '';
-      document.getElementById('c_cat').selectedIndex = 0;
-      document.getElementById('c_link').value = '';
-      document.getElementById('c_desc').value = '';
+    // ✨ 優化 Error 攔截
+    const result = await response.json();
+    if (!result.success && result.error) {
+      showToast('⚠️ ' + result.error);
     } else {
-      document.getElementById('b_brand').value = '';
-      document.getElementById('b_origin').value = '';
-      document.getElementById('b_cat').selectedIndex = 0;
-      document.getElementById('b_mit').selectedIndex = 0;
-      document.getElementById('b_link').value = '';
-      document.getElementById('b_desc').value = '';
-      document.getElementById('b_email').value = '';
+      showToast('✅ 已收到！表單已成功送至待審核區域。');
+      if (isConsumer) {
+        document.getElementById('c_brand').value = '';
+        document.getElementById('c_cat').selectedIndex = 0;
+        document.getElementById('c_link').value = '';
+        document.getElementById('c_desc').value = '';
+      } else {
+        document.getElementById('b_brand').value = '';
+        document.getElementById('b_origin').value = '';
+        document.getElementById('b_cat').selectedIndex = 0;
+        document.getElementById('b_mit').selectedIndex = 0;
+        document.getElementById('b_link').value = '';
+        document.getElementById('b_desc').value = '';
+        document.getElementById('b_email').value = '';
+      }
+      closeModal('submitModal');
     }
-    closeModal('submitModal');
   } catch (err) {
-    showToast('❌ 送出失敗，請重試。');
+    showToast('❌ 送出失敗，請檢查網路連線後重試。');
   } finally {
     btn.textContent = originalText; btn.disabled = false;
   }
@@ -782,23 +797,31 @@ async function submitReport() {
   btn.textContent = '送出中⋯'; btn.disabled = true;
 
   try {
+    // ✨ 加入 Action 與 Token
     const payload = {
       action: 'report',
+      clientId: getClientId(),
       brandName: sanitize(brandName),
       reportType: sanitize(reportType),
       details: sanitize(details)
     };
 
-    await fetch(SCRIPT_URL, {
+    const response = await fetch(SCRIPT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams(payload).toString(),
     });
     
-    closeModal('reportModal');
-    showToast('⚠️ 回報已送出，我們將盡快調查。感謝你的監督！');
-    document.getElementById('reportDetails').value = '';
-    ropt.checked = false;
+    // ✨ 優化 Error 攔截
+    const result = await response.json();
+    if (!result.success && result.error) {
+      showToast('⚠️ ' + result.error);
+    } else {
+      closeModal('reportModal');
+      showToast('⚠️ 回報已送出，我們將盡快調查。感謝你的監督！');
+      document.getElementById('reportDetails').value = '';
+      ropt.checked = false;
+    }
   } catch (err) {
     showToast('❌ 回報送出失敗，請重試。');
   } finally {
