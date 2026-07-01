@@ -186,7 +186,7 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
 <body>
 
 <div class="topbar">
-  菜逼巴清單BETA 測試版報到，邀請大家幫長大😅
+  目前為 BETA 測試版，資料由社群貢獻，如有錯誤歡迎
   <a href="#" onclick="openModal('submitModal');return false">回報或新增</a>
 </div>
 
@@ -384,16 +384,7 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
       <div class="ft-block-title">台製通</div>
       <div class="ft-text">
         台灣製造商品目錄<br>
-        社群共建・免費無廣告<br>
-        
-        <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
-          <a href="#" onclick="window.location.href='mailto:' + 'adssda889' + '@' + 'gmail.com'; return false;" style="display:inline-flex; align-items:center; gap:6px; color:rgba(255,255,255,0.7); transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">
-            <span style="font-size:14px;">🤝</span> 品牌合作信箱
-          </a>
-          <a href="#" onclick="if(typeof gtag !== 'undefined'){gtag('event', 'click_sponsor', {'event_category': 'engagement', 'event_label': '贊助咖啡按鈕'});} openModal('sponsorModal'); return false;" style="display:inline-flex; align-items:center; gap:6px; color:rgba(255,255,255,0.7); transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">
-            <span style="font-size:14px;">☕️</span> 贊助我們喝杯咖啡
-          </a>
-        </div>
+        社群共建・免費無廣告
       </div>
     </div>
     <div>
@@ -408,8 +399,9 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
     <div>
       <div class="ft-block-title">關於</div>
       <div class="ft-text">
-        <a href="#" onclick="openModal('submitModal');return false">新增 / 推薦品牌</a><br>
-        <a href="https://www.mittw.org.tw" target="_blank">MIT 微笑標章官方網站</a>
+        <a href="#" onclick="window.location.href='mailto:' + 'adssda889' + '@' + 'gmail.com'; return false;">🤝 品牌合作信箱</a><br>
+        <a href="#" onclick="window.location.href='mailto:' + 'adssda889' + '@' + 'gmail.com?subject=' + encodeURIComponent('台製通網站問題回報'); return false;">🐛 回報網站問題</a><br>
+        <a href="#" onclick="if(typeof gtag !== 'undefined'){gtag('event', 'click_sponsor', {'event_category': 'engagement', 'event_label': '贊助咖啡按鈕'});} openModal('sponsorModal'); return false;">☕️ 贊助我們喝杯咖啡</a>
       </div>
     </div>
     <div class="ft-disclaimer">
@@ -493,9 +485,10 @@ async function loadData() {
 
   try {
     const res = await fetch(CSV_URL);
-    if (!res.ok) throw new Error('Fetch failed');
+    if (!res.ok) throw new Error(`試算表 CSV 讀取失敗（HTTP ${res.status}），請確認該 Google Sheet 已「發布到網路」且為公開檢視`);
     const text = await res.text();
-    
+    if (text.trim().startsWith('<')) throw new Error('試算表回傳的不是 CSV 內容，可能是連結失效或權限未開放');
+
     Papa.parse(text, {
       skipEmptyLines: true,
       complete: function(results) {
@@ -506,16 +499,17 @@ async function loadData() {
       }
     });
   } catch (err) {
-    console.warn('Sheet failed, trying backup', err);
+    console.warn('⚠️ Google Sheet 讀取失敗，改嘗試備援檔 brands_backup.json：', err.message);
     try {
       const resBackup = await fetch('brands_backup.json');
+      if (!resBackup.ok) throw new Error(`備援檔 brands_backup.json 讀取失敗（HTTP ${resBackup.status}），請確認該檔案存在於網站根目錄`);
       const backupData = await resBackup.json();
       allBrands = backupData; 
       updateStats();
       updateCatCounts();
       renderBrands();
     } catch (backupErr) {
-      console.error(backupErr);
+      console.error('❌ 備援檔也讀取失敗：', backupErr.message);
       grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--amber);font-size:14px;">
         ⚠️ 資料載入失敗。請確認試算表狀態或備援檔案設定。
       </div>`;
@@ -638,7 +632,7 @@ function renderBrands() {
 
         <div class="bcard-footer" style="margin-top:0;">
           <div class="bcard-actions" style="margin-left:auto">
-            <button class="btn-report" onclick="openReport('${b.name.replace(/'/g,"\\'")}')">⚑ 回報</button>
+            <button class="btn-report" onclick="openReport('${b.name.replace(/'/g,"\\'")}')">⚑ 回報資料錯誤</button>
             ${b.hasLink ? `<a href="${b.link}" class="btn-buy" target="_blank" rel="noopener">購買 →</a>` : '<span style="font-size:11px;color:var(--ink-40)">暫無連結</span>'}
           </div>
         </div>
@@ -682,7 +676,9 @@ function switchMTab(btn, type) {
 }
 
 function openReport(name) {
-  document.getElementById('reportTarget').textContent = `回報關於「${name}」的疑慮，平台收到後將下架待查。`;
+  document.getElementById('reportTarget').textContent = name
+    ? `回報關於「${name}」的疑慮，平台收到後將下架待查。`
+    : '發現任何品牌的資料有誤、連結失效或有疑慮，都歡迎在下方說明，平台收到後會盡快查核。';
   document.getElementById('reportModal').setAttribute('data-brand', name);
   openModal('reportModal');
 }
