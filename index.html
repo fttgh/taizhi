@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-EB5JCJMXE6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-EB5JCJMXE6');
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -175,19 +184,12 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
 .hero-inner>*:nth-child(3){animation-delay:.25s}
 .hero-inner>*:nth-child(4){animation-delay:.35s}
 </style>
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-EB5JCJMXE6"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-EB5JCJMXE6');
-</script>
 </head>
 <body>
 
 <div class="topbar">
   目前為 BETA 測試版，資料由社群貢獻，如有錯誤歡迎
-  <a href="#" onclick="openModal('submitModal');return false">回報或新增</a>
+  <a href="#" onclick="openSubmitModal();return false">回報或新增</a>
 </div>
 
 <header>
@@ -206,8 +208,8 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
     <nav>
       <a href="#" class="nav-link">找品牌</a>
       <a href="#" class="nav-link">品類</a>
-      <a href="#" class="nav-link" onclick="openModal('submitModal');return false">推薦品牌</a>
-      <a href="#" class="nav-cta nav-link" onclick="openModal('submitModal');return false">登錄廠商</a>
+      <a href="#" class="nav-link" onclick="if(typeof gtag !== 'undefined'){gtag('event', 'click_submit_brand', {'event_category': 'engagement', 'event_label': '推薦品牌'});} openSubmitModal('consumer');return false">推薦品牌</a>
+      <a href="#" class="nav-cta nav-link" onclick="if(typeof gtag !== 'undefined'){gtag('event', 'click_submit_brand', {'event_category': 'engagement', 'event_label': '登錄廠商'});} openSubmitModal('brand');return false">登錄廠商</a>
     </nav>
   </div>
 </header>
@@ -400,7 +402,7 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
       <div class="ft-block-title">關於</div>
       <div class="ft-text">
         <a href="#" onclick="window.location.href='mailto:' + 'adssda889' + '@' + 'gmail.com'; return false;">🤝 品牌合作信箱</a><br>
-        <a href="#" onclick="window.location.href='mailto:' + 'adssda889' + '@' + 'gmail.com?subject=' + encodeURIComponent('台製通網站問題回報'); return false;">🐛 回報網站問題</a><br>
+        <a href="#" onclick="if(typeof gtag !== 'undefined'){gtag('event', 'click_system_feedback', {'event_category': 'engagement', 'event_label': '回報網站問題'});} window.location.href='mailto:' + 'adssda889' + '@' + 'gmail.com?subject=' + encodeURIComponent('台製通網站問題回報'); return false;">🐛 回報網站問題</a><br>
         <a href="#" onclick="if(typeof gtag !== 'undefined'){gtag('event', 'click_sponsor', {'event_category': 'engagement', 'event_label': '贊助咖啡按鈕'});} openModal('sponsorModal'); return false;">☕️ 贊助我們喝杯咖啡</a>
       </div>
     </div>
@@ -569,7 +571,7 @@ function renderBrands() {
     grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--ink-40);">
         <div style="font-size:32px;margin-bottom:12px;">🔍</div><div style="font-size:14px;">找不到符合的品牌</div>
         <div style="font-size:12px;margin-top:8px;">換個關鍵字，或推薦這個品牌加入目錄</div></div>
-      <div class="bcard bcard-add" onclick="openModal('submitModal')"><div class="bcard-add-icon">＋</div>
+      <div class="bcard bcard-add" onclick="openSubmitModal()"><div class="bcard-add-icon">＋</div>
         <div class="bcard-add-text">推薦一個 MIT 品牌</div></div>`;
     return;
   }
@@ -632,13 +634,13 @@ function renderBrands() {
 
         <div class="bcard-footer" style="margin-top:0;">
           <div class="bcard-actions" style="margin-left:auto">
-            <button class="btn-report" onclick="openReport('${b.name.replace(/'/g,"\\'")}')">⚑ 回報資料錯誤</button>
+            <button class="btn-report" onclick="openReport('${b.name.replace(/'/g,"\\'")}')">⚑ 回報資料有誤</button>
             ${b.hasLink ? `<a href="${b.link}" class="btn-buy" target="_blank" rel="noopener">購買 →</a>` : '<span style="font-size:11px;color:var(--ink-40)">暫無連結</span>'}
           </div>
         </div>
       </div>
     </div>`;
-  }).join('') + `<div class="bcard bcard-add" onclick="openModal('submitModal')"><div class="bcard-add-icon">＋</div><div class="bcard-add-text">推薦一個 MIT 品牌</div></div>`;
+  }).join('') + `<div class="bcard bcard-add" onclick="openSubmitModal()"><div class="bcard-add-icon">＋</div><div class="bcard-add-text">推薦一個 MIT 品牌</div></div>`;
 }
 
 // ── 互動事件 ──
@@ -665,6 +667,23 @@ function setSort(btn, sort) {
   btn.classList.add('active'); renderBrands();
 }
 
+// ✨ 依入口按鈕決定「新增 MIT 品牌」Modal 要直接開哪個表單
+// type: 'consumer' → 只顯示消費者推薦表單（隱藏分頁切換列）
+// type: 'brand'    → 只顯示廠商登錄表單（隱藏分頁切換列）
+// type: 未指定      → 維持原本行為，顯示分頁切換列，預設消費者推薦
+function openSubmitModal(type) {
+  const tabs = document.querySelector('#submitModal .modal-tabs');
+  const mtabs = document.querySelectorAll('#submitModal .mtab');
+  if (type === 'consumer' || type === 'brand') {
+    tabs.style.display = 'none';
+    switchMTab(mtabs[type === 'consumer' ? 0 : 1], type);
+  } else {
+    tabs.style.display = 'flex';
+    switchMTab(mtabs[0], 'consumer');
+  }
+  openModal('submitModal');
+}
+
 function openModal(id) { document.getElementById(id).classList.add('open'); document.body.style.overflow = 'hidden'; }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow = ''; }
 document.querySelectorAll('.modal-overlay').forEach(m => { m.addEventListener('click', e => { if (e.target === m) closeModal(m.id); }); });
@@ -676,6 +695,7 @@ function switchMTab(btn, type) {
 }
 
 function openReport(name) {
+  if (typeof gtag !== 'undefined') { gtag('event', 'click_report_card_error', {'event_category': 'engagement', 'event_label': name || '未指定品牌'}); }
   document.getElementById('reportTarget').textContent = name
     ? `回報關於「${name}」的疑慮，平台收到後將下架待查。`
     : '發現任何品牌的資料有誤、連結失效或有疑慮，都歡迎在下方說明，平台收到後會盡快查核。';
