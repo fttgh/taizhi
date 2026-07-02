@@ -419,9 +419,28 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
 
 <script>
 // ── 設定 ──
-const SHEET_ID = '1UvP5QcBjGkvFU5gOpVtplK8BY10AGx0doaZZQ6TfHQw';
+const SPREADSHEET_CONFIG = {
+  prod: '1UvP5QcBjGkvFU5gOpVtplK8BY10AGx0doaZZQ6TfHQw',
+  test: '1TmWeVy1TG5q8a_v7A8hHsT4ut56Gi6XOMRDW6FJBptA'
+};
+
+const SCRIPT_CONFIG = {
+  prod: 'https://script.google.com/macros/s/AKfycbz0fLSie81wciO-oHjtWtCbiPIWU_E9zG9QdZbo8Iw_PxQ-vr0_OkqkYM48Jf9BR3Ny/exec',
+  test: 'https://script.google.com/macros/s/AKfycby2tVWhkrpc271m4lMrjCQ5iWwECw0n88wqxsINIESwzmIFGXkLZAo2_fIzsEf6oyUS/exec'
+};
+
+// ✨ 測試機制：網址加上 ?db=test 即可同時切換「讀取」與「寫入」為測試環境
+// 預設（不帶參數）仍讀寫正式環境，不影響現有使用者
+const urlParams = new URLSearchParams(window.location.search);
+const IS_TEST_MODE = urlParams.get('db') === 'test';
+
+const SHEET_ID = IS_TEST_MODE ? SPREADSHEET_CONFIG.test : SPREADSHEET_CONFIG.prod;
 const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz0fLSie81wciO-oHjtWtCbiPIWU_E9zG9QdZbo8Iw_PxQ-vr0_OkqkYM48Jf9BR3Ny/exec';
+const SCRIPT_URL = IS_TEST_MODE ? SCRIPT_CONFIG.test : SCRIPT_CONFIG.prod;
+
+if (IS_TEST_MODE) {
+  console.warn('⚠️ 目前處於測試環境 (Test Mode)，讀取測試版試算表：', SHEET_ID);
+}
 
 // ── 全域資料 ──
 let allBrands = [];
@@ -484,6 +503,7 @@ function processParsedData(data) {
 async function loadData() {
   const grid = document.getElementById('brandsGrid');
   grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--ink-40);font-size:14px;">⏳ 載入中，請稍候⋯</div>`;
+  if (IS_TEST_MODE) showTestBadge();
 
   try {
     const res = await fetch(CSV_URL);
@@ -850,7 +870,22 @@ function showToast(msg) {
   t.textContent = msg; t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 3500);
 }
-
+// ✨ 測試環境視覺提示：沿用站內既有 amber 配色系統
+function showTestBadge() {
+  if (document.getElementById('testModeBadge')) return; // 避免重複插入
+  document.title = '🧪 測試中｜' + document.title;
+  const badge = document.createElement('div');
+  badge.id = 'testModeBadge';
+  badge.innerHTML = '🧪 測試環境（讀寫皆為測試版資料庫）';
+  badge.style.cssText = `
+    position:fixed; bottom:16px; right:16px; z-index:9999;
+    background:var(--amber-lt); color:var(--amber);
+    border:1px solid #F5CC7A; font-family:'DM Mono',monospace;
+    font-size:12px; font-weight:500; padding:8px 14px;
+    border-radius:20px; box-shadow:0 4px 12px rgba(0,0,0,.12);
+  `;
+  document.body.appendChild(badge);
+}
 loadData();
 </script>
 </body>
