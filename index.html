@@ -302,6 +302,20 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
       <button class="mtab" onclick="switchMTab(this,'brand')">廠商登錄</button>
     </div>
 
+    <!-- ✨ 子類建議清單：使用者可從選單挑選，也可自行輸入（子類種類繁多且依品類而異，故採可輸入式選單） -->
+    <datalist id="subcatOptions">
+      <option value="沙發"></option>
+      <option value="實木家具"></option>
+      <option value="巧拼地墊"></option>
+      <option value="地墊"></option>
+      <option value="寢具"></option>
+      <option value="毛巾"></option>
+      <option value="木製玩具"></option>
+      <option value="手工皂"></option>
+      <option value="保養品"></option>
+      <option value="帆布包"></option>
+    </datalist>
+
     <div class="form" id="consumerForm">
       <div class="form-row-2">
         <div class="field"><label>品牌名稱 *</label><input type="text" id="c_brand" placeholder="例：興隆毛巾"></div>
@@ -311,6 +325,7 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
           </select>
         </div>
       </div>
+      <div class="field"><label>子類（選填）</label><input type="text" id="c_subcat" list="subcatOptions" placeholder="例：沙發、地墊、寢具、實木家具⋯"></div>
       <div class="field"><label>購買連結（選填）</label><input type="text" id="c_link" placeholder="蝦皮、官網、momo 等皆可"></div>
       <div class="field"><label>為什麼推薦？</label><textarea id="c_desc" placeholder="簡單說說你的使用心得或這個品牌的特色⋯"></textarea></div>
       <div class="form-note">⚠️ 提交即代表你確認此品牌據你所知為台灣製造，平台將進行人工審核。</div>
@@ -332,6 +347,7 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
           <select id="b_mit"><option>是，已取得認證</option><option>申請中</option><option>未申請但確為台製</option></select>
         </div>
       </div>
+      <div class="field"><label>子類（選填）</label><input type="text" id="b_subcat" list="subcatOptions" placeholder="例：沙發、地墊、寢具、實木家具⋯"></div>
       <div class="field"><label>官網 / 購買頁面 *</label><input type="text" id="b_link" placeholder="https://..."></div>
       <div class="field"><label>聯絡信箱 *</label><input type="email" id="b_email" placeholder="your@email.com"></div>
       <div class="field"><label>品牌簡介（50字以上）</label><textarea id="b_desc" placeholder="製造地、創立年份、產品特色、與其他品牌的差異⋯"></textarea></div>
@@ -469,18 +485,19 @@ function processParsedData(data) {
   return data.slice(1).map((cols, idx) => {
     const name    = sanitize(cols[0] || '');
     const cat     = sanitize(cols[1] || '其他');
-    const origin  = sanitize(cols[2] || '');
-    const mitRaw  = sanitize((cols[3] || '').trim());
+    const subCat  = sanitize(cols[2] || '');            // ✨ 新增：子類（C 欄）
+    const origin  = sanitize(cols[3] || '');            // 製造產地（D 欄，原本錯讀 C 欄，已修正）
+    const mitRaw  = sanitize((cols[4] || '').trim());   // MIT認證（E 欄，已修正）
     
-    let link      = (cols[4] || '').trim();
+    let link      = (cols[5] || '').trim();             // 連結（F 欄，已修正）
     if (!/^https?:\/\/.+/i.test(link)) {
         link = '';
     }
     
-    const desc    = sanitize(cols[5] || '');
-    const status  = sanitize(cols[6] || '待確認');
+    const desc    = sanitize(cols[6] || '');            // 簡介（G 欄，已修正）
+    const status  = sanitize(cols[7] || '待確認');       // 狀態（H 欄，已修正）
     
-    let imageUrl = (cols[7] || '').trim();
+    let imageUrl = (cols[8] || '').trim();              // 圖片（I 欄，已修正）
     if (imageUrl.includes('www.google.com/s2/favicons')) {
       const urlParams = new URLSearchParams(imageUrl.split('?')[1]);
       const targetDomain = urlParams.get('domain');
@@ -494,7 +511,7 @@ function processParsedData(data) {
     const hasLink = link !== '';
     const avatar = name.charAt(0) || '?';
 
-    return { id: idx + 1, name, cat, origin, desc, mit, verified,
+    return { id: idx + 1, name, cat, subCat, origin, desc, mit, verified,
              hasLink, link, status, avatar, imageUrl, isNew: false };
   }).filter(b => b.name);
 }
@@ -739,6 +756,7 @@ async function submitForm() {
       clientId:  getClientId(),
       brandName: sanitize(document.getElementById('c_brand').value),
       category:  sanitize(document.getElementById('c_cat').value),
+      subCat:    sanitize(document.getElementById('c_subcat').value),
       origin:    '',
       mit:       '否',
       link:      sanitize(linkValue),
@@ -763,6 +781,7 @@ async function submitForm() {
       clientId:  getClientId(),
       brandName: sanitize(document.getElementById('b_brand').value),
       category:  sanitize(document.getElementById('b_cat').value),
+      subCat:    sanitize(document.getElementById('b_subcat').value),
       origin:    sanitize(document.getElementById('b_origin').value),
       mit:       mitValue.includes('已取得') ? '是' : '否',
       link:      sanitize(linkValue),
@@ -796,10 +815,12 @@ async function submitForm() {
       if (isConsumer) {
         document.getElementById('c_brand').value = '';
         document.getElementById('c_cat').selectedIndex = 0;
+        document.getElementById('c_subcat').value = '';
         document.getElementById('c_link').value = '';
         document.getElementById('c_desc').value = '';
       } else {
         document.getElementById('b_brand').value = '';
+        document.getElementById('b_subcat').value = '';
         document.getElementById('b_origin').value = '';
         document.getElementById('b_cat').selectedIndex = 0;
         document.getElementById('b_mit').selectedIndex = 0;
