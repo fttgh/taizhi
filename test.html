@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-EB5JCJMXE6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-EB5JCJMXE6');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>台製通｜台灣製造商品搜尋平台</title>
+<meta name="description" content="台灣製造品牌與商品搜尋平台，協助消費者快速找到台灣製產品。">
+<meta property="og:title" content="台製通｜台灣製造商品搜尋平台">
+<meta property="og:description" content="台灣製造品牌與商品搜尋平台，協助消費者快速找到台灣製產品。">
+<meta property="og:type" content="website">
+
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700;900&family=Noto+Sans+TC:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+<style>
+:root {
+  --red: #D97757; --red-dk: #BD5F42; --red-lt: #FFF0EF;
+  --ink: #141414; --ink-70: #444; --ink-40: #999; --ink-15: #E2E2E2;
+  --paper: #F8F6F2; --paper-2: #EFECE6; --white: #fff;
+  --green: #1E6641; --green-lt: #E8F5EE;
+  --amber: #92600A; --amber-lt: #FFF3DC;
+  --blue: #1A4F8A; --blue-lt: #E8F0FB;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh}
+.topbar{background:var(--ink);color:rgba(255,255,255,.45);font-size:11px;font-family:'DM Mono',monospace;text-align:center;padding:7px 16px;letter-spacing:1px}
+.topbar a{color:rgba(255,255,255,.6);text-decoration:none;border-bottom:1px solid rgba(255,255,255,.2)}
+header{background:var(--white);border-bottom:1px solid var(--ink-15);position:sticky;top:0;z-index:200;padding:0 24px}
+.header-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:58px;gap:16px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0}
+.logo-mark{width:38px;height:38px;background:var(--red);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Noto Serif TC',serif;font-weight:900;font-size:13px;color:#fff;letter-spacing:-1px;flex-shrink:0}
+.logo-name{font-family:'Noto Serif TC',serif;font-weight:900;font-size:18px;color:var(--ink);letter-spacing:2px}
+.logo-en{font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-40);letter-spacing:1.5px;margin-top:1px}
+.header-search{flex:1;max-width:480px;position:relative}
+.header-search input{width:100%;padding:9px 40px 9px 14px;border:1.5px solid var(--ink-15);border-radius:8px;font-size:16px;font-family:'Noto Sans TC',sans-serif;outline:none;background:var(--paper);transition:border-color .2s;color:var(--ink)}
+.header-search input:focus{border-color:var(--red);background:var(--white)}
+.header-search input::placeholder{color:var(--ink-40)}
+.header-search-btn{position:absolute;right:0;top:0;height:100%;padding:0 12px;background:none;border:none;cursor:pointer;color:var(--ink-40);font-size:16px;transition:color .2s}
+.header-search-btn:hover{color:var(--red)}
+nav{display:flex;gap:4px;align-items:center}
+.nav-link{padding:6px 12px;border-radius:6px;font-size:13px;color:var(--ink-70);text-decoration:none;transition:all .2s;white-space:nowrap}
+.nav-link:hover{background:var(--paper);color:var(--ink)}
+.nav-cta{background:var(--red);color:var(--white)!important;padding:7px 14px;border-radius:6px;font-size:12px;font-weight:500}
+.nav-cta:hover{background:var(--red-dk)!important}
+.hero{background:var(--ink);padding:64px 24px 56px;text-align:center;position:relative;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(255,255,255,.03) 39px,rgba(255,255,255,.03) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(255,255,255,.03) 39px,rgba(255,255,255,.03) 40px);pointer-events:none}
+.hero-inner{position:relative;z-index:1}
+.hero-ticker{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:13px;padding:5px 16px 5px 6px;border-radius:30px;margin-bottom:24px;box-shadow:0 4px 12px rgba(0,0,0,.1);transition:transform 0.2s;}
+.hero-ticker:hover{transform:translateY(-2px);}
+.ticker-badge{background:var(--red);color:#fff;font-weight:900;font-size:11px;padding:3px 8px;border-radius:20px;font-family:'DM Mono',monospace;letter-spacing:1px;animation:pulse 2s infinite;}
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(217, 119, 87, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(217, 119, 87, 0); } 100% { box-shadow: 0 0 0 0 rgba(217, 119, 87, 0); } }
+.hero h1{font-family:'Noto Serif TC',serif;font-weight:900;font-size:clamp(28px,5vw,52px);color:#fff;line-height:1.25;margin-bottom:14px}
+.hero h1 em{color:var(--red);font-style:normal}
+.hero-sub{color:rgba(255,255,255,.45);font-size:14px;line-height:1.9;margin-bottom:36px;max-width:440px;margin-left:auto;margin-right:auto}
+.hero-search{width:100%; max-width:580px; margin:0 auto 20px; position:relative; display:flex; align-items:center;}
+.hero-search input{width:100%; padding:16px 130px 16px 20px; border-radius:10px; border:2px solid rgba(255,255,255,.1); background:rgba(255,255,255,.08); color:#fff; font-size:16px; font-family:'Noto Sans TC',sans-serif; outline:none; transition:border-color .2s; box-sizing:border-box;}
+.hero-search input::placeholder{color:rgba(255,255,255,.3)}
+.hero-search input:focus{border-color:var(--red)}
+.hero-search-btn{position:absolute; right:6px; top:50%; transform:translateY(-50%); background:var(--red); color:#fff; border:none; padding:10px 20px; border-radius:7px; font-size:13px; font-family:'Noto Sans TC',sans-serif; font-weight:500; cursor:pointer; transition:background .2s; white-space:nowrap;}
+.hero-search-btn:hover{background:var(--red-dk)}
+.chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.chip{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);font-size:12px;padding:5px 12px;border-radius:20px;cursor:pointer;transition:all .2s}
+.chip:hover{background:rgba(200,40,30,.2);border-color:rgba(200,40,30,.4);color:#FF9990}
+.statsbar{background:var(--paper-2);border-bottom:1px solid var(--ink-15);padding:14px 24px;display:flex;justify-content:center;gap:48px;flex-wrap:wrap}
+.stat{text-align:center}
+.stat-n{font-family:'Noto Serif TC',serif;font-weight:900;font-size:20px;color:var(--red)}
+.stat-l{font-size:10px;color:var(--ink-40);margin-top:2px;font-family:'DM Mono',monospace;letter-spacing:.5px}
+.layout{max-width:1200px;margin:0 auto;padding:32px 24px;display:grid;grid-template-columns:220px 1fr;gap:28px;align-items:start}
+@media(max-width:768px){
+  .layout { grid-template-columns: 1fr; padding-top: 16px; padding-bottom: max(32px, env(safe-area-inset-bottom)); }
+  .sidebar { position: static; display: block; }
+  .sidebar-block { padding: 0; border: none; background: transparent; margin-bottom: 12px; }
+  .sb-title, .filter-group, .disclaimer { display: none; }
+  .cat-list { flex-direction: column; gap: 2px; max-height: 46vh; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 6px; background: var(--white); border: 1px solid var(--ink-15); border-radius: 12px; }
+  .cat-item { white-space: nowrap; font-size: 14px; }
+  .cat-item.active { background: var(--red-lt); color: var(--red); }
+  .cat-item.active .cat-n { color: var(--red); }
+  .cat-sub { padding-left: 30px; font-size: 13px; }
+  .hero { padding: 40px 20px 32px; }
+  .hero h1 { font-size: 32px; }
+  footer { padding-bottom: max(40px, env(safe-area-inset-bottom)); }
+}
+.sidebar{position:sticky;top:74px}
+.sidebar-block{background:var(--white);border:1px solid var(--ink-15);border-radius:12px;padding:20px;margin-bottom:16px}
+.sb-title{font-family:'Noto Serif TC',serif;font-weight:700;font-size:13px;color:var(--ink);margin-bottom:14px;letter-spacing:1px}
+.cat-list{display:flex;flex-direction:column;gap:2px}
+.cat-item{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:7px;cursor:pointer;transition:all .2s;font-size:13px;color:var(--ink-70)}
+.cat-item:hover,.cat-item.active{background:var(--red-lt);color:var(--red)}
+.cat-item.active{font-weight:500}
+.cat-n{font-family:'DM Mono',monospace;font-size:10px;color:var(--ink-40)}
+.cat-item.active .cat-n{color:var(--red)}
+.cat-group{display:flex;flex-direction:column}
+.cat-label{display:flex;align-items:center;gap:6px;min-width:0}
+.cat-toggle{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;font-size:10px;color:var(--ink-40);transition:transform .2s;flex-shrink:0;border-radius:4px}
+.cat-toggle:hover{background:var(--paper-2);color:var(--red)}
+.cat-toggle.open{transform:rotate(90deg)}
+.cat-toggle-spacer{display:inline-block;width:16px;flex-shrink:0}
+.cat-subs{display:flex;flex-direction:column;gap:1px;margin:1px 0 4px 0}
+.cat-sub{padding:6px 10px 6px 32px;font-size:12px;color:var(--ink-40)}
+.cat-sub:hover,.cat-sub.active{background:var(--red-lt);color:var(--red)}
+.cat-sub.active{font-weight:500}
+.cat-sub.active .cat-n{color:var(--red)}
+.filter-group{display:flex;flex-direction:column;gap:8px}
+.filter-check{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--ink-70)}
+.filter-check input{accent-color:var(--red);width:14px;height:14px;cursor:pointer}
+.disclaimer{background:var(--amber-lt);border:1px solid #F5CC7A;border-radius:10px;padding:14px;font-size:11px;color:var(--amber);line-height:1.7}
+.disclaimer strong{display:block;margin-bottom:4px;font-size:12px}
+.main-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.result-title{font-family:'Noto Serif TC',serif;font-weight:900;font-size:20px;color:var(--ink)}
+.result-sub{font-size:12px;color:var(--ink-40);font-family:'DM Mono',monospace;margin-top:3px}
+.sort-row{display:flex;gap:6px;align-items:center}
+.sort-label{font-size:12px;color:var(--ink-40)}
+.sort-btn{padding:5px 12px;border-radius:6px;border:1px solid var(--ink-15);background:var(--white);font-size:12px;color:var(--ink-70);cursor:pointer;font-family:'Noto Sans TC',sans-serif;transition:all .2s}
+.sort-btn.active,.sort-btn:hover{background:var(--ink);color:var(--white);border-color:var(--ink)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.bcard{background:var(--white);border:1px solid var(--ink-15);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;gap:0;transition:all .25s;cursor:default;position:relative}
+.bcard:hover{border-color:rgba(200,40,30,.3);box-shadow:0 8px 32px rgba(0,0,0,.08);transform:translateY(-2px)}
+.bcard-body{padding:16px;display:flex;flex-direction:column;gap:12px;flex:1}
+.badge{font-size:10px;font-family:'DM Mono',monospace;padding:3px 8px;border-radius:4px;white-space:nowrap}
+.b-mit{background:var(--green-lt);color:var(--green);border:1px solid #A8D5BB}
+.b-ok{background:var(--blue-lt);color:var(--blue);border:1px solid #AACAF0}
+.b-new{background:var(--red-lt);color:var(--red);border:1px solid #FFBBBB}
+.b-warn{background:#FFF3DC;color:var(--amber);border:1px solid #F5CC7A}
+.bcard-name{font-family:'Noto Serif TC',serif;font-weight:700;font-size:16px;color:var(--ink);margin-top:0}
+.bcard-origin{font-size:11px;color:var(--ink-40);font-family:'DM Mono',monospace;margin-left:4px;font-weight:400;display:inline-block;}
+.bcard-desc{font-size:13px;color:var(--ink-70);line-height:1.75}
+.tag{font-size:11px;background:var(--paper-2);color:var(--ink-70);padding:4px 10px;border-radius:20px;font-weight:500;flex-shrink:0;}
+.bcard-footer{display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid var(--ink-15);margin-top:0}
+.bcard-actions{display:flex;gap:8px;align-items:center}
+.btn-buy{font-size:12px;color:var(--red);text-decoration:none;font-weight:500;display:flex;align-items:center;gap:3px;transition:gap .15s}
+.btn-buy:hover{gap:6px}
+.btn-report{font-size:11px;color:var(--ink-40);background:none;border:none;cursor:pointer;padding:2px 4px;border-radius:4px;transition:all .2s;font-family:'Noto Sans TC',sans-serif}
+.btn-report:hover{background:var(--amber-lt);color:var(--amber)}
+.dynamic-comment {height: 28px;overflow: hidden;background: var(--red-lt);border-radius: 6px;padding: 0 10px;position: relative;margin-top: auto; margin-bottom: 4px;border: 1px solid rgba(217, 119, 87, 0.15);}
+.comment-inner {animation: scrollVert 9s cubic-bezier(0.4, 0, 0.2, 1) infinite;}
+.comment-inner div {height: 28px;line-height: 28px;font-size: 11px;color: var(--red-dk);white-space: nowrap;overflow: hidden;text-overflow: ellipsis;}
+@keyframes scrollVert {0%, 22% { transform: translateY(0); }33%, 55% { transform: translateY(-28px); }66%, 88% { transform: translateY(-56px); }100% { transform: translateY(-84px); }}
+.bcard-add{border:2px dashed var(--ink-15);background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:220px;gap:10px;cursor:pointer;transition:all .2s}
+.bcard-add:hover{border-color:var(--red);background:var(--red-lt);transform:translateY(-2px)}
+.bcard-add-icon{font-size:32px;color:var(--ink-15);transition:color .2s}
+.bcard-add:hover .bcard-add-icon{color:var(--red)}
+.bcard-add-text{font-size:13px;color:var(--ink-40);transition:color .2s}
+.bcard-add:hover .bcard-add-text{color:var(--red)}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--white);border-radius:16px;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;padding:32px;position:relative;transform:translateY(20px);transition:transform .25s}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-close{position:absolute;top:16px;right:16px;background:var(--paper);border:none;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:16px;color:var(--ink-70);display:flex;align-items:center;justify-content:center;transition:all .2s}
+.modal-close:hover{background:var(--ink);color:var(--white)}
+.modal-title{font-family:'Noto Serif TC',serif;font-weight:900;font-size:20px;color:var(--ink);margin-bottom:6px}
+.modal-sub{font-size:13px;color:var(--ink-40);margin-bottom:24px;line-height:1.7}
+.modal-tabs{display:flex;gap:8px;margin-bottom:24px}
+.mtab{padding:8px 18px;border-radius:8px;border:1.5px solid var(--ink-15);background:none;font-size:13px;font-family:'Noto Sans TC',sans-serif;color:var(--ink-70);cursor:pointer;transition:all .2s}
+.mtab.active{background:var(--red);border-color:var(--red);color:var(--white);font-weight:500}
+.form{display:flex;flex-direction:column;gap:14px}
+.form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:11px;font-family:'DM Mono',monospace;color:var(--ink-40);letter-spacing:.5px}
+.field input,.field select,.field textarea{padding:10px 13px;border:1.5px solid var(--ink-15);border-radius:8px;font-size:13px;font-family:'Noto Sans TC',sans-serif;color:var(--ink);background:var(--paper);outline:none;transition:border-color .2s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--red);background:var(--white)}
+.field textarea{resize:vertical;min-height:80px}
+.form-btn{background:var(--red);color:var(--white);border:none;padding:13px;border-radius:10px;font-size:14px;font-family:'Noto Sans TC',sans-serif;font-weight:500;cursor:pointer;transition:background .2s;margin-top:4px}
+.form-btn:hover{background:var(--red-dk)}
+.form-note{font-size:11px;color:var(--ink-40);line-height:1.7;background:var(--paper-2);padding:10px 12px;border-radius:8px}
+.report-modal .modal-title{color:var(--amber)}
+.report-options{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.report-opt{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--ink-15);border-radius:8px;cursor:pointer;font-size:13px;color:var(--ink-70);transition:all .2s}
+.report-opt:hover,.report-opt.selected{border-color:var(--amber);background:var(--amber-lt);color:var(--amber)}
+.report-opt input{accent-color:var(--amber)}
+footer{background:var(--ink);padding:40px 24px;margin-top:60px}
+.footer-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px}
+@media(max-width:600px){.footer-inner{grid-template-columns:1fr}}
+.ft-block-title{font-family:'Noto Serif TC',serif;font-weight:700;font-size:13px;color:#fff;margin-bottom:12px;letter-spacing:1px}
+.ft-text{font-size:12px;color:rgba(255,255,255,.35);line-height:2}
+.ft-text a{color:rgba(255,255,255,.5);text-decoration:none}
+.ft-text a:hover{color:#fff}
+.ft-disclaimer{grid-column:1/-1;border-top:1px solid rgba(255,255,255,.08);padding-top:20px;margin-top:8px;font-size:11px;color:rgba(255,255,255,.25);line-height:1.9;font-family:'DM Mono',monospace}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:12px 24px;border-radius:10px;font-size:13px;z-index:999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.hero-inner>*{animation:fadeUp .5s ease both}
+.hero-inner>*:nth-child(1){animation-delay:.05s}
+.hero-inner>*:nth-child(2){animation-delay:.15s}
+.hero-inner>*:nth-child(3){animation-delay:.25s}
+.hero-inner>*:nth-child(4){animation-delay:.35s}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  目前為 BETA 測試版，資料由社群貢獻，如有錯誤歡迎
+  <a href="#" onclick="openSubmitModal();return false">回報或新增</a>
+</div>
+
+<header>
+  <div class="header-inner">
+    <a href="#" class="logo">
+      <div class="logo-mark">台製</div>
+      <div>
+        <div class="logo-name">台製通</div>
+        <div class="logo-en">MADE IN TAIWAN</div>
+      </div>
+    </a>
+    <div class="header-search">
+      <input type="text" id="headerSearch" placeholder="搜尋商品、品牌、品類⋯" onkeypress="if(event.key==='Enter')doSearch(this.value)">
+      <button class="header-search-btn" onclick="doSearch(document.getElementById('headerSearch').value)">⌕</button>
+    </div>
+    <nav>
+      <a href="#" class="nav-link">找品牌</a>
+      <a href="#" class="nav-link">品類</a>
+      <a href="#" class="nav-link" onclick="if(typeof gtag !== 'undefined'){gtag('event', 'click_submit_brand', {'event_category': 'engagement', 'event_label': '推薦品牌'});} openSubmitModal('consumer');return false">推薦品牌</a>
+      <a href="#" class="nav-cta nav-link" onclick="if(typeof gtag !== 'undefined'){gtag('event', 'click_submit_brand', {'event_category': 'engagement', 'event_label': '登錄廠商'});} openSubmitModal('brand');return false">登錄廠商</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-inner">
+    
+    <div class="hero-ticker">
+      <span class="ticker-badge">HOT</span>
+      平台持續更新中，歡迎社群推薦在地好品牌！
+    </div>
+
+    <h1>找台灣製造<br><em>不用再估狗</em></h1>
+    <p class="hero-sub">
+      社群把關的台灣製造目錄。<br>
+      無付費上架、無業配干預，看得見產地的台灣好物。
+    </p>
+    
+    <div class="hero-search">
+      <input type="text" id="heroSearch" placeholder="你想找什麼？例如：手工皂、童鞋、保養品、帆布包⋯" onkeypress="if(event.key==='Enter')doSearch(this.value)">
+      <button class="hero-search-btn" onclick="doSearch(document.getElementById('heroSearch').value)">搜尋 →</button>
+    </div>
+    <div class="chips">
+      <span class="chip" onclick="doSearch('手工皂')">🧼 手工皂</span>
+      <span class="chip" onclick="doSearch('童鞋')">👟 童鞋</span>
+      <span class="chip" onclick="doSearch('保養')">✨ 保養品</span>
+      <span class="chip" onclick="doSearch('食品')">🍱 食品</span>
+      <span class="chip" onclick="doSearch('手作')">🎨 手作飾品</span>
+      <span class="chip" onclick="doSearch('母嬰')">🍼 母嬰</span>
+      <span class="chip" onclick="doSearch('家具')">🪑 家具</span>
+    </div>
+  </div>
+</section>
+
+<div class="statsbar">
+  <div class="stat"><div class="stat-n" id="totalBrands">0</div><div class="stat-l">品牌收錄</div></div>
+  <div class="stat"><div class="stat-n" id="totalCats">0</div><div class="stat-l">商品品類</div></div>
+  <div class="stat"><div class="stat-n" id="mitCount">0</div><div class="stat-l">微笑標章</div></div>
+  <div class="stat"><div class="stat-n">社群共建</div><div class="stat-l">資料來源</div></div>
+</div>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-block">
+      <div class="sb-title">📂 品類</div>
+      <div class="cat-list" id="catList"></div>
+    </div>
+
+    <div class="sidebar-block">
+      <div class="sb-title">🔍 篩選</div>
+      <div class="filter-group">
+        <label class="filter-check"><input type="checkbox" id="filterMit" onchange="applyFilters()"> 僅顯示微笑標章認證</label>
+        <label class="filter-check"><input type="checkbox" id="filterVerified" onchange="applyFilters()"> 僅顯示已驗證</label>
+        <label class="filter-check"><input type="checkbox" id="filterLink" onchange="applyFilters()"> 有購買連結</label>
+      </div>
+    </div>
+
+    <div class="disclaimer">
+      <strong>⚠️ 免責聲明</strong>
+      本平台資料由廠商及社群提供，平台不為商品產地或品質負責。如需確認 MIT 認證，請查閱<a href="https://www.mittw.org.tw" target="_blank" style="color:var(--amber)">經濟部 MIT 微笑標章官方資料庫</a>。
+    </div>
+  </aside>
+
+  <main>
+    <div class="main-top">
+      <div>
+        <div class="result-title" id="resultTitle">全部品牌</div>
+        <div class="result-sub" id="resultSub">顯示 0 筆</div>
+      </div>
+      <div class="sort-row">
+        <span class="sort-label">排序：</span>
+        <button class="sort-btn active" onclick="setSort(this,'newest')">最新</button>
+        <button class="sort-btn" onclick="setSort(this,'name')">名稱</button>
+        <button class="sort-btn" onclick="setSort(this,'mit')">微笑標章優先</button>
+      </div>
+    </div>
+
+    <div class="grid" id="brandsGrid"></div>
+  </main>
+</div>
+
+<div class="modal-overlay" id="submitModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('submitModal')">✕</button>
+    <div class="modal-title">新增 MIT 品牌</div>
+    <div class="modal-sub">不管是你買過的好品牌，或是廠商本身，都歡迎登錄。<br>資料由平台審核後上架，通常 3-5 個工作天。</div>
+    <div class="modal-tabs">
+      <button class="mtab active" onclick="switchMTab(this,'consumer')">消費者推薦</button>
+      <button class="mtab" onclick="switchMTab(this,'brand')">廠商登錄</button>
+    </div>
+
+    <!-- ✨ 子類建議清單：使用者可從選單挑選，也可自行輸入（子類種類繁多且依品類而異，故採可輸入式選單） -->
+    <datalist id="subcatOptions">
+      <option value="沙發"></option>
+      <option value="實木家具"></option>
+      <option value="巧拼地墊"></option>
+      <option value="地墊"></option>
+      <option value="寢具"></option>
+      <option value="毛巾"></option>
+      <option value="木製玩具"></option>
+      <option value="手工皂"></option>
+      <option value="保養品"></option>
+      <option value="帆布包"></option>
+    </datalist>
+
+    <div class="form" id="consumerForm">
+      <div class="form-row-2">
+        <div class="field"><label>品牌名稱 *</label><input type="text" id="c_brand" placeholder="例：興隆毛巾"></div>
+        <div class="field"><label>品類 *</label>
+          <select id="c_cat">
+            <option value="">選擇品類</option><option>生活用品</option><option>紡織寢具</option><option>工具五金</option><option>食品</option><option>保養美妝</option><option>服飾</option><option>母嬰用品</option><option>家具</option><option>寵物用品</option><option>戶外運動</option><option>清潔用品</option><option>醫療保健</option><option>工藝文創</option><option>廚房餐具</option><option>其他</option>
+          </select>
+        </div>
+      </div>
+      <div class="field"><label>子類（選填）</label><input type="text" id="c_subcat" list="subcatOptions" placeholder="例：沙發、地墊、寢具、實木家具⋯"></div>
+      <div class="field"><label>購買連結（選填）</label><input type="text" id="c_link" placeholder="蝦皮、官網、momo 等皆可"></div>
+      <div class="field"><label>為什麼推薦？</label><textarea id="c_desc" placeholder="簡單說說你的使用心得或這個品牌的特色⋯"></textarea></div>
+      <div class="form-note">⚠️ 提交即代表你確認此品牌據你所知為台灣製造，平台將進行人工審核。</div>
+      <button class="form-btn" onclick="submitForm()">提交推薦 →</button>
+    </div>
+
+    <div class="form" id="brandForm" style="display:none">
+      <div class="form-row-2">
+        <div class="field"><label>品牌名稱 *</label><input type="text" id="b_brand" placeholder="你的品牌名稱"></div>
+        <div class="field"><label>製造地點 *</label><input type="text" id="b_origin" placeholder="例：台中市西屯區"></div>
+      </div>
+      <div class="form-row-2">
+        <div class="field"><label>品類 *</label>
+          <select id="b_cat">
+            <option value="">選擇品類</option><option>生活用品</option><option>紡織寢具</option><option>工具五金</option><option>食品</option><option>保養美妝</option><option>服飾</option><option>母嬰用品</option><option>家具</option><option>寵物用品</option><option>戶外運動</option><option>清潔用品</option><option>醫療保健</option><option>工藝文創</option><option>廚房餐具</option><option>其他</option>
+          </select>
+        </div>
+        <div class="field"><label>MIT 微笑標章</label>
+          <select id="b_mit"><option>是，已取得認證</option><option>申請中</option><option>未申請但確為台製</option></select>
+        </div>
+      </div>
+      <div class="field"><label>子類（選填）</label><input type="text" id="b_subcat" list="subcatOptions" placeholder="例：沙發、地墊、寢具、實木家具⋯"></div>
+      <div class="field"><label>官網 / 購買頁面 *</label><input type="text" id="b_link" placeholder="https://..."></div>
+      <div class="field"><label>聯絡信箱 *</label><input type="email" id="b_email" placeholder="your@email.com"></div>
+      <div class="field"><label>品牌簡介（50字以上）</label><textarea id="b_desc" placeholder="製造地、創立年份、產品特色、與其他品牌的差異⋯"></textarea></div>
+      
+      <div class="form-note">📋 廠商登錄為免費服務，不收取任何費用。平台保留拒絕上架之權利，尤其針對疑似中資或無法確認產地之品牌。</div>
+      <button class="form-btn" onclick="submitForm()">免費登錄品牌 →</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay report-modal" id="reportModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('reportModal')">✕</button>
+    <div class="modal-title">⚠️ 回報品牌疑慮</div>
+    <div class="modal-sub" id="reportTarget">回報關於此品牌的疑慮，平台收到後將暫時下架並進行調查。</div>
+    <div class="report-options">
+      <label class="report-opt"><input type="radio" name="ropt" value="疑似非台灣製造"> 疑似非台灣製造</label>
+      <label class="report-opt"><input type="radio" name="ropt" value="疑似中資品牌"> 疑似中資品牌</label>
+      <label class="report-opt"><input type="radio" name="ropt" value="品牌已停業或連結失效"> 品牌已停業或連結失效</label>
+      <label class="report-opt"><input type="radio" name="ropt" value="資料有誤"> 資料有誤（價格、地點等）</label>
+      <label class="report-opt"><input type="radio" name="ropt" value="其他"> 其他</label>
+    </div>
+    <div class="form">
+      <div class="field"><label>補充說明（選填）</label><textarea id="reportDetails" placeholder="如有具體來源或說明，請提供，有助加速調查⋯"></textarea></div>
+      <button class="form-btn" style="background:var(--amber)" onclick="submitReport()">提交回報 →</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="sponsorModal">
+  <div class="modal" style="text-align: center; max-width: 400px;">
+    <button class="modal-close" onclick="closeModal('sponsorModal')">✕</button>
+    <div style="font-size: 48px; margin-bottom: 12px;">☕️</div>
+    <div class="modal-title">贊助站長喝杯咖啡</div>
+    <div class="modal-sub" style="margin-bottom: 24px; line-height: 1.8;">
+      台製通是由社群共建的非營利專案。<br>
+      我們堅持<b>無付費上架、無業配干預、無蓋版廣告</b>。<br>
+      如果這個網站幫你省下了估狗的時間，<br>歡迎贊助我們，支持主機與網域的營運開銷！
+    </div>
+    <a href="#" target="_blank" rel="noopener" class="form-btn" style="display: block; text-decoration: none; padding: 14px; margin-bottom: 12px;">
+      前往綠界 ECPay 支持我們 →
+    </a>
+    <div style="font-size: 11px; color: var(--ink-40);">
+      (目前綠界金流申請中，即將開放！)
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="ft-block-title">台製通</div>
+      <div class="ft-text">
+        台灣製造商品目錄<br>
+        社群共建・免費無廣告
+      </div>
+    </div>
+    <div>
+      <div class="ft-block-title">特別致謝</div>
+      <div class="ft-text">
+        品牌資料主要整理自<br>
+        <a href="https://www.threads.com/@vk123_zoomin" target="_blank">@vk123_zoomin</a> 在 Threads 的整理<br>
+        以及社群共同貢獻<br>
+        感謝每一位讓台製通被看見的人 🙏
+      </div>
+    </div>
+    <div>
+      <div class="ft-block-title">關於</div>
+      <div class="ft-text">
+        <a href="#" onclick="window.location.href='mailto:' + 'adssda889' + '@' + 'gmail.com'; return false;">🤝 品牌合作信箱</a><br>
+        <a href="#" onclick="if(typeof gtag !== 'undefined'){gtag('event', 'click_system_feedback', {'event_category': 'engagement', 'event_label': '回報網站問題'});} window.location.href='mailto:' + 'adssda889' + '@' + 'gmail.com?subject=' + encodeURIComponent('台製通網站問題回報'); return false;">🐛 回報網站問題</a><br>
+        <a href="#" onclick="if(typeof gtag !== 'undefined'){gtag('event', 'click_sponsor', {'event_category': 'engagement', 'event_label': '贊助咖啡按鈕'});} openModal('sponsorModal'); return false;">☕️ 贊助我們喝杯咖啡</a>
+      </div>
+    </div>
+    <div class="ft-disclaimer">
+      資料來源致謝：部分品牌資料整理自 Threads @vk123_zoomin 及社群貢獻者，特此致謝。<br>
+      免責聲明：本平台所有品牌資料均由廠商自行提供或由社群貢獻，台製通不對任何商品之產地、品質、安全性作出保證。
+      消費者如需確認 MIT 認證，請以經濟部產業發展署 MIT 微笑標章官方資料庫為準。
+      本站與所有列載品牌無商業合作關係，絕不干預排名。
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── 設定 ──
+const SPREADSHEET_CONFIG = {
+  prod: '1UvP5QcBjGkvFU5gOpVtplK8BY10AGx0doaZZQ6TfHQw',
+  test: '1TmWeVy1TG5q8a_v7A8hHsT4ut56Gi6XOMRDW6FJBptA'
+};
+
+const SCRIPT_CONFIG = {
+  prod: 'https://script.google.com/macros/s/AKfycbz0fLSie81wciO-oHjtWtCbiPIWU_E9zG9QdZbo8Iw_PxQ-vr0_OkqkYM48Jf9BR3Ny/exec',
+  test: 'https://script.google.com/macros/s/AKfycby2tVWhkrpc271m4lMrjCQ5iWwECw0n88wqxsINIESwzmIFGXkLZAo2_fIzsEf6oyUS/exec'
+};
+
+// ✨ 測試機制：網址加上 ?db=test 即可同時切換「讀取」與「寫入」為測試環境
+// 預設（不帶參數）仍讀寫正式環境，不影響現有使用者
+const urlParams = new URLSearchParams(window.location.search);
+const IS_TEST_MODE = urlParams.get('db') === 'test';
+
+const SHEET_ID = IS_TEST_MODE ? SPREADSHEET_CONFIG.test : SPREADSHEET_CONFIG.prod;
+const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
+const SCRIPT_URL = IS_TEST_MODE ? SCRIPT_CONFIG.test : SCRIPT_CONFIG.prod;
+
+if (IS_TEST_MODE) {
+  console.warn('⚠️ 目前處於測試環境 (Test Mode)，讀取測試版試算表：', SHEET_ID);
+}
+
+// ── 全域資料 ──
+let allBrands = [];
+let currentCat = '全部';
+let currentSub = '';
+let currentSort = 'newest';
+let currentSearch = '';
+
+// ✨ 產生/取得使用者的專屬防護 Token
+function getClientId() {
+  let id = localStorage.getItem('tz_client_id');
+  if (!id) {
+    id = 'tz_' + Math.random().toString(36).substr(2, 9) + Date.now();
+    localStorage.setItem('tz_client_id', id);
+  }
+  return id;
+}
+
+// ── XSS 過濾 ──
+const sanitize = (str) => {
+  if (!str) return '';
+  return str.replace(/</g, '&lt;').replace(/>/g, '&gt;').trim();
+};
+
+// ── 引入 PapaParse 解析 CSV ──
+function processParsedData(data) {
+  return data.slice(1).map((cols, idx) => {
+    const name    = sanitize(cols[0] || '');
+    const cat     = sanitize(cols[1] || '其他');
+    const subCat  = sanitize(cols[2] || '');            // ✨ 新增：子類（C 欄）
+    const origin  = sanitize(cols[3] || '');            // 製造產地（D 欄，原本錯讀 C 欄，已修正）
+    const mitRaw  = sanitize((cols[4] || '').trim());   // MIT認證（E 欄，已修正）
+    
+    let link      = (cols[5] || '').trim();             // 連結（F 欄，已修正）
+    if (!/^https?:\/\/.+/i.test(link)) {
+        link = '';
+    }
+    
+    const desc    = sanitize(cols[6] || '');            // 簡介（G 欄，已修正）
+    const status  = sanitize(cols[7] || '待確認');       // 狀態（H 欄，已修正）
+    
+    let imageUrl = (cols[8] || '').trim();              // 圖片（I 欄，已修正）
+    if (imageUrl.includes('www.google.com/s2/favicons')) {
+      const urlParams = new URLSearchParams(imageUrl.split('?')[1]);
+      const targetDomain = urlParams.get('domain');
+      if (targetDomain) {
+        imageUrl = 'https://logo.clearbit.com/' + targetDomain;
+      }
+    }
+
+    const mit = ['是','true','TRUE','✓','v','V','yes','YES'].includes(mitRaw);
+    const verified = status === '已確認';
+    const hasLink = link !== '';
+    const avatar = name.charAt(0) || '?';
+
+    return { id: idx + 1, name, cat, subCat, origin, desc, mit, verified,
+             hasLink, link, status, avatar, imageUrl, isNew: false };
+  }).filter(b => b.name);
+}
+
+// ── 載入資料 ──
+async function loadData() {
+  const grid = document.getElementById('brandsGrid');
+  grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--ink-40);font-size:14px;">⏳ 載入中，請稍候⋯</div>`;
+  if (IS_TEST_MODE) showTestBadge();
+
+  try {
+    const res = await fetch(CSV_URL);
+    if (!res.ok) throw new Error(`試算表 CSV 讀取失敗（HTTP ${res.status}），請確認該 Google Sheet 已「發布到網路」且為公開檢視`);
+    const text = await res.text();
+    if (text.trim().startsWith('<')) throw new Error('試算表回傳的不是 CSV 內容，可能是連結失效或權限未開放');
+
+    Papa.parse(text, {
+      skipEmptyLines: true,
+      complete: function(results) {
+        allBrands = processParsedData(results.data);
+        updateStats();
+        updateCatCounts();
+        renderBrands();
+      }
+    });
+  } catch (err) {
+    console.warn('⚠️ Google Sheet 讀取失敗，改嘗試備援檔 brands_backup.json：', err.message);
+    try {
+      const resBackup = await fetch('brands_backup.json');
+      if (!resBackup.ok) throw new Error(`備援檔 brands_backup.json 讀取失敗（HTTP ${resBackup.status}），請確認該檔案存在於網站根目錄`);
+      const backupData = await resBackup.json();
+      allBrands = backupData; 
+      updateStats();
+      updateCatCounts();
+      renderBrands();
+    } catch (backupErr) {
+      console.error('❌ 備援檔也讀取失敗：', backupErr.message);
+      grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--amber);font-size:14px;">
+        ⚠️ 資料載入失敗。請確認試算表狀態或備援檔案設定。
+      </div>`;
+    }
+  }
+}
+
+// ── 更新統計 ──
+function updateStats() {
+  document.getElementById('totalBrands').textContent = allBrands.length;
+  document.getElementById('mitCount').textContent = allBrands.filter(b=>b.mit).length;
+  const uniqueCats = new Set(allBrands.map(b => b.cat));
+  document.getElementById('totalCats').textContent = uniqueCats.size;
+}
+
+// ✨ 補全的 Emoji 對照表
+const catEmoji = {
+  '生活用品':'🏠','紡織寢具':'🛏','工具五金':'🔧','食品':'🍱',
+  '保養美妝':'✨','服飾':'👕','戶外運動':'🚴','廚房餐具':'🍳',
+  '寵物用品':'🐾','兒童玩具':'🧸','家具':'🪑','清潔用品':'🧴',
+  '醫療保健':'💊','文具':'✏️','母嬰用品':'🍼','工藝文創':'🎨','其他':'📦'
+};
+
+// ✨ 供 onclick 字串安全帶入（避免品類名含單引號時出錯）
+const q = (s) => (s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+
+function updateCatCounts() {
+  // 建立兩層結構：品類 → { 總數, 子品類:{ 子品類名:數量 } }
+  const tree = {};
+  allBrands.forEach(b => {
+    const cat = b.cat || '其他';
+    const sub = (b.subCat || '').trim();
+    if (!tree[cat]) tree[cat] = { count: 0, subs: {} };
+    tree[cat].count++;
+    if (sub) tree[cat].subs[sub] = (tree[cat].subs[sub] || 0) + 1;
+  });
+
+  const catList = document.getElementById('catList');
+  let html = `<div class="cat-item cat-main active" onclick="filterCat(this,'全部')">全部 <span class="cat-n" id="catAllN">${allBrands.length}</span></div>`;
+
+  Object.entries(tree).sort((a, b) => b[1].count - a[1].count).forEach(([cat, info]) => {
+    const emoji = catEmoji[cat] || '📦';
+    const subs = Object.entries(info.subs).sort((a, b) => b[1] - a[1]);
+    const hasSubs = subs.length > 0;
+
+    html += `<div class="cat-group">`;
+    html += `<div class="cat-item cat-main" onclick="filterCat(this,'${q(cat)}')">
+               <span class="cat-label">${hasSubs
+                 ? `<span class="cat-toggle" onclick="toggleCat(event,this)">▸</span>`
+                 : `<span class="cat-toggle-spacer"></span>`}${emoji} ${cat}</span>
+               <span class="cat-n">${info.count}</span>
+             </div>`;
+
+    if (hasSubs) {
+      html += `<div class="cat-subs" style="display:none">`;
+      subs.forEach(([sub, n]) => {
+        html += `<div class="cat-item cat-sub" onclick="filterSub(this,'${q(cat)}','${q(sub)}')">${sub} <span class="cat-n">${n}</span></div>`;
+      });
+      html += `</div>`;
+    }
+    html += `</div>`;
+  });
+  catList.innerHTML = html;
+}
+
+// ── 渲染卡片 ──
+function renderBrands() {
+  let list = [...allBrands];
+
+  if (currentSearch) {
+    list = list.filter(b => b.name.includes(currentSearch) || b.cat.includes(currentSearch) || (b.subCat || '').includes(currentSearch) || b.desc.includes(currentSearch) || b.origin.includes(currentSearch));
+  }
+  if (currentCat !== '全部') list = list.filter(b => b.cat === currentCat);
+  if (currentSub) list = list.filter(b => (b.subCat || '').trim() === currentSub);
+  if (document.getElementById('filterMit')?.checked) list = list.filter(b => b.mit);
+  if (document.getElementById('filterVerified')?.checked) list = list.filter(b => b.verified);
+  if (document.getElementById('filterLink')?.checked) list = list.filter(b => b.hasLink);
+  
+  if (currentSort === 'name') list.sort((a,b) => a.name.localeCompare(b.name, 'zh-TW'));
+  else if (currentSort === 'mit') list.sort((a,b) => (b.mit?1:0) - (a.mit?1:0));
+
+  const grid = document.getElementById('brandsGrid');
+  document.getElementById('resultSub').textContent = `顯示 ${list.length} 筆`;
+  document.getElementById('resultTitle').textContent = currentSearch ? `搜尋「${currentSearch}」` : currentSub ? `${currentCat}・${currentSub}` : currentCat === '全部' ? '全部品牌' : `${currentCat} 品牌`;
+
+  if (list.length === 0) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--ink-40);">
+        <div style="font-size:32px;margin-bottom:12px;">🔍</div><div style="font-size:14px;">找不到符合的品牌</div>
+        <div style="font-size:12px;margin-top:8px;">換個關鍵字，或推薦這個品牌加入目錄</div></div>
+      <div class="bcard bcard-add" onclick="openSubmitModal()"><div class="bcard-add-icon">＋</div>
+        <div class="bcard-add-text">推薦一個 MIT 品牌</div></div>`;
+    return;
+  }
+
+  // ✨ 真實客觀的資訊跑馬燈
+  const infoPool = [
+    '💡 歡迎點擊右上方推薦新品牌',
+    '🔍 支援多重關鍵字與分類篩選',
+    '❤️ 看得見產地，買得最安心',
+    '✨ 資料由社群熱心把關與共建'
+  ];
+
+  grid.innerHTML = list.map(b => {
+    let cardComments = [];
+    if (b.mit) cardComments.push('👑 通過官方 MIT 微笑標章認證');
+    if (b.verified) cardComments.push('✅ 平台已人工確認產地資訊');
+    
+    let v1 = infoPool[b.id % infoPool.length];
+    let v2 = infoPool[(b.id + 1) % infoPool.length];
+    let v3 = infoPool[(b.id + 2) % infoPool.length];
+    cardComments.push(v1, v2, v3); 
+    
+    let c1 = cardComments[0];
+    let c2 = cardComments[1];
+    let c3 = cardComments[2];
+    
+    const delay = (b.id % 5) * -1.5;
+
+    return `
+    <div class="bcard" style="padding:0;overflow:hidden">
+      <div style="position:relative">
+        ${b.imageUrl
+          ? `<div style="width:100%;height:140px;background:var(--white);border-bottom:1px solid var(--ink-15);display:flex;align-items:center;justify-content:center;padding:6px">
+               <img src="${b.imageUrl}" alt="${b.name}" loading="lazy" style="width:100%;height:100%;object-fit:contain;display:block;" onerror="this.parentElement.outerHTML='<div style=\\'width:100%;height:140px;background:var(--red-lt);display:flex;align-items:center;justify-content:center;font-family:Noto Serif TC,serif;font-weight:900;font-size:64px;color:var(--red)\\'>${b.avatar}</div>'">
+             </div>`
+          : `<div style="width:100%;height:140px;background:var(--red-lt);display:flex;align-items:center;justify-content:center;font-family:'Noto Serif TC',serif;font-weight:900;font-size:64px;color:var(--red)">${b.avatar}</div>`}
+        <div style="position:absolute;top:8px;right:8px;display:flex;flex-direction:column;gap:4px;align-items:flex-end">
+          ${b.mit ? '<span class="badge b-mit">微笑標章</span>' : ''}
+          ${b.verified ? '<span class="badge b-ok">已驗證</span>' : ''}
+          ${b.status === '待確認' ? '<span class="badge b-warn">待確認</span>' : ''}
+        </div>
+      </div>
+      
+      <div style="padding:16px;display:flex;flex-direction:column;gap:10px;flex:1">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+          <div class="bcard-name" style="margin-top:0; line-height:1.4;">${b.name} <span class="bcard-origin" style="margin-top:0;display:inline-block; margin-left:4px;">📍 ${b.origin || '台灣'}</span></div>
+          <span class="tag" style="margin-top:0; flex-shrink:0;">${b.cat}</span>
+        </div>
+        
+        <div class="bcard-desc">${b.desc || '品牌資訊由社群共建整理中⋯'}</div>
+        
+        <div class="dynamic-comment">
+          <div class="comment-inner" style="animation-delay: ${delay}s;">
+             <div>${c1}</div>
+             <div>${c2}</div>
+             <div>${c3}</div>
+             <div>${c1}</div>
+          </div>
+        </div>
+
+        <div class="bcard-footer" style="margin-top:0;">
+          <div class="bcard-actions" style="margin-left:auto">
+            <button class="btn-report" onclick="openReport('${b.name.replace(/'/g,"\\'")}')">⚑ 回報資料有誤</button>
+            ${b.hasLink ? `<a href="${b.link}" class="btn-buy" target="_blank" rel="noopener">前往 →</a>` : '<span style="font-size:11px;color:var(--ink-40)">暫無連結</span>'}
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('') + `<div class="bcard bcard-add" onclick="openSubmitModal()"><div class="bcard-add-icon">＋</div><div class="bcard-add-text">推薦一個 MIT 品牌</div></div>`;
+}
+
+// ── 互動事件 ──
+function doSearch(q) {
+  currentSearch = q.trim();
+  if (typeof gtag !== 'undefined' && currentSearch) { gtag('event', 'search', { search_term: currentSearch }); }
+  currentCat = '全部'; currentSub = '';
+  document.querySelectorAll('.cat-item').forEach(i => i.classList.remove('active'));
+  document.querySelector('.cat-item').classList.add('active');
+  renderBrands();
+  document.querySelector('.layout').scrollIntoView({behavior:'smooth'});
+}
+
+function filterCat(el, cat) {
+  currentCat = cat; currentSub = ''; currentSearch = '';
+  document.getElementById('heroSearch').value = ''; document.getElementById('headerSearch').value = '';
+  document.querySelectorAll('.cat-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  // 點主品類時自動展開其子品類
+  const group = el.closest('.cat-group');
+  if (group) {
+    const subs = group.querySelector('.cat-subs');
+    const tog = el.querySelector('.cat-toggle');
+    if (subs) { subs.style.display = 'flex'; if (tog) tog.classList.add('open'); }
+  }
+  renderBrands();
+}
+
+// 點子品類：同時設定品類與子品類
+function filterSub(el, cat, sub) {
+  currentCat = cat; currentSub = sub; currentSearch = '';
+  document.getElementById('heroSearch').value = ''; document.getElementById('headerSearch').value = '';
+  document.querySelectorAll('.cat-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  renderBrands();
+}
+
+// 展開/收合子品類（不觸發品類篩選）
+function toggleCat(event, el) {
+  event.stopPropagation();
+  const group = el.closest('.cat-group');
+  if (!group) return;
+  const subs = group.querySelector('.cat-subs');
+  if (!subs) return;
+  const isOpen = subs.style.display !== 'none';
+  subs.style.display = isOpen ? 'none' : 'flex';
+  el.classList.toggle('open', !isOpen);
+}
+function applyFilters() { renderBrands(); }
+function setSort(btn, sort) {
+  currentSort = sort;
+  document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active'); renderBrands();
+}
+
+// ✨ 依入口按鈕決定「新增 MIT 品牌」Modal 要直接開哪個表單
+// type: 'consumer' → 只顯示消費者推薦表單（隱藏分頁切換列）
+// type: 'brand'    → 只顯示廠商登錄表單（隱藏分頁切換列）
+// type: 未指定      → 維持原本行為，顯示分頁切換列，預設消費者推薦
+function openSubmitModal(type) {
+  const tabs = document.querySelector('#submitModal .modal-tabs');
+  const mtabs = document.querySelectorAll('#submitModal .mtab');
+  if (type === 'consumer' || type === 'brand') {
+    tabs.style.display = 'none';
+    switchMTab(mtabs[type === 'consumer' ? 0 : 1], type);
+  } else {
+    tabs.style.display = 'flex';
+    switchMTab(mtabs[0], 'consumer');
+  }
+  openModal('submitModal');
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); document.body.style.overflow = 'hidden'; }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow = ''; }
+document.querySelectorAll('.modal-overlay').forEach(m => { m.addEventListener('click', e => { if (e.target === m) closeModal(m.id); }); });
+
+function switchMTab(btn, type) {
+  document.querySelectorAll('.mtab').forEach(b => b.classList.remove('active')); btn.classList.add('active');
+  document.getElementById('consumerForm').style.display = type === 'consumer' ? 'flex' : 'none';
+  document.getElementById('brandForm').style.display = type === 'brand' ? 'flex' : 'none';
+}
+
+function openReport(name) {
+  if (typeof gtag !== 'undefined') { gtag('event', 'click_report_card_error', {'event_category': 'engagement', 'event_label': name || '未指定品牌'}); }
+  document.getElementById('reportTarget').textContent = name
+    ? `回報關於「${name}」的疑慮，平台收到後將下架待查。`
+    : '發現任何品牌的資料有誤、連結失效或有疑慮，都歡迎在下方說明，平台收到後會盡快查核。';
+  document.getElementById('reportModal').setAttribute('data-brand', name);
+  openModal('reportModal');
+}
+
+// ── 表單送出 (推薦/登錄) ──
+async function submitForm() {
+  const isConsumer = document.getElementById('consumerForm').style.display !== 'none';
+  let payload = {};
+
+  if (isConsumer) {
+    const linkValue = document.getElementById('c_link').value.trim();
+    if (linkValue !== '' && !/^https?:\/\/.+/i.test(linkValue)) {
+       showToast('⚠️ 購買連結請填寫 http:// 或 https:// 開頭的有效網址'); return;
+    }
+    // ✨ 加入 Action 與 Token
+    payload = {
+      action:    'submit',
+      clientId:  getClientId(),
+      brandName: sanitize(document.getElementById('c_brand').value),
+      category:  sanitize(document.getElementById('c_cat').value),
+      subCat:    sanitize(document.getElementById('c_subcat').value),
+      origin:    '',
+      mit:       '否',
+      link:      sanitize(linkValue),
+      desc:      sanitize(document.getElementById('c_desc').value),
+      type:      '消費者推薦'
+    };
+  } else {
+    const emailValue = document.getElementById('b_email').value.trim();
+    const linkValue = document.getElementById('b_link').value.trim();
+    const mitValue = document.getElementById('b_mit').value;
+    
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue)) {
+        showToast('⚠️ 請填寫正確的 Email 格式'); return;
+    }
+    if (!/^https?:\/\/.+/i.test(linkValue)) {
+        showToast('⚠️ 官網/購買頁面請填寫 http:// 或 https:// 開頭的有效網址'); return;
+    }
+
+    // ✨ 加入 Action 與 Token
+    payload = {
+      action:    'submit',
+      clientId:  getClientId(),
+      brandName: sanitize(document.getElementById('b_brand').value),
+      category:  sanitize(document.getElementById('b_cat').value),
+      subCat:    sanitize(document.getElementById('b_subcat').value),
+      origin:    sanitize(document.getElementById('b_origin').value),
+      mit:       mitValue.includes('已取得') ? '是' : '否',
+      link:      sanitize(linkValue),
+      desc:      sanitize(document.getElementById('b_desc').value),
+      type:      '廠商登錄'
+    };
+  }
+
+  if (!payload.brandName || !payload.category) {
+    showToast('⚠️ 請填寫品牌名稱與品類'); return;
+  }
+
+  const btn = isConsumer ? document.querySelector('#consumerForm .form-btn') : document.querySelector('#brandForm .form-btn');
+  const originalText = btn.textContent;
+  btn.textContent = '送出中⋯'; btn.disabled = true;
+
+  try {
+    const formBody = new URLSearchParams(payload).toString();
+    const response = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: formBody,
+    });
+    
+    // ✨ 優化 Error 攔截
+    const result = await response.json();
+    if (!result.success && result.error) {
+      showToast('⚠️ ' + result.error);
+    } else {
+      showToast('✅ 已收到！表單已成功送至待審核區域。');
+      if (isConsumer) {
+        document.getElementById('c_brand').value = '';
+        document.getElementById('c_cat').selectedIndex = 0;
+        document.getElementById('c_subcat').value = '';
+        document.getElementById('c_link').value = '';
+        document.getElementById('c_desc').value = '';
+      } else {
+        document.getElementById('b_brand').value = '';
+        document.getElementById('b_subcat').value = '';
+        document.getElementById('b_origin').value = '';
+        document.getElementById('b_cat').selectedIndex = 0;
+        document.getElementById('b_mit').selectedIndex = 0;
+        document.getElementById('b_link').value = '';
+        document.getElementById('b_desc').value = '';
+        document.getElementById('b_email').value = '';
+      }
+      closeModal('submitModal');
+    }
+  } catch (err) {
+    showToast('❌ 送出失敗，請檢查網路連線後重試。');
+  } finally {
+    btn.textContent = originalText; btn.disabled = false;
+  }
+}
+
+// 真實回報 API
+async function submitReport() {
+  const brandName = document.getElementById('reportModal').getAttribute('data-brand');
+  const ropt = document.querySelector('input[name="ropt"]:checked');
+  if (!ropt) { 
+    showToast('⚠️ 請選擇回報類型'); 
+    return; 
+  }
+  
+  const reportType = ropt.value;
+  const details = document.getElementById('reportDetails').value;
+  const btn = document.querySelector('#reportModal .form-btn');
+  
+  const originalText = btn.textContent;
+  btn.textContent = '送出中⋯'; btn.disabled = true;
+
+  try {
+    // ✨ 加入 Action 與 Token
+    const payload = {
+      action: 'report',
+      clientId: getClientId(),
+      brandName: sanitize(brandName),
+      reportType: sanitize(reportType),
+      details: sanitize(details)
+    };
+
+    const response = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(payload).toString(),
+    });
+    
+    // ✨ 優化 Error 攔截
+    const result = await response.json();
+    if (!result.success && result.error) {
+      showToast('⚠️ ' + result.error);
+    } else {
+      closeModal('reportModal');
+      showToast('⚠️ 回報已送出，我們將盡快調查。感謝你的監督！');
+      document.getElementById('reportDetails').value = '';
+      ropt.checked = false;
+    }
+  } catch (err) {
+    showToast('❌ 回報送出失敗，請重試。');
+  } finally {
+    btn.textContent = originalText; btn.disabled = false;
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+// ✨ 測試環境視覺提示：沿用站內既有 amber 配色系統
+function showTestBadge() {
+  if (document.getElementById('testModeBadge')) return; // 避免重複插入
+  document.title = '🧪 測試中｜' + document.title;
+  const badge = document.createElement('div');
+  badge.id = 'testModeBadge';
+  badge.innerHTML = '🧪 測試環境（讀寫皆為測試版資料庫）';
+  badge.style.cssText = `
+    position:fixed; bottom:16px; right:16px; z-index:9999;
+    background:var(--amber-lt); color:var(--amber);
+    border:1px solid #F5CC7A; font-family:'DM Mono',monospace;
+    font-size:12px; font-weight:500; padding:8px 14px;
+    border-radius:20px; box-shadow:0 4px 12px rgba(0,0,0,.12);
+  `;
+  document.body.appendChild(badge);
+}
+loadData();
+</script>
+</body>
+</html>
