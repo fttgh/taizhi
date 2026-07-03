@@ -137,7 +137,8 @@ nav{display:flex;gap:4px;align-items:center}
 .bcard-desc{font-size:13px;color:var(--ink-70);line-height:1.75}
 .tag{font-size:11px;background:var(--paper-2);color:var(--ink-70);padding:4px 10px;border-radius:20px;font-weight:500;flex-shrink:0;}
 .bcard-footer{display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid var(--ink-15);margin-top:0}
-.bcard-actions{display:flex;gap:8px;align-items:center}
+.bcard-actions{display:flex;gap:14px;align-items:center}
+.bcard-actions .btn-buy{border-left:1px solid var(--ink-15);padding-left:14px}
 .btn-buy{font-size:12px;color:var(--red);text-decoration:none;font-weight:500;display:flex;align-items:center;gap:3px;transition:gap .15s}
 .btn-buy:hover{gap:6px}
 .btn-report{font-size:11px;color:var(--ink-40);background:none;border:none;cursor:pointer;padding:2px 4px;border-radius:4px;transition:all .2s;font-family:'Noto Sans TC',sans-serif}
@@ -627,6 +628,18 @@ function updateCatCounts() {
 }
 
 // ── 渲染卡片 ──
+// ✨ 依連結網域決定按鈕文字，避免與「回報資料有誤」混淆
+function linkLabel(url) {
+  const u = (url || '').toLowerCase();
+  if (u.includes('threads.com') || u.includes('threads.net')) return '前往 Threads';
+  if (u.includes('shopee.tw')) return '前往蝦皮賣場';
+  if (u.includes('momoshop.com.tw')) return '前往 momo';
+  if (u.includes('instagram.com')) return '前往 IG';
+  if (u.includes('facebook.com') || u.includes('fb.com')) return '前往 FB';
+  if (u.includes('pinkoi.com')) return '前往 Pinkoi';
+  return '前往官網';
+}
+
 function renderBrands() {
   let list = [...allBrands];
 
@@ -696,8 +709,11 @@ function renderBrands() {
       
       <div style="padding:16px;display:flex;flex-direction:column;gap:10px;flex:1">
         <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
-          <div class="bcard-name" style="margin-top:0; line-height:1.4;">${b.name} <span class="bcard-origin" style="margin-top:0;display:inline-block; margin-left:4px;">📍 ${b.origin || '台灣'}</span></div>
-          <span class="tag" style="margin-top:0; flex-shrink:0;">${b.cat}</span>
+          <div class="bcard-name" style="margin-top:0; line-height:1.4;">${b.name}</div>
+          <div style="display:flex; align-items:center; gap:6px; flex-shrink:0; margin-top:2px;">
+            <span class="bcard-origin" style="margin:0; white-space:nowrap;">📍 ${b.origin || '台灣'}</span>
+            <span class="tag" style="margin-top:0; flex-shrink:0;">${b.cat}</span>
+          </div>
         </div>
         
         <div class="bcard-desc">${b.desc || '品牌資訊由社群共建整理中⋯'}</div>
@@ -714,7 +730,7 @@ function renderBrands() {
         <div class="bcard-footer" style="margin-top:0;">
           <div class="bcard-actions" style="margin-left:auto">
             <button class="btn-report" onclick="openReport('${b.name.replace(/'/g,"\\'")}')">⚑ 回報資料有誤</button>
-            ${b.hasLink ? `<a href="${b.link}" class="btn-buy" target="_blank" rel="noopener">前往 →</a>` : '<span style="font-size:11px;color:var(--ink-40)">暫無連結</span>'}
+            ${b.hasLink ? `<a href="${b.link}" class="btn-buy" target="_blank" rel="noopener">${linkLabel(b.link)} →</a>` : '<span style="font-size:11px;color:var(--ink-40)">暫無連結</span>'}
           </div>
         </div>
       </div>
