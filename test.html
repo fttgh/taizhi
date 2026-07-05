@@ -8,6 +8,11 @@
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
 
+  // ✨ 測試環境（網址含 ?db=test）停用 GA，避免測試點擊污染正式數據
+  if (new URLSearchParams(window.location.search).get('db') === 'test') {
+    window['ga-disable-G-EB5JCJMXE6'] = true;
+  }
+
   gtag('config', 'G-EB5JCJMXE6');
 </script>
 <meta charset="UTF-8">
@@ -588,6 +593,10 @@ const catEmoji = {
 const q = (s) => (s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 
 function updateCatCounts() {
+  // ✨ 子品類顯示規則（可依需求調整）
+  const MIN_SUB_COUNT = 3;   // 子品類至少要有幾筆才單獨列出（過濾 1、2 筆的長尾）
+  const MAX_SUBS      = 8;    // 每個大品類最多列幾個子品類，其餘併入「其他」
+
   // 建立兩層結構：品類 → { 總數, 子品類:{ 子品類名:數量 } }
   const tree = {};
   allBrands.forEach(b => {
@@ -595,7 +604,8 @@ function updateCatCounts() {
     const sub = (b.subCat || '').trim();
     if (!tree[cat]) tree[cat] = { count: 0, subs: {} };
     tree[cat].count++;
-    if (sub) tree[cat].subs[sub] = (tree[cat].subs[sub] || 0) + 1;
+    // 略過空值、以及與母品類同名的冗餘子品類（例：食品→食品）
+    if (sub && sub !== cat) tree[cat].subs[sub] = (tree[cat].subs[sub] || 0) + 1;
   });
 
   const catList = document.getElementById('catList');
@@ -603,7 +613,12 @@ function updateCatCounts() {
 
   Object.entries(tree).sort((a, b) => b[1].count - a[1].count).forEach(([cat, info]) => {
     const emoji = catEmoji[cat] || '📦';
-    const subs = Object.entries(info.subs).sort((a, b) => b[1] - a[1]);
+
+    // 只保留達門檻的子品類，依數量排序後取前 MAX_SUBS 個
+    const subs = Object.entries(info.subs)
+      .filter(([, n]) => n >= MIN_SUB_COUNT)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, MAX_SUBS);
     const hasSubs = subs.length > 0;
 
     html += `<div class="cat-group">`;
