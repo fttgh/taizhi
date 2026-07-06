@@ -664,6 +664,18 @@ function groupSubCat(cat, sub) {
   return (scoped && scoped[s]) ? scoped[s] : s;
 }
 
+// ✨ 籠統詞黑名單：某品類底下這些值等同「未分類」，不應獨立成子品類列出。
+// 例：寵物用品底下的「寵物」、生活用品底下的「生活用品」等（與母品類同名者會另外由 grouped===cat 擋掉，這裡處理不同名但同樣籠統的詞）。
+const SUBCAT_IGNORE = {
+  '寵物用品': ['寵物','寵物用品','其他'],
+  '生活用品': ['生活','其他'],
+  '食品':     ['食品','其他']
+};
+function isIgnoredSub(cat, grouped) {
+  const list = SUBCAT_IGNORE[(cat || '').trim()];
+  return !!(list && list.indexOf((grouped || '').trim()) !== -1);
+}
+
 function updateCatCounts() {
   // ✨ 子品類顯示規則（可依需求調整）
   const MIN_SUB_COUNT = 3;   // 子品類至少要有幾筆才單獨列出（過濾 1、2 筆的長尾）
@@ -676,9 +688,9 @@ function updateCatCounts() {
     const sub = (b.subCat || '').trim();
     if (!tree[cat]) tree[cat] = { count: 0, subs: {} };
     tree[cat].count++;
-    // 先歸群（玉荷包/芒果→水果），再略過空值與和母品類同名的冗餘值
+    // 先歸群（玉荷包/芒果→水果），再略過空值、和母品類同名、以及籠統詞（如寵物用品的「寵物」）
     const grouped = groupSubCat(cat, sub);
-    if (grouped && grouped !== cat) tree[cat].subs[grouped] = (tree[cat].subs[grouped] || 0) + 1;
+    if (grouped && grouped !== cat && !isIgnoredSub(cat, grouped)) tree[cat].subs[grouped] = (tree[cat].subs[grouped] || 0) + 1;
   });
 
   const catList = document.getElementById('catList');
