@@ -8,6 +8,11 @@
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
 
+  // ✨ 測試環境（網址含 ?db=test）停用 GA，避免測試點擊污染正式數據
+  if (new URLSearchParams(window.location.search).get('db') === 'test') {
+    window['ga-disable-G-EB5JCJMXE6'] = true;
+  }
+
   gtag('config', 'G-EB5JCJMXE6');
 </script>
 <meta charset="UTF-8">
@@ -82,11 +87,11 @@ nav{display:flex;gap:4px;align-items:center}
   .sidebar { position: static; display: block; }
   .sidebar-block { padding: 0; border: none; background: transparent; margin-bottom: 12px; }
   .sb-title, .filter-group, .disclaimer { display: none; }
-  .cat-list { flex-direction: row; overflow-x: auto; padding-bottom: 8px; gap: 8px; scrollbar-width: none; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory; }
-  .cat-list::-webkit-scrollbar { display: none; }
-  .cat-item { scroll-snap-align: start; white-space: nowrap; background: var(--white); border: 1px solid var(--ink-15); padding: 10px 16px; border-radius: 24px; font-size:14px; }
-  .cat-item.active { background: var(--red); color: var(--white); border-color: var(--red); }
-  .cat-item.active .cat-n { color: rgba(255,255,255,0.7); }
+  .cat-list { flex-direction: column; gap: 2px; max-height: 46vh; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 6px; background: var(--white); border: 1px solid var(--ink-15); border-radius: 12px; }
+  .cat-item { white-space: nowrap; font-size: 14px; }
+  .cat-item.active { background: var(--red-lt); color: var(--red); }
+  .cat-item.active .cat-n { color: var(--red); }
+  .cat-sub { padding-left: 30px; font-size: 13px; }
   .hero { padding: 40px 20px 32px; }
   .hero h1 { font-size: 32px; }
   footer { padding-bottom: max(40px, env(safe-area-inset-bottom)); }
@@ -94,12 +99,25 @@ nav{display:flex;gap:4px;align-items:center}
 .sidebar{position:sticky;top:74px}
 .sidebar-block{background:var(--white);border:1px solid var(--ink-15);border-radius:12px;padding:20px;margin-bottom:16px}
 .sb-title{font-family:'Noto Serif TC',serif;font-weight:700;font-size:13px;color:var(--ink);margin-bottom:14px;letter-spacing:1px}
-.cat-list{display:flex;flex-direction:column;gap:2px}
+.cat-list{display:flex;flex-direction:column;gap:2px;max-height:calc(100vh - 130px);overflow-y:auto;padding-right:4px}
+.cat-list::-webkit-scrollbar{width:6px}
+.cat-list::-webkit-scrollbar-thumb{background:var(--ink-15);border-radius:3px}
 .cat-item{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:7px;cursor:pointer;transition:all .2s;font-size:13px;color:var(--ink-70)}
 .cat-item:hover,.cat-item.active{background:var(--red-lt);color:var(--red)}
 .cat-item.active{font-weight:500}
 .cat-n{font-family:'DM Mono',monospace;font-size:10px;color:var(--ink-40)}
 .cat-item.active .cat-n{color:var(--red)}
+.cat-group{display:flex;flex-direction:column}
+.cat-label{display:flex;align-items:center;gap:6px;min-width:0}
+.cat-toggle{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;font-size:10px;color:var(--ink-40);transition:transform .2s;flex-shrink:0;border-radius:4px}
+.cat-toggle:hover{background:var(--paper-2);color:var(--red)}
+.cat-toggle.open{transform:rotate(90deg)}
+.cat-toggle-spacer{display:inline-block;width:16px;flex-shrink:0}
+.cat-subs{display:flex;flex-direction:column;gap:1px;margin:1px 0 4px 0}
+.cat-sub{padding:6px 10px 6px 32px;font-size:12px;color:var(--ink-40)}
+.cat-sub:hover,.cat-sub.active{background:var(--red-lt);color:var(--red)}
+.cat-sub.active{font-weight:500}
+.cat-sub.active .cat-n{color:var(--red)}
 .filter-group{display:flex;flex-direction:column;gap:8px}
 .filter-check{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--ink-70)}
 .filter-check input{accent-color:var(--red);width:14px;height:14px;cursor:pointer}
@@ -126,7 +144,7 @@ nav{display:flex;gap:4px;align-items:center}
 .bcard-desc{font-size:13px;color:var(--ink-70);line-height:1.75}
 .tag{font-size:11px;background:var(--paper-2);color:var(--ink-70);padding:4px 10px;border-radius:20px;font-weight:500;flex-shrink:0;}
 .bcard-footer{display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid var(--ink-15);margin-top:0}
-.bcard-actions{display:flex;gap:8px;align-items:center}
+.bcard-actions{display:flex;gap:14px;align-items:center}
 .btn-buy{font-size:12px;color:var(--red);text-decoration:none;font-weight:500;display:flex;align-items:center;gap:3px;transition:gap .15s}
 .btn-buy:hover{gap:6px}
 .btn-report{font-size:11px;color:var(--ink-40);background:none;border:none;cursor:pointer;padding:2px 4px;border-radius:4px;transition:all .2s;font-family:'Noto Sans TC',sans-serif}
@@ -248,7 +266,7 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
 <div class="statsbar">
   <div class="stat"><div class="stat-n" id="totalBrands">0</div><div class="stat-l">品牌收錄</div></div>
   <div class="stat"><div class="stat-n" id="totalCats">0</div><div class="stat-l">商品品類</div></div>
-  <div class="stat"><div class="stat-n" id="mitCount">0</div><div class="stat-l">MIT認證</div></div>
+  <div class="stat"><div class="stat-n" id="mitCount">0</div><div class="stat-l">微笑標章</div></div>
   <div class="stat"><div class="stat-n">社群共建</div><div class="stat-l">資料來源</div></div>
 </div>
 
@@ -262,7 +280,7 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
     <div class="sidebar-block">
       <div class="sb-title">🔍 篩選</div>
       <div class="filter-group">
-        <label class="filter-check"><input type="checkbox" id="filterMit" onchange="applyFilters()"> 僅顯示 MIT 認證</label>
+        <label class="filter-check"><input type="checkbox" id="filterMit" onchange="applyFilters()"> 僅顯示微笑標章認證</label>
         <label class="filter-check"><input type="checkbox" id="filterVerified" onchange="applyFilters()"> 僅顯示已驗證</label>
         <label class="filter-check"><input type="checkbox" id="filterLink" onchange="applyFilters()"> 有購買連結</label>
       </div>
@@ -284,7 +302,7 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
         <span class="sort-label">排序：</span>
         <button class="sort-btn active" onclick="setSort(this,'newest')">最新</button>
         <button class="sort-btn" onclick="setSort(this,'name')">名稱</button>
-        <button class="sort-btn" onclick="setSort(this,'mit')">MIT優先</button>
+        <button class="sort-btn" onclick="setSort(this,'mit')">微笑標章優先</button>
       </div>
     </div>
 
@@ -461,6 +479,7 @@ if (IS_TEST_MODE) {
 // ── 全域資料 ──
 let allBrands = [];
 let currentCat = '全部';
+let currentSub = '';
 let currentSort = 'newest';
 let currentSearch = '';
 
@@ -572,27 +591,162 @@ const catEmoji = {
   '醫療保健':'💊','文具':'✏️','母嬰用品':'🍼','工藝文創':'🎨','其他':'📦'
 };
 
-function updateCatCounts() {
-  const counts = {};
-  allBrands.forEach(b => { counts[b.cat] = (counts[b.cat] || 0) + 1; });
-  const catList = document.getElementById('catList');
-  let html = `<div class="cat-item active" onclick="filterCat(this,'全部')">全部 <span class="cat-n" id="catAllN">${allBrands.length}</span></div>`;
+// ✨ 供 onclick 字串安全帶入（避免品類名含單引號時出錯）
+const q = (s) => (s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 
-  Object.entries(counts).sort((a, b) => b[1] - a[1]).forEach(([cat, count]) => {
+/* ═══════════════════════════════════════════════════════════════════
+   【子品類治理・分工原則】（前端為單一維護點）
+   ───────────────────────────────────────────────────────────────────
+   本專案子品類的「分類邏輯」全部集中在前端這一張 SUBCAT_GROUPS 表：
+
+   ● 前端（本區 groupSubCat）＝所有分類邏輯的唯一維護點
+     - 同時處理「同義詞收斂」（鞋/鞋子/皮鞋→鞋履）與「二級歸群」（玉荷包/芒果→水果）。
+     - 時機：資料【讀取／顯示時】即時運算，只改畫面、完全不動資料庫。
+     - 性質：【可逆】、且【新舊資料通吃】——改這張表、重載即生效，零風險。
+
+   ● 後端（Code.gs 的 normalizeSubCat）＝只做輕量客觀清潔
+     - 僅去頭尾空白、濾除與母品類同名的冗餘值；不含任何會變動的分類邏輯。
+     - 因為後端正規化【不可逆、且救不了既有舊資料】，故分類主力一律交給前端。
+
+   ★ 通則：資料庫只存「客觀事實的最小單位」（芒果），
+     所有主觀、會演進的分類（同義詞、水果群組）都留在前端即時計算。
+
+   ⚠ 注意：顯示（updateCatCounts）與篩選（renderBrands）必須用同一個
+     groupSubCat()，兩邊才對得上——點「水果」才篩得出玉荷包/芒果。
+   ═══════════════════════════════════════════════════════════════════ */
+
+// ✨ 子品類對照表（純前端顯示層，不動資料庫）＝ 全站分類邏輯的單一來源
+// 一表通吃兩件事：
+//   1) 同義詞收斂：把打字習慣差異統一（鞋/鞋子/皮鞋 → 鞋履）。
+//   2) 二級歸群：把零散細項收攏成大群組（玉荷包/芒果/鮮果 → 水果），縮短側欄。
+// 結構：SUBCAT_GROUPS[母品類] = { '標準名/群組名': ['會對應到它的原始子品類', ...] }
+//       依母品類分層，避免同名詞跨品類誤歸（服飾的鞋→鞋履、母嬰的鞋→童鞋）。
+// 維護：這是你唯一要維護的分類表，新增規則照格式加一行即可，後端無需改動。
+const SUBCAT_GROUPS = {
+  '食品': {
+    '水果':     ['玉荷包','芒果','鮮果','水果','荔枝','鳳梨','葡萄','棗','柑橘','橘子','蓮霧','番茄','火龍果'],
+    '甜點零食': ['巧克力','糖果','米餅','餅乾','零食','蛋糕','布丁','果凍'],
+    '飲品':     ['茶','茶葉','咖啡','咖啡豆','養生飲','飲料','果汁','木耳露','豆漿'],
+    '乳製品':   ['鮮乳','牛奶','優格','起司','乳製品'],
+    '肉品加工': ['肉乾','滷蛋白','香腸','肉品','肉鬆'],
+    '蔬菜農產': ['蒜','玉米筍','蔬菜','菇','筍','薑'],
+    '穀物雜糧': ['米','豆','雜糧','穀物','麵','麵條']
+  },
+  // ↓↓ 以下為「同義詞收斂」用法：群組名就是標準名，成員列出各種打字寫法 ↓↓
+  '服飾':     { '鞋履': ['鞋','鞋子','皮鞋','靴','靴子','鞋履'] },
+  '母嬰用品': { '童鞋': ['鞋','鞋子','童鞋'] },
+  '保養美妝': { '手工皂': ['香皂','肥皂','手工皂'] },
+  '寵物用品': {
+    '保健食品':     ['保健食品','毛孩保健','寵物保健','營養品','保健','保養品','機能食品'],
+    '鮮食濕糧':     ['鮮食濕糧','鮮食','凍乾','罐頭','濕糧','主食罐','餐包','寵物鮮食','寵物食品','寵物餐'],
+    '零食點心':     ['零食點心','零食','點心','肉乾','潔牙骨','寵物零食'],
+    '玩具用品':     ['玩具用品','玩具','用品','逗貓棒','抓板','益智玩具'],
+    '飼料乾糧':     ['飼料乾糧','飼料','乾糧','主食'],
+    '清潔美容':     ['清潔美容','清潔','美容','洗劑','除臭','沐浴'],
+    '窩墊寢具':     ['窩墊寢具','窩','墊','床','睡窩','寢具']
+  }
+  // 其他品類要收斂或歸群，照上面格式往下加即可。沒列到的品類維持逐項顯示。
+};
+
+// 反查表（原始子品類 → 群組名），啟動時建一次，之後查詢 O(1)
+const SUBCAT_GROUP_LOOKUP = {};
+Object.entries(SUBCAT_GROUPS).forEach(([cat, groups]) => {
+  SUBCAT_GROUP_LOOKUP[cat] = {};
+  Object.entries(groups).forEach(([groupName, members]) => {
+    members.forEach(m => { SUBCAT_GROUP_LOOKUP[cat][m] = groupName; });
+  });
+});
+
+// 取得子品類的「顯示用群組名」：有歸群對照則回群組名，否則回原值
+function groupSubCat(cat, sub) {
+  const s = (sub || '').trim();
+  const scoped = SUBCAT_GROUP_LOOKUP[(cat || '').trim()];
+  return (scoped && scoped[s]) ? scoped[s] : s;
+}
+
+// ✨ 籠統詞黑名單：某品類底下這些值等同「未分類」，不應獨立成子品類列出。
+// 例：寵物用品底下的「寵物」、生活用品底下的「生活用品」等（與母品類同名者會另外由 grouped===cat 擋掉，這裡處理不同名但同樣籠統的詞）。
+const SUBCAT_IGNORE = {
+  '寵物用品': ['寵物','寵物用品','其他'],
+  '生活用品': ['生活','其他'],
+  '食品':     ['食品','其他']
+};
+function isIgnoredSub(cat, grouped) {
+  const list = SUBCAT_IGNORE[(cat || '').trim()];
+  return !!(list && list.indexOf((grouped || '').trim()) !== -1);
+}
+
+function updateCatCounts() {
+  // ✨ 子品類顯示規則（可依需求調整）
+  const MIN_SUB_COUNT = 3;   // 子品類至少要有幾筆才單獨列出（過濾 1、2 筆的長尾）
+  const MAX_SUBS      = 8;    // 每個大品類最多列幾個子品類，其餘併入「其他」
+
+  // 建立兩層結構：品類 → { 總數, 子品類:{ 子品類名:數量 } }
+  const tree = {};
+  allBrands.forEach(b => {
+    const cat = b.cat || '其他';
+    const sub = (b.subCat || '').trim();
+    if (!tree[cat]) tree[cat] = { count: 0, subs: {} };
+    tree[cat].count++;
+    // 先歸群（玉荷包/芒果→水果），再略過空值、和母品類同名、以及籠統詞（如寵物用品的「寵物」）
+    const grouped = groupSubCat(cat, sub);
+    if (grouped && grouped !== cat && !isIgnoredSub(cat, grouped)) tree[cat].subs[grouped] = (tree[cat].subs[grouped] || 0) + 1;
+  });
+
+  const catList = document.getElementById('catList');
+  let html = `<div class="cat-item cat-main active" onclick="filterCat(this,'全部')">全部 <span class="cat-n" id="catAllN">${allBrands.length}</span></div>`;
+
+  Object.entries(tree).sort((a, b) => b[1].count - a[1].count).forEach(([cat, info]) => {
     const emoji = catEmoji[cat] || '📦';
-    html += `<div class="cat-item" onclick="filterCat(this,'${cat}')">${emoji} ${cat} <span class="cat-n">${count}</span></div>`;
+
+    // 只保留達門檻的子品類，依數量排序後取前 MAX_SUBS 個
+    const subs = Object.entries(info.subs)
+      .filter(([, n]) => n >= MIN_SUB_COUNT)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, MAX_SUBS);
+    const hasSubs = subs.length > 0;
+
+    html += `<div class="cat-group">`;
+    html += `<div class="cat-item cat-main" onclick="filterCat(this,'${q(cat)}')">
+               <span class="cat-label">${hasSubs
+                 ? `<span class="cat-toggle" onclick="toggleCat(event,this)">▸</span>`
+                 : `<span class="cat-toggle-spacer"></span>`}${emoji} ${cat}</span>
+               <span class="cat-n">${info.count}</span>
+             </div>`;
+
+    if (hasSubs) {
+      html += `<div class="cat-subs" style="display:none">`;
+      subs.forEach(([sub, n]) => {
+        html += `<div class="cat-item cat-sub" onclick="filterSub(this,'${q(cat)}','${q(sub)}')">${sub} <span class="cat-n">${n}</span></div>`;
+      });
+      html += `</div>`;
+    }
+    html += `</div>`;
   });
   catList.innerHTML = html;
 }
 
 // ── 渲染卡片 ──
+// ✨ 依連結網域決定按鈕文字，避免與「回報資料有誤」混淆
+function linkLabel(url) {
+  const u = (url || '').toLowerCase();
+  if (u.includes('threads.com') || u.includes('threads.net')) return '前往 Threads';
+  if (u.includes('shopee.tw')) return '前往蝦皮賣場';
+  if (u.includes('momoshop.com.tw')) return '前往 momo';
+  if (u.includes('instagram.com')) return '前往 IG';
+  if (u.includes('facebook.com') || u.includes('fb.com')) return '前往 FB';
+  if (u.includes('pinkoi.com')) return '前往 Pinkoi';
+  return '前往官網';
+}
+
 function renderBrands() {
   let list = [...allBrands];
 
   if (currentSearch) {
-    list = list.filter(b => b.name.includes(currentSearch) || b.cat.includes(currentSearch) || b.desc.includes(currentSearch) || b.origin.includes(currentSearch));
+    list = list.filter(b => b.name.includes(currentSearch) || b.cat.includes(currentSearch) || (b.subCat || '').includes(currentSearch) || b.desc.includes(currentSearch) || b.origin.includes(currentSearch));
   }
   if (currentCat !== '全部') list = list.filter(b => b.cat === currentCat);
+  if (currentSub) list = list.filter(b => groupSubCat(b.cat, b.subCat) === currentSub);
   if (document.getElementById('filterMit')?.checked) list = list.filter(b => b.mit);
   if (document.getElementById('filterVerified')?.checked) list = list.filter(b => b.verified);
   if (document.getElementById('filterLink')?.checked) list = list.filter(b => b.hasLink);
@@ -602,7 +756,7 @@ function renderBrands() {
 
   const grid = document.getElementById('brandsGrid');
   document.getElementById('resultSub').textContent = `顯示 ${list.length} 筆`;
-  document.getElementById('resultTitle').textContent = currentSearch ? `搜尋「${currentSearch}」` : currentCat === '全部' ? '全部品牌' : `${currentCat} 品牌`;
+  document.getElementById('resultTitle').textContent = currentSearch ? `搜尋「${currentSearch}」` : currentSub ? `${currentCat}・${currentSub}` : currentCat === '全部' ? '全部品牌' : `${currentCat} 品牌`;
 
   if (list.length === 0) {
     grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--ink-40);">
@@ -646,7 +800,7 @@ function renderBrands() {
              </div>`
           : `<div style="width:100%;height:140px;background:var(--red-lt);display:flex;align-items:center;justify-content:center;font-family:'Noto Serif TC',serif;font-weight:900;font-size:64px;color:var(--red)">${b.avatar}</div>`}
         <div style="position:absolute;top:8px;right:8px;display:flex;flex-direction:column;gap:4px;align-items:flex-end">
-          ${b.mit ? '<span class="badge b-mit">MIT認證</span>' : ''}
+          ${b.mit ? '<span class="badge b-mit">微笑標章</span>' : ''}
           ${b.verified ? '<span class="badge b-ok">已驗證</span>' : ''}
           ${b.status === '待確認' ? '<span class="badge b-warn">待確認</span>' : ''}
         </div>
@@ -654,8 +808,11 @@ function renderBrands() {
       
       <div style="padding:16px;display:flex;flex-direction:column;gap:10px;flex:1">
         <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
-          <div class="bcard-name" style="margin-top:0; line-height:1.4;">${b.name} <span class="bcard-origin" style="margin-top:0;display:inline-block; margin-left:4px;">📍 ${b.origin || '產地待確認'}</span></div>
-          <span class="tag" style="margin-top:0; flex-shrink:0;">${b.cat}</span>
+          <div class="bcard-name" style="margin-top:0; line-height:1.4; flex:1; min-width:0; word-break:break-word;">${b.name}</div>
+          <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px; flex-shrink:0;">
+            <span class="tag" style="margin-top:0; flex-shrink:0;">${b.cat}</span>
+            <span class="bcard-origin" style="margin:0; white-space:nowrap;">📍 ${b.origin || '台灣'}</span>
+          </div>
         </div>
         
         <div class="bcard-desc">${b.desc || '品牌資訊由社群共建整理中⋯'}</div>
@@ -670,10 +827,8 @@ function renderBrands() {
         </div>
 
         <div class="bcard-footer" style="margin-top:0;">
-          <div class="bcard-actions" style="margin-left:auto">
-            <button class="btn-report" onclick="openReport('${b.name.replace(/'/g,"\\'")}')">⚑ 回報資料有誤</button>
-            ${b.hasLink ? `<a href="${b.link}" class="btn-buy" target="_blank" rel="noopener">購買 →</a>` : '<span style="font-size:11px;color:var(--ink-40)">暫無連結</span>'}
-          </div>
+          <button class="btn-report" onclick="openReport('${b.name.replace(/'/g,"\\'")}')">⚑ 回報資料有誤</button>
+          ${b.hasLink ? `<a href="${b.link}" class="btn-buy" target="_blank" rel="noopener">${linkLabel(b.link)} →</a>` : '<span style="font-size:11px;color:var(--ink-40)">暫無連結</span>'}
         </div>
       </div>
     </div>`;
@@ -684,7 +839,7 @@ function renderBrands() {
 function doSearch(q) {
   currentSearch = q.trim();
   if (typeof gtag !== 'undefined' && currentSearch) { gtag('event', 'search', { search_term: currentSearch }); }
-  currentCat = '全部';
+  currentCat = '全部'; currentSub = '';
   document.querySelectorAll('.cat-item').forEach(i => i.classList.remove('active'));
   document.querySelector('.cat-item').classList.add('active');
   renderBrands();
@@ -692,10 +847,39 @@ function doSearch(q) {
 }
 
 function filterCat(el, cat) {
-  currentCat = cat; currentSearch = '';
+  currentCat = cat; currentSub = ''; currentSearch = '';
   document.getElementById('heroSearch').value = ''; document.getElementById('headerSearch').value = '';
   document.querySelectorAll('.cat-item').forEach(i => i.classList.remove('active'));
-  el.classList.add('active'); renderBrands();
+  el.classList.add('active');
+  // 點主品類時自動展開其子品類
+  const group = el.closest('.cat-group');
+  if (group) {
+    const subs = group.querySelector('.cat-subs');
+    const tog = el.querySelector('.cat-toggle');
+    if (subs) { subs.style.display = 'flex'; if (tog) tog.classList.add('open'); }
+  }
+  renderBrands();
+}
+
+// 點子品類：同時設定品類與子品類
+function filterSub(el, cat, sub) {
+  currentCat = cat; currentSub = sub; currentSearch = '';
+  document.getElementById('heroSearch').value = ''; document.getElementById('headerSearch').value = '';
+  document.querySelectorAll('.cat-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  renderBrands();
+}
+
+// 展開/收合子品類（不觸發品類篩選）
+function toggleCat(event, el) {
+  event.stopPropagation();
+  const group = el.closest('.cat-group');
+  if (!group) return;
+  const subs = group.querySelector('.cat-subs');
+  if (!subs) return;
+  const isOpen = subs.style.display !== 'none';
+  subs.style.display = isOpen ? 'none' : 'flex';
+  el.classList.toggle('open', !isOpen);
 }
 function applyFilters() { renderBrands(); }
 function setSort(btn, sort) {
