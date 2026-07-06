@@ -99,7 +99,9 @@ nav{display:flex;gap:4px;align-items:center}
 .sidebar{position:sticky;top:74px}
 .sidebar-block{background:var(--white);border:1px solid var(--ink-15);border-radius:12px;padding:20px;margin-bottom:16px}
 .sb-title{font-family:'Noto Serif TC',serif;font-weight:700;font-size:13px;color:var(--ink);margin-bottom:14px;letter-spacing:1px}
-.cat-list{display:flex;flex-direction:column;gap:2px}
+.cat-list{display:flex;flex-direction:column;gap:2px;max-height:calc(100vh - 130px);overflow-y:auto;padding-right:4px}
+.cat-list::-webkit-scrollbar{width:6px}
+.cat-list::-webkit-scrollbar-thumb{background:var(--ink-15);border-radius:3px}
 .cat-item{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:7px;cursor:pointer;transition:all .2s;font-size:13px;color:var(--ink-70)}
 .cat-item:hover,.cat-item.active{background:var(--red-lt);color:var(--red)}
 .cat-item.active{font-weight:500}
@@ -592,6 +594,67 @@ const catEmoji = {
 // ✨ 供 onclick 字串安全帶入（避免品類名含單引號時出錯）
 const q = (s) => (s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 
+/* ═══════════════════════════════════════════════════════════════════
+   【子品類治理・分工原則】（前端為單一維護點）
+   ───────────────────────────────────────────────────────────────────
+   本專案子品類的「分類邏輯」全部集中在前端這一張 SUBCAT_GROUPS 表：
+
+   ● 前端（本區 groupSubCat）＝所有分類邏輯的唯一維護點
+     - 同時處理「同義詞收斂」（鞋/鞋子/皮鞋→鞋履）與「二級歸群」（玉荷包/芒果→水果）。
+     - 時機：資料【讀取／顯示時】即時運算，只改畫面、完全不動資料庫。
+     - 性質：【可逆】、且【新舊資料通吃】——改這張表、重載即生效，零風險。
+
+   ● 後端（Code.gs 的 normalizeSubCat）＝只做輕量客觀清潔
+     - 僅去頭尾空白、濾除與母品類同名的冗餘值；不含任何會變動的分類邏輯。
+     - 因為後端正規化【不可逆、且救不了既有舊資料】，故分類主力一律交給前端。
+
+   ★ 通則：資料庫只存「客觀事實的最小單位」（芒果），
+     所有主觀、會演進的分類（同義詞、水果群組）都留在前端即時計算。
+
+   ⚠ 注意：顯示（updateCatCounts）與篩選（renderBrands）必須用同一個
+     groupSubCat()，兩邊才對得上——點「水果」才篩得出玉荷包/芒果。
+   ═══════════════════════════════════════════════════════════════════ */
+
+// ✨ 子品類對照表（純前端顯示層，不動資料庫）＝ 全站分類邏輯的單一來源
+// 一表通吃兩件事：
+//   1) 同義詞收斂：把打字習慣差異統一（鞋/鞋子/皮鞋 → 鞋履）。
+//   2) 二級歸群：把零散細項收攏成大群組（玉荷包/芒果/鮮果 → 水果），縮短側欄。
+// 結構：SUBCAT_GROUPS[母品類] = { '標準名/群組名': ['會對應到它的原始子品類', ...] }
+//       依母品類分層，避免同名詞跨品類誤歸（服飾的鞋→鞋履、母嬰的鞋→童鞋）。
+// 維護：這是你唯一要維護的分類表，新增規則照格式加一行即可，後端無需改動。
+const SUBCAT_GROUPS = {
+  '食品': {
+    '水果':     ['玉荷包','芒果','鮮果','水果','荔枝','鳳梨','葡萄','棗','柑橘','橘子','蓮霧','番茄','火龍果'],
+    '甜點零食': ['巧克力','糖果','米餅','餅乾','零食','蛋糕','布丁','果凍'],
+    '飲品':     ['茶','茶葉','咖啡','咖啡豆','養生飲','飲料','果汁','木耳露','豆漿'],
+    '乳製品':   ['鮮乳','牛奶','優格','起司','乳製品'],
+    '肉品加工': ['肉乾','滷蛋白','香腸','肉品','肉鬆'],
+    '蔬菜農產': ['蒜','玉米筍','蔬菜','菇','筍','薑'],
+    '穀物雜糧': ['米','豆','雜糧','穀物','麵','麵條']
+  },
+  // ↓↓ 以下為「同義詞收斂」用法：群組名就是標準名，成員列出各種打字寫法 ↓↓
+  '服飾':     { '鞋履': ['鞋','鞋子','皮鞋','靴','靴子','鞋履'] },
+  '母嬰用品': { '童鞋': ['鞋','鞋子','童鞋'] },
+  '保養美妝': { '手工皂': ['香皂','肥皂','手工皂'] }
+  // 其他品類要收斂或歸群，照上面格式往下加即可。沒列到的品類維持逐項顯示。
+};
+
+// 反查表（原始子品類 → 群組名），啟動時建一次，之後查詢 O(1)
+const SUBCAT_GROUP_LOOKUP = {};
+Object.entries(SUBCAT_GROUPS).forEach(([cat, groups]) => {
+  SUBCAT_GROUP_LOOKUP[cat] = {};
+  Object.entries(groups).forEach(([groupName, members]) => {
+    members.forEach(m => { SUBCAT_GROUP_LOOKUP[cat][m] = groupName; });
+  });
+});
+
+// 取得子品類的「顯示用群組名」：有歸群對照則回群組名，否則回原值
+function groupSubCat(cat, sub) {
+  const s = (sub || '').trim();
+  const scoped = SUBCAT_GROUP_LOOKUP[(cat || '').trim()];
+  return (scoped && scoped[s]) ? scoped[s] : s;
+}
+
 function updateCatCounts() {
   // ✨ 子品類顯示規則（可依需求調整）
   const MIN_SUB_COUNT = 3;   // 子品類至少要有幾筆才單獨列出（過濾 1、2 筆的長尾）
@@ -604,8 +667,9 @@ function updateCatCounts() {
     const sub = (b.subCat || '').trim();
     if (!tree[cat]) tree[cat] = { count: 0, subs: {} };
     tree[cat].count++;
-    // 略過空值、以及與母品類同名的冗餘子品類（例：食品→食品）
-    if (sub && sub !== cat) tree[cat].subs[sub] = (tree[cat].subs[sub] || 0) + 1;
+    // 先歸群（玉荷包/芒果→水果），再略過空值與和母品類同名的冗餘值
+    const grouped = groupSubCat(cat, sub);
+    if (grouped && grouped !== cat) tree[cat].subs[grouped] = (tree[cat].subs[grouped] || 0) + 1;
   });
 
   const catList = document.getElementById('catList');
@@ -661,7 +725,7 @@ function renderBrands() {
     list = list.filter(b => b.name.includes(currentSearch) || b.cat.includes(currentSearch) || (b.subCat || '').includes(currentSearch) || b.desc.includes(currentSearch) || b.origin.includes(currentSearch));
   }
   if (currentCat !== '全部') list = list.filter(b => b.cat === currentCat);
-  if (currentSub) list = list.filter(b => (b.subCat || '').trim() === currentSub);
+  if (currentSub) list = list.filter(b => groupSubCat(b.cat, b.subCat) === currentSub);
   if (document.getElementById('filterMit')?.checked) list = list.filter(b => b.mit);
   if (document.getElementById('filterVerified')?.checked) list = list.filter(b => b.verified);
   if (document.getElementById('filterLink')?.checked) list = list.filter(b => b.hasLink);
