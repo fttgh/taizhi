@@ -185,7 +185,23 @@ nav{display:flex;gap:4px;align-items:center}
 .report-opt{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--ink-15);border-radius:8px;cursor:pointer;font-size:13px;color:var(--ink-70);transition:all .2s}
 .report-opt:hover,.report-opt.selected{border-color:var(--amber);background:var(--amber-lt);color:var(--amber)}
 .report-opt input{accent-color:var(--amber)}
-footer{background:var(--ink);padding:40px 24px;margin-top:60px}
+.like-cta{background:var(--paper-2);border-top:1px solid var(--ink-15);padding:48px 24px}
+.like-cta-inner{max-width:560px;margin:0 auto;text-align:center}
+.like-cta-emoji{font-size:40px;margin-bottom:10px}
+.like-cta-title{font-family:'Noto Serif TC',serif;font-weight:900;font-size:22px;color:var(--ink);margin-bottom:12px}
+.like-cta-text{font-size:13px;color:var(--ink-70);line-height:1.9;margin-bottom:24px}
+.like-cta-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.like-btn{display:inline-flex;align-items:center;gap:8px;background:var(--red);color:#fff;border:none;padding:12px 22px;border-radius:30px;font-size:14px;font-family:'Noto Sans TC',sans-serif;font-weight:500;cursor:pointer;transition:all .2s;box-shadow:0 4px 14px rgba(217,119,87,.3)}
+.like-btn:hover{background:var(--red-dk);transform:translateY(-2px)}
+.like-btn:disabled{cursor:default;background:var(--red);opacity:.9;transform:none}
+.like-btn-icon{font-size:16px;transition:transform .2s}
+.like-btn:hover .like-btn-icon{transform:scale(1.2) rotate(-8deg)}
+.like-count{background:rgba(255,255,255,.25);padding:2px 10px;border-radius:20px;font-family:'DM Mono',monospace;font-size:13px;font-weight:500;min-width:28px}
+.share-btn{display:inline-flex;align-items:center;gap:6px;background:var(--white);color:var(--ink-70);border:1.5px solid var(--ink-15);padding:12px 22px;border-radius:30px;font-size:14px;font-family:'Noto Sans TC',sans-serif;cursor:pointer;transition:all .2s}
+.share-btn:hover{border-color:var(--red);color:var(--red)}
+.like-btn.liked{background:var(--green)}
+.like-btn.liked:hover{background:var(--green)}
+footer{background:var(--ink);padding:40px 24px;margin-top:0}
 .footer-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px}
 @media(max-width:600px){.footer-inner{grid-template-columns:1fr}}
 .ft-block-title{font-family:'Noto Serif TC',serif;font-weight:700;font-size:13px;color:#fff;margin-bottom:12px;letter-spacing:1px}
@@ -309,6 +325,27 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
     <div class="grid" id="brandsGrid"></div>
   </main>
 </div>
+
+<!-- ✨ 按讚 / 覺得有幫助 CTA -->
+<section class="like-cta">
+  <div class="like-cta-inner">
+    <div class="like-cta-emoji">🇹🇼</div>
+    <div class="like-cta-title">這個網站有幫到你嗎？</div>
+    <div class="like-cta-text">
+      台製通是無廣告、社群共建的非營利專案。<br>
+      如果它幫你省下了估狗「這是不是台灣製」的時間，<br>
+      按個讚、把它分享出去，就是對我們最大的鼓勵 🙏
+    </div>
+    <div class="like-cta-actions">
+      <button class="like-btn" id="likeBtn" onclick="doLike()">
+        <span class="like-btn-icon">👍</span>
+        <span class="like-btn-label" id="likeLabel">覺得有幫助</span>
+        <span class="like-count" id="likeCount">—</span>
+      </button>
+      <button class="share-btn" onclick="doShare()">🔗 分享給朋友</button>
+    </div>
+  </div>
+</section>
 
 <div class="modal-overlay" id="submitModal">
   <div class="modal">
@@ -1091,7 +1128,89 @@ function showTestBadge() {
   `;
   document.body.appendChild(badge);
 }
+// ── 按讚 / 分享 ──
+const LIKE_STORAGE_KEY = 'tz_liked';
+
+// 啟動時讀取目前總讚數，並還原本裝置是否已按過
+async function initLikes() {
+  // 若本裝置已按過，先把按鈕切成已按讚狀態
+  if (localStorage.getItem(LIKE_STORAGE_KEY) === '1') markLiked();
+
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ action: 'likeGet', clientId: getClientId() }).toString(),
+    });
+    const result = await res.json();
+    if (result && typeof result.likes !== 'undefined') {
+      document.getElementById('likeCount').textContent = result.likes;
+    }
+  } catch (err) {
+    // 讀取失敗就顯示破折號，不影響其他功能
+    document.getElementById('likeCount').textContent = '♥';
+  }
+}
+
+function markLiked() {
+  const btn = document.getElementById('likeBtn');
+  btn.classList.add('liked');
+  btn.disabled = true;
+  document.querySelector('.like-btn-icon').textContent = '❤️';
+  document.getElementById('likeLabel').textContent = '感謝支持';
+}
+
+async function doLike() {
+  if (localStorage.getItem(LIKE_STORAGE_KEY) === '1') return; // 一裝置一讚
+  const btn = document.getElementById('likeBtn');
+  btn.disabled = true;
+
+  if (typeof gtag !== 'undefined') { gtag('event', 'click_like', { event_category: 'engagement', event_label: '覺得有幫助' }); }
+
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ action: 'like', clientId: getClientId() }).toString(),
+    });
+    const result = await res.json();
+    if (result && result.success) {
+      localStorage.setItem(LIKE_STORAGE_KEY, '1');
+      if (typeof result.likes !== 'undefined') document.getElementById('likeCount').textContent = result.likes;
+      markLiked();
+      showToast('❤️ 感謝你的支持！');
+    } else {
+      btn.disabled = false;
+      showToast('⚠️ ' + ((result && result.error) || '按讚失敗，請稍後再試'));
+    }
+  } catch (err) {
+    btn.disabled = false;
+    showToast('❌ 按讚失敗，請檢查網路後重試。');
+  }
+}
+
+async function doShare() {
+  const shareData = {
+    title: '台製通｜台灣製造商品搜尋平台',
+    text: '找台灣製造不用再估狗！這個社群共建的台灣製造目錄很好用，推薦給你 🇹🇼',
+    url: 'https://fttgh.github.io/taizhi/'
+  };
+  if (typeof gtag !== 'undefined') { gtag('event', 'click_share', { event_category: 'engagement', event_label: '分享按鈕' }); }
+
+  try {
+    if (navigator.share) {
+      await navigator.share(shareData);           // 手機原生分享面板
+    } else {
+      await navigator.clipboard.writeText(shareData.url);
+      showToast('🔗 網址已複製，貼給朋友吧！');
+    }
+  } catch (err) {
+    // 使用者取消分享不算錯誤，忽略即可
+  }
+}
+
 loadData();
+initLikes();
 </script>
 </body>
 </html>
