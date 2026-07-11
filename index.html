@@ -78,6 +78,7 @@ nav{display:flex;gap:4px;align-items:center}
 .chip{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);font-size:12px;padding:5px 12px;border-radius:20px;cursor:pointer;transition:all .2s}
 .chip:hover{background:rgba(200,40,30,.2);border-color:rgba(200,40,30,.4);color:#FF9990}
 .statsbar{background:var(--paper-2);border-bottom:1px solid var(--ink-15);padding:14px 24px;display:flex;justify-content:center;gap:48px;flex-wrap:wrap}
+.mobile-disclaimer-bar{display:none}
 .stat{text-align:center}
 .stat-n{font-family:'Noto Serif TC',serif;font-weight:900;font-size:20px;color:var(--red)}
 .stat-l{font-size:10px;color:var(--ink-40);margin-top:2px;font-family:'DM Mono',monospace;letter-spacing:.5px}
@@ -86,7 +87,9 @@ nav{display:flex;gap:4px;align-items:center}
   .layout { grid-template-columns: 1fr; padding-top: 16px; padding-bottom: max(32px, env(safe-area-inset-bottom)); }
   .sidebar { position: static; display: block; }
   .sidebar-block { padding: 0; border: none; background: transparent; margin-bottom: 12px; }
-  .sb-title, .filter-group, .disclaimer { display: none; }
+  .sb-title, .filter-group { display: none; }
+  .disclaimer { margin-top: 12px; }
+  .mobile-disclaimer-bar{display:block;background:var(--amber-lt);color:var(--amber);font-size:12px;line-height:1.6;padding:10px 16px;text-align:center;border-bottom:1px solid #F5CC7A;cursor:pointer}
   .cat-list { flex-direction: column; gap: 2px; max-height: 46vh; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 6px; background: var(--white); border: 1px solid var(--ink-15); border-radius: 12px; }
   .cat-item { white-space: nowrap; font-size: 14px; }
   .cat-item.active { background: var(--red-lt); color: var(--red); }
@@ -135,10 +138,12 @@ nav{display:flex;gap:4px;align-items:center}
 .bcard:hover{border-color:rgba(200,40,30,.3);box-shadow:0 8px 32px rgba(0,0,0,.08);transform:translateY(-2px)}
 .bcard-body{padding:16px;display:flex;flex-direction:column;gap:12px;flex:1}
 .badge{font-size:10px;font-family:'DM Mono',monospace;padding:3px 8px;border-radius:4px;white-space:nowrap}
-.b-mit{background:var(--green-lt);color:var(--green);border:1px solid #A8D5BB}
+.b-mit{background:var(--green-lt);color:var(--green);border:1.5px solid var(--green);font-weight:700}
 .b-ok{background:var(--blue-lt);color:var(--blue);border:1px solid #AACAF0}
 .b-new{background:var(--red-lt);color:var(--red);border:1px solid #FFBBBB}
-.b-warn{background:#FFF3DC;color:var(--amber);border:1px solid #F5CC7A}
+.b-warn{background:transparent;color:var(--ink-40);border:1px dashed var(--ink-15);font-weight:400}
+.bcard-verified{border-color:var(--green)}
+.bcard-verified:hover{border-color:var(--green)}
 .bcard-name{font-family:'Noto Serif TC',serif;font-weight:700;font-size:16px;color:var(--ink);margin-top:0}
 .bcard-origin{font-size:11px;color:var(--ink-40);font-family:'DM Mono',monospace;margin-left:4px;font-weight:400;display:inline-block;}
 .bcard-desc{font-size:13px;color:var(--ink-70);line-height:1.75}
@@ -185,6 +190,21 @@ nav{display:flex;gap:4px;align-items:center}
 .report-opt{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--ink-15);border-radius:8px;cursor:pointer;font-size:13px;color:var(--ink-70);transition:all .2s}
 .report-opt:hover,.report-opt.selected{border-color:var(--amber);background:var(--amber-lt);color:var(--amber)}
 .report-opt input{accent-color:var(--amber)}
+.like-bar{position:fixed;bottom:0;left:0;right:0;z-index:300;background:var(--white);border-top:1px solid var(--ink-15);box-shadow:0 -4px 20px rgba(0,0,0,.06);display:flex;align-items:center;justify-content:center;gap:12px;padding:8px 44px 8px 16px;flex-wrap:wrap}
+.like-bar.hidden{display:none}
+.like-bar-text{font-size:13px;color:var(--ink-70)}
+.like-btn{display:inline-flex;align-items:center;gap:6px;background:var(--red);color:#fff;border:none;padding:7px 14px;border-radius:30px;font-size:13px;font-family:'Noto Sans TC',sans-serif;font-weight:500;cursor:pointer;transition:all .2s}
+.like-btn:hover{background:var(--red-dk)}
+.like-btn:disabled{cursor:default;opacity:.9}
+.like-btn.liked{background:var(--green)}
+.like-count{background:rgba(255,255,255,.25);padding:1px 8px;border-radius:20px;font-family:'DM Mono',monospace;font-size:12px;min-width:24px}
+.share-btn{display:inline-flex;align-items:center;gap:5px;background:var(--white);color:var(--ink-70);border:1.5px solid var(--ink-15);padding:7px 14px;border-radius:30px;font-size:13px;font-family:'Noto Sans TC',sans-serif;cursor:pointer;transition:all .2s}
+.share-btn:hover{border-color:var(--red);color:var(--red)}
+.like-bar-close{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--ink-40);font-size:14px;cursor:pointer;padding:6px;border-radius:6px;transition:all .2s}
+.like-bar-close:hover{background:var(--paper);color:var(--ink)}
+@keyframes barPulse{0%,100%{box-shadow:0 -4px 20px rgba(0,0,0,.06)}50%{box-shadow:0 -4px 24px rgba(217,119,87,.45)}}
+.like-bar.pulse{animation:barPulse 1s ease 2}
+body{padding-bottom:52px}
 footer{background:var(--ink);padding:40px 24px;margin-top:60px}
 .footer-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px}
 @media(max-width:600px){.footer-inner{grid-template-columns:1fr}}
@@ -270,6 +290,11 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
   <div class="stat"><div class="stat-n">社群共建</div><div class="stat-l">資料來源</div></div>
 </div>
 
+<!-- ✨ 手機限定：免責聲明精簡條（點擊捲到側欄完整版）-->
+<div class="mobile-disclaimer-bar" onclick="document.querySelector('.disclaimer').scrollIntoView({behavior:'smooth',block:'center'})">
+  ⚠️ 資料由社群提供、僅供參考；確認 MIT 認證請以官方微笑標章資料庫為準 →
+</div>
+
 <div class="layout">
   <aside class="sidebar">
     <div class="sidebar-block">
@@ -308,6 +333,18 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
 
     <div class="grid" id="brandsGrid"></div>
   </main>
+</div>
+
+<!-- ✨ 底部固定按讚/分享細長 bar（可關閉） -->
+<div class="like-bar" id="likeBar">
+  <span class="like-bar-text">覺得台製通有幫到你？</span>
+  <button class="like-btn" id="likeBtn" onclick="doLike()">
+    <span class="like-btn-icon">👍</span>
+    <span class="like-btn-label" id="likeLabel">按個讚</span>
+    <span class="like-count" id="likeCount">—</span>
+  </button>
+  <button class="share-btn" onclick="doShare()">🔗 分享</button>
+  <button class="like-bar-close" onclick="closeLikeBar()" aria-label="關閉">✕</button>
 </div>
 
 <div class="modal-overlay" id="submitModal">
@@ -441,7 +478,6 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
       </div>
     </div>
     <div class="ft-disclaimer">
-      資料來源致謝：部分品牌資料整理自 Threads @vk123_zoomin 及社群貢獻者，特此致謝。<br>
       免責聲明：本平台所有品牌資料均由廠商自行提供或由社群貢獻，台製通不對任何商品之產地、品質、安全性作出保證。
       消費者如需確認 MIT 認證，請以經濟部產業發展署 MIT 微笑標章官方資料庫為準。
       本站與所有列載品牌無商業合作關係，絕不干預排名。
@@ -739,7 +775,13 @@ function linkLabel(url) {
   return '前往官網';
 }
 
-function renderBrands() {
+// ✨ 分頁載入：首屏只顯示前 PAGE_SIZE 張，避免 400+ 張卡片一次灌爆頁面（資訊過載 + 效能）
+const PAGE_SIZE = 24;
+let visibleCount = PAGE_SIZE;
+function loadMore() { visibleCount += PAGE_SIZE; renderBrands(true); }
+
+function renderBrands(keepCount) {
+  if (!keepCount) visibleCount = PAGE_SIZE;   // 換品類/搜尋/篩選時重置回第一頁
   let list = [...allBrands];
 
   if (currentSearch) {
@@ -775,7 +817,10 @@ function renderBrands() {
     '✨ 資料由社群熱心把關與共建'
   ];
 
-  grid.innerHTML = list.map(b => {
+  const visible = list.slice(0, visibleCount);   // ✨ 只渲染目前頁數內的卡片
+  const remaining = list.length - visible.length;
+
+  grid.innerHTML = visible.map(b => {
     let cardComments = [];
     if (b.mit) cardComments.push('👑 通過官方 MIT 微笑標章認證');
     if (b.verified) cardComments.push('✅ 平台已人工確認產地資訊');
@@ -792,7 +837,7 @@ function renderBrands() {
     const delay = (b.id % 5) * -1.5;
 
     return `
-    <div class="bcard" style="padding:0;overflow:hidden">
+    <div class="bcard${b.mit ? ' bcard-verified' : ''}" style="padding:0;overflow:hidden">
       <div style="position:relative">
         ${b.imageUrl
           ? `<div style="width:100%;height:140px;background:var(--white);border-bottom:1px solid var(--ink-15);display:flex;align-items:center;justify-content:center;padding:6px">
@@ -802,7 +847,7 @@ function renderBrands() {
         <div style="position:absolute;top:8px;right:8px;display:flex;flex-direction:column;gap:4px;align-items:flex-end">
           ${b.mit ? '<span class="badge b-mit">微笑標章</span>' : ''}
           ${b.verified ? '<span class="badge b-ok">已驗證</span>' : ''}
-          ${b.status === '待確認' ? '<span class="badge b-warn">待確認</span>' : ''}
+          ${b.status === '待確認' ? '<span class="badge b-warn">產地待查</span>' : ''}
         </div>
       </div>
       
@@ -828,11 +873,13 @@ function renderBrands() {
 
         <div class="bcard-footer" style="margin-top:0;">
           <button class="btn-report" onclick="openReport('${b.name.replace(/'/g,"\\'")}')">⚑ 回報資料有誤</button>
-          ${b.hasLink ? `<a href="${b.link}" class="btn-buy" target="_blank" rel="noopener">${linkLabel(b.link)} →</a>` : '<span style="font-size:11px;color:var(--ink-40)">暫無連結</span>'}
+          ${b.hasLink ? `<a href="${b.link}" class="btn-buy" target="_blank" rel="noopener" onclick="onOutboundClick()">${linkLabel(b.link)} →</a>` : '<span style="font-size:11px;color:var(--ink-40)">暫無連結</span>'}
         </div>
       </div>
     </div>`;
-  }).join('') + `<div class="bcard bcard-add" onclick="openSubmitModal()"><div class="bcard-add-icon">＋</div><div class="bcard-add-text">推薦一個 MIT 品牌</div></div>`;
+  }).join('') + (remaining > 0
+    ? `<div class="bcard bcard-add" onclick="loadMore()"><div class="bcard-add-icon">↓</div><div class="bcard-add-text">載入更多（還有 ${remaining} 個品牌）</div></div>`
+    : `<div class="bcard bcard-add" onclick="openSubmitModal()"><div class="bcard-add-icon">＋</div><div class="bcard-add-text">推薦一個 MIT 品牌</div></div>`);
 }
 
 // ── 互動事件 ──
@@ -1091,7 +1138,115 @@ function showTestBadge() {
   `;
   document.body.appendChild(badge);
 }
+// ── 按讚 / 分享 ──
+const LIKE_STORAGE_KEY = 'tz_liked';
+const BAR_CLOSED_KEY = 'tz_bar_closed';
+
+// 關閉底部 bar（本次瀏覽階段內不再出現；下次造訪會再顯示）
+function closeLikeBar() {
+  document.getElementById('likeBar').classList.add('hidden');
+  sessionStorage.setItem(BAR_CLOSED_KEY, '1');
+}
+
+// ✨ 價值兌現時機：使用者點了「前往」連結（代表真的找到想要的台灣製商品）
+let outboundPrompted = false;
+function onOutboundClick() {
+  if (typeof gtag !== 'undefined') { gtag('event', 'click_outbound', { event_category: 'engagement' }); }
+  if (outboundPrompted) return;                                  // 每次瀏覽只提示一次
+  if (localStorage.getItem(LIKE_STORAGE_KEY) === '1') return;    // 已按過讚就不吵
+  outboundPrompted = true;
+  setTimeout(() => {
+    showToast('🙏 找到好物了嗎？覺得有幫助的話，順手按個讚吧！');
+    const bar = document.getElementById('likeBar');
+    bar.classList.remove('hidden');                              // 就算關過 bar，此刻重現一次
+    bar.classList.add('pulse');
+    setTimeout(() => bar.classList.remove('pulse'), 2200);
+  }, 900);
+}
+
+// 啟動時讀取目前總讚數，並還原本裝置是否已按過
+async function initLikes() {
+  if (sessionStorage.getItem(BAR_CLOSED_KEY) === '1') {
+    document.getElementById('likeBar').classList.add('hidden');
+  }
+  // 若本裝置已按過，先把按鈕切成已按讚狀態
+  if (localStorage.getItem(LIKE_STORAGE_KEY) === '1') markLiked();
+
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ action: 'likeGet', clientId: getClientId() }).toString(),
+    });
+    const result = await res.json();
+    if (result && typeof result.likes !== 'undefined') {
+      document.getElementById('likeCount').textContent = result.likes;
+    }
+  } catch (err) {
+    // 讀取失敗就顯示破折號，不影響其他功能
+    document.getElementById('likeCount').textContent = '♥';
+  }
+}
+
+function markLiked() {
+  const btn = document.getElementById('likeBtn');
+  btn.classList.add('liked');
+  btn.disabled = true;
+  document.querySelector('.like-btn-icon').textContent = '❤️';
+  document.getElementById('likeLabel').textContent = '已支持';
+}
+
+async function doLike() {
+  if (localStorage.getItem(LIKE_STORAGE_KEY) === '1') return; // 一裝置一讚
+  const btn = document.getElementById('likeBtn');
+  btn.disabled = true;
+
+  if (typeof gtag !== 'undefined') { gtag('event', 'click_like', { event_category: 'engagement', event_label: '覺得有幫助' }); }
+
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ action: 'like', clientId: getClientId() }).toString(),
+    });
+    const result = await res.json();
+    if (result && result.success) {
+      localStorage.setItem(LIKE_STORAGE_KEY, '1');
+      if (typeof result.likes !== 'undefined') document.getElementById('likeCount').textContent = result.likes;
+      markLiked();
+      showToast('❤️ 感謝你的支持！');
+    } else {
+      btn.disabled = false;
+      showToast('⚠️ ' + ((result && result.error) || '按讚失敗，請稍後再試'));
+    }
+  } catch (err) {
+    btn.disabled = false;
+    showToast('❌ 按讚失敗，請檢查網路後重試。');
+  }
+}
+
+async function doShare() {
+  const shareData = {
+    title: '台製通｜台灣製造商品搜尋平台',
+    text: '找台灣製造不用再估狗！這個社群共建的台灣製造目錄很好用，推薦給你 🇹🇼',
+    url: 'https://fttgh.github.io/taizhi/'
+  };
+  if (typeof gtag !== 'undefined') { gtag('event', 'click_share', { event_category: 'engagement', event_label: '分享按鈕' }); }
+
+  try {
+    if (navigator.share) {
+      await navigator.share(shareData);           // 手機原生分享面板
+    } else {
+      await navigator.clipboard.writeText(shareData.url);
+      showToast('🔗 網址已複製，貼給朋友吧！');
+    }
+  } catch (err) {
+    // 使用者取消分享不算錯誤，忽略即可
+  }
+}
+
 loadData();
+initLikes();
 </script>
 </body>
 </html>
