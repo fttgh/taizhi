@@ -352,6 +352,11 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
     <button class="modal-close" onclick="closeModal('submitModal')">✕</button>
     <div class="modal-title">新增 MIT 品牌</div>
     <div class="modal-sub">不管是你買過的好品牌，或是廠商本身，都歡迎登錄。<br>資料由平台審核後上架，通常 3-5 個工作天。</div>
+    <div class="form-note" style="margin-bottom:16px">
+      💬 懶得填表單？直接私訊我們的 Threads
+      <a href="https://www.threads.com/@mit.made999" target="_blank" rel="noopener" style="color:var(--red);font-weight:500" onclick="if(typeof gtag!=='undefined'){gtag('event','click_dm_threads',{event_category:'engagement',event_label:'Modal私訊'});}">@mit.made999</a>
+      也可以，我們幫你簡單建檔上架。
+    </div>
     <div class="modal-tabs">
       <button class="mtab active" onclick="switchMTab(this,'consumer')">消費者推薦</button>
       <button class="mtab" onclick="switchMTab(this,'brand')">廠商登錄</button>
@@ -803,7 +808,8 @@ function renderBrands(keepCount) {
   if (list.length === 0) {
     grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--ink-40);">
         <div style="font-size:32px;margin-bottom:12px;">🔍</div><div style="font-size:14px;">找不到符合的品牌</div>
-        <div style="font-size:12px;margin-top:8px;">換個關鍵字，或推薦這個品牌加入目錄</div></div>
+        <div style="font-size:12px;margin-top:8px;">換個關鍵字，或推薦這個品牌加入目錄</div>
+        <div style="font-size:12px;margin-top:6px;color:var(--ink-40)">表單填寫太麻煩？私訊 <a href="https://www.threads.com/@mit.made999" target="_blank" rel="noopener" style="color:var(--red)" onclick="if(typeof gtag!=='undefined'){gtag('event','click_dm_threads',{event_category:'engagement',event_label:'空狀態私訊'});}">Threads @mit.made999</a> 也可以</div></div>
       <div class="bcard bcard-add" onclick="openSubmitModal()"><div class="bcard-add-icon">＋</div>
         <div class="bcard-add-text">推薦一個 MIT 品牌</div></div>`;
     return;
