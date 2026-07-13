@@ -83,26 +83,11 @@ nav{display:flex;gap:4px;align-items:center}
 .stat-n{font-family:'Noto Serif TC',serif;font-weight:900;font-size:20px;color:var(--red)}
 .stat-l{font-size:10px;color:var(--ink-40);margin-top:2px;font-family:'DM Mono',monospace;letter-spacing:.5px}
 .layout{max-width:1200px;margin:0 auto;padding:32px 24px;display:grid;grid-template-columns:220px 1fr;gap:28px;align-items:start}
-@media(max-width:768px){
-  .layout { grid-template-columns: 1fr; padding-top: 16px; padding-bottom: max(32px, env(safe-area-inset-bottom)); }
-  .sidebar { position: static; display: block; }
-  .sidebar-block { padding: 0; border: none; background: transparent; margin-bottom: 12px; }
-  .sb-title, .filter-group { display: none; }
-  .disclaimer { margin-top: 12px; }
-  .mobile-disclaimer-bar{display:block;background:var(--amber-lt);color:var(--amber);font-size:12px;line-height:1.6;padding:10px 16px;text-align:center;border-bottom:1px solid #F5CC7A;cursor:pointer}
-  .cat-list { flex-direction: column; gap: 2px; max-height: 46vh; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 6px; background: var(--white); border: 1px solid var(--ink-15); border-radius: 12px; }
-  .cat-item { white-space: nowrap; font-size: 14px; }
-  .cat-item.active { background: var(--red-lt); color: var(--red); }
-  .cat-item.active .cat-n { color: var(--red); }
-  .cat-sub { padding-left: 30px; font-size: 13px; }
-  .hero { padding: 40px 20px 32px; }
-  .hero h1 { font-size: 32px; }
-  footer { padding-bottom: max(40px, env(safe-area-inset-bottom)); }
-}
 .sidebar{position:sticky;top:74px}
 .sidebar-block{background:var(--white);border:1px solid var(--ink-15);border-radius:12px;padding:20px;margin-bottom:16px}
 .sb-title{font-family:'Noto Serif TC',serif;font-weight:700;font-size:13px;color:var(--ink);margin-bottom:14px;letter-spacing:1px}
 .cat-list{display:flex;flex-direction:column;gap:2px;max-height:calc(100vh - 130px);overflow-y:auto;padding-right:4px}
+.cat-scroll-hint{display:none}
 .cat-list::-webkit-scrollbar{width:6px}
 .cat-list::-webkit-scrollbar-thumb{background:var(--ink-15);border-radius:3px}
 .cat-item{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:7px;cursor:pointer;transition:all .2s;font-size:13px;color:var(--ink-70)}
@@ -190,6 +175,20 @@ nav{display:flex;gap:4px;align-items:center}
 .report-opt{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--ink-15);border-radius:8px;cursor:pointer;font-size:13px;color:var(--ink-70);transition:all .2s}
 .report-opt:hover,.report-opt.selected{border-color:var(--amber);background:var(--amber-lt);color:var(--amber)}
 .report-opt input{accent-color:var(--amber)}
+.changelog{background:var(--paper-2);border-top:1px solid var(--ink-15);padding:36px 24px}
+.changelog-inner{max-width:960px;margin:0 auto;display:flex;gap:40px;align-items:flex-start}
+.changelog-head{flex-shrink:0;width:180px;padding-top:4px}
+.changelog-title{font-family:'Noto Serif TC',serif;font-weight:900;font-size:18px;color:var(--ink);margin-bottom:8px}
+.changelog-sub{font-size:12px;color:var(--ink-40);line-height:1.7}
+.changelog-report{display:inline-block;margin-top:14px;font-size:12px;color:var(--red);text-decoration:none;border:1px solid var(--ink-15);border-radius:20px;padding:6px 14px;transition:all .2s}
+.changelog-report:hover{border-color:var(--red);background:var(--red-lt)}
+.changelog-body{flex:1;min-width:0}
+.cl-item{display:flex;gap:14px;padding:9px 0;border-bottom:1px dashed var(--ink-15);font-size:13px}
+.cl-item:last-child{border-bottom:none}
+.cl-date{flex-shrink:0;font-family:'DM Mono',monospace;font-size:12px;color:var(--red);min-width:78px}
+.cl-text{color:var(--ink-70);line-height:1.6}
+.changelog-more{margin-top:14px;background:none;border:1px solid var(--ink-15);border-radius:20px;padding:6px 16px;font-size:12px;color:var(--ink-70);cursor:pointer;font-family:'Noto Sans TC',sans-serif;transition:all .2s}
+.changelog-more:hover{border-color:var(--red);color:var(--red)}
 .like-bar{position:fixed;bottom:0;left:0;right:0;z-index:300;background:var(--white);border-top:1px solid var(--ink-15);box-shadow:0 -4px 20px rgba(0,0,0,.06);display:flex;align-items:center;justify-content:center;gap:12px;padding:8px 44px 8px 16px;flex-wrap:wrap}
 .like-bar.hidden{display:none}
 .like-bar-text{font-size:13px;color:var(--ink-70)}
@@ -221,6 +220,46 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
 .hero-inner>*:nth-child(2){animation-delay:.15s}
 .hero-inner>*:nth-child(3){animation-delay:.25s}
 .hero-inner>*:nth-child(4){animation-delay:.35s}
+
+@media(max-width:768px){
+  .layout { grid-template-columns: 1fr; padding-top: 16px; padding-bottom: max(32px, env(safe-area-inset-bottom)); }
+  .sidebar { position: static; display: block; }
+  .sidebar-block { padding: 0; border: none; background: transparent; margin-bottom: 12px; }
+  .sb-title, .filter-group { display: none; }
+  .disclaimer { margin-top: 12px; }
+  .mobile-disclaimer-bar{display:block;background:var(--amber-lt);color:var(--amber);font-size:12px;line-height:1.6;padding:10px 16px;text-align:center;border-bottom:1px solid #F5CC7A;cursor:pointer}
+  .cat-box{background:var(--white);border:1px solid var(--ink-15);border-radius:12px;overflow:hidden;margin-bottom:12px}
+  .cat-list { flex-direction: column; gap: 2px; max-height: 46vh; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 6px; background: transparent; border: none; border-radius: 0; }
+  .cat-item { white-space: nowrap; font-size: 14px; }
+  .cat-item.active { background: var(--red-lt); color: var(--red); }
+  .cat-item.active .cat-n { color: var(--red); }
+  .cat-sub { padding-left: 30px; font-size: 13px; }
+  .hero { padding: 40px 20px 32px; }
+  .hero h1 { font-size: 32px; }
+  footer { padding-bottom: max(40px, env(safe-area-inset-bottom)); }
+  .like-bar{gap:8px;padding:8px 38px 8px 12px}
+  .changelog-inner{flex-direction:column;gap:16px}
+  .changelog-head{width:auto;padding-top:0}
+  .changelog-sub br{display:none}
+  /* 手機版 header 精簡：隱藏小搜尋框(改用 hero 大搜尋框)與純裝飾連結，避免導覽列超出螢幕 */
+  header{padding:0 12px}
+  .header-inner{gap:8px;height:54px}
+  .header-search{display:none}
+  .nav-deco{display:none}
+  nav{gap:2px}
+  .nav-link{padding:6px 9px;font-size:12px}
+  .nav-cta{padding:7px 11px;font-size:12px}
+  /* 手機版側欄可捲動提示 */
+  .cat-scroll-hint{display:block;font-size:11px;color:var(--amber);background:var(--amber-lt);padding:7px 10px;text-align:center;border-bottom:1px solid #F5CC7A}
+  /* 手機版更新日誌條目縮小 */
+  .cl-item{padding:7px 0;font-size:12px;gap:10px}
+  .cl-date{font-size:11px;min-width:70px}
+  .changelog-title{font-size:16px}
+  /* 手機版 Modal 兩欄表單收合成單欄，避免右欄被切出螢幕 */
+  .form-row-2{grid-template-columns:1fr}
+  .like-bar-text{font-size:12px;width:100%;text-align:center;margin-bottom:-2px}
+  .like-btn,.share-btn{padding:6px 14px;font-size:12px}
+}
 </style>
 </head>
 <body>
@@ -244,8 +283,8 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
       <button class="header-search-btn" onclick="doSearch(document.getElementById('headerSearch').value)">⌕</button>
     </div>
     <nav>
-      <a href="#" class="nav-link">找品牌</a>
-      <a href="#" class="nav-link">品類</a>
+      <a href="#" class="nav-link nav-deco">找品牌</a>
+      <a href="#" class="nav-link nav-deco">品類</a>
       <a href="#" class="nav-link" onclick="if(typeof gtag !== 'undefined'){gtag('event', 'click_submit_brand', {'event_category': 'engagement', 'event_label': '推薦品牌'});} openSubmitModal('consumer');return false">推薦品牌</a>
       <a href="#" class="nav-cta nav-link" onclick="if(typeof gtag !== 'undefined'){gtag('event', 'click_submit_brand', {'event_category': 'engagement', 'event_label': '登錄廠商'});} openSubmitModal('brand');return false">登錄廠商</a>
     </nav>
@@ -299,7 +338,10 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
   <aside class="sidebar">
     <div class="sidebar-block">
       <div class="sb-title">📂 品類</div>
-      <div class="cat-list" id="catList"></div>
+      <div class="cat-box">
+        <div class="cat-scroll-hint">👆 可上下滑動看更多品類 ↕</div>
+        <div class="cat-list" id="catList"></div>
+      </div>
     </div>
 
     <div class="sidebar-block">
@@ -455,6 +497,21 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
     </div>
   </div>
 </div>
+
+<!-- ✨ 更新日誌（證明持續維護中）-->
+<section class="changelog">
+  <div class="changelog-inner">
+    <div class="changelog-head">
+      <div class="changelog-title">🛠 持續更新中</div>
+      <div class="changelog-sub">這個網站<br>有人在細心維護 ✨</div>
+      <a href="#" class="changelog-report" onclick="if(typeof gtag!=='undefined'){gtag('event','click_system_feedback',{event_category:'engagement',event_label:'日誌區回報'});} window.location.href='mailto:'+'adssda889'+'@'+'gmail.com?subject='+encodeURIComponent('台製通網站問題回報／許願'); return false;">🐛 回報問題 / 許願品牌 →</a>
+    </div>
+    <div class="changelog-body">
+      <div id="changelogList"></div>
+      <button class="changelog-more" id="changelogMore" onclick="toggleChangelog()">看更多更新 ↓</button>
+    </div>
+  </div>
+</section>
 
 <footer>
   <div class="footer-inner">
@@ -781,7 +838,7 @@ function linkLabel(url) {
 }
 
 // ✨ 分頁載入：首屏只顯示前 PAGE_SIZE 張，避免 400+ 張卡片一次灌爆頁面（資訊過載 + 效能）
-const PAGE_SIZE = 24;
+const PAGE_SIZE = window.innerWidth <= 768 ? 12 : 24;   // 手機首屏 12 張、桌機 24 張，避免手機滑太久
 let visibleCount = PAGE_SIZE;
 function loadMore() { visibleCount += PAGE_SIZE; renderBrands(true); }
 
@@ -1152,6 +1209,7 @@ const BAR_CLOSED_KEY = 'tz_bar_closed';
 function closeLikeBar() {
   document.getElementById('likeBar').classList.add('hidden');
   sessionStorage.setItem(BAR_CLOSED_KEY, '1');
+  adjustBarPadding();
 }
 
 // ✨ 價值兌現時機：使用者點了「前往」連結（代表真的找到想要的台灣製商品）
@@ -1165,6 +1223,7 @@ function onOutboundClick() {
     showToast('🙏 找到好物了嗎？覺得有幫助的話，順手按個讚吧！');
     const bar = document.getElementById('likeBar');
     bar.classList.remove('hidden');                              // 就算關過 bar，此刻重現一次
+    adjustBarPadding();
     bar.classList.add('pulse');
     setTimeout(() => bar.classList.remove('pulse'), 2200);
   }, 900);
@@ -1251,8 +1310,47 @@ async function doShare() {
   }
 }
 
+// ✨ 動態依「底部 bar 實際高度」墊出 body 底部留白，避免 bar 蓋住 footer（bar 換行變高也不怕）
+function adjustBarPadding() {
+  const bar = document.getElementById('likeBar');
+  if (!bar) return;
+  const h = bar.classList.contains('hidden') ? 0 : bar.offsetHeight;
+  document.body.style.paddingBottom = (h + 8) + 'px';
+}
+window.addEventListener('resize', adjustBarPadding);
+
+// ── 更新日誌（做法 A：靜態陣列，改版時順手加一行）──
+// 💡 未來若要升級成「從 Google Sheet 動態讀取」（做法 B），只要把下面這個陣列
+//    改成 fetch 該分頁的 CSV、再 map 成 {date, text} 同樣格式即可，renderChangelog 不用動。
+const CHANGELOG = [
+  { date: '2026/07/13', text: '優化手機版顯示，免責聲明與整體版面更完整' },
+  { date: '2026/07/11', text: '新增「按讚／分享」與 Threads 私訊推薦入口' },
+  { date: '2026/07/06', text: '子品類智慧歸群、微笑標章標示與卡片版面優化' },
+  { date: '2026/07/03', text: '修正資料欄位對齊，新增左側子品類分類樹' },
+  { date: '2026/06/30', text: '平台上線，收錄社群整理的台灣製造品牌目錄' },
+];
+const CHANGELOG_PREVIEW = 3;   // 預設顯示幾筆，其餘點「看更多」展開
+let changelogExpanded = false;
+
+function renderChangelog() {
+  const list = changelogExpanded ? CHANGELOG : CHANGELOG.slice(0, CHANGELOG_PREVIEW);
+  document.getElementById('changelogList').innerHTML = list.map(c =>
+    `<div class="cl-item"><span class="cl-date">${c.date}</span><span class="cl-text">${c.text}</span></div>`
+  ).join('');
+  const moreBtn = document.getElementById('changelogMore');
+  if (CHANGELOG.length <= CHANGELOG_PREVIEW) { moreBtn.style.display = 'none'; return; }
+  moreBtn.textContent = changelogExpanded ? '收合 ↑' : `看更多更新（共 ${CHANGELOG.length} 筆）↓`;
+}
+function toggleChangelog() {
+  changelogExpanded = !changelogExpanded;
+  renderChangelog();
+  adjustBarPadding();
+}
+
 loadData();
 initLikes();
+renderChangelog();
+adjustBarPadding();
 </script>
 </body>
 </html>
