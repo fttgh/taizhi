@@ -174,6 +174,17 @@ nav{display:flex;gap:4px;align-items:center}
 .report-opt{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--ink-15);border-radius:8px;cursor:pointer;font-size:13px;color:var(--ink-70);transition:all .2s}
 .report-opt:hover,.report-opt.selected{border-color:var(--amber);background:var(--amber-lt);color:var(--amber)}
 .report-opt input{accent-color:var(--amber)}
+.changelog{background:var(--paper-2);border-top:1px solid var(--ink-15);padding:36px 24px}
+.changelog-inner{max-width:640px;margin:0 auto}
+.changelog-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.changelog-title{font-family:'Noto Serif TC',serif;font-weight:900;font-size:17px;color:var(--ink)}
+.changelog-sub{font-size:12px;color:var(--ink-40)}
+.cl-item{display:flex;gap:14px;padding:9px 0;border-bottom:1px dashed var(--ink-15);font-size:13px}
+.cl-item:last-child{border-bottom:none}
+.cl-date{flex-shrink:0;font-family:'DM Mono',monospace;font-size:12px;color:var(--red);min-width:78px}
+.cl-text{color:var(--ink-70);line-height:1.6}
+.changelog-more{margin-top:14px;background:none;border:1px solid var(--ink-15);border-radius:20px;padding:6px 16px;font-size:12px;color:var(--ink-70);cursor:pointer;font-family:'Noto Sans TC',sans-serif;transition:all .2s}
+.changelog-more:hover{border-color:var(--red);color:var(--red)}
 .like-bar{position:fixed;bottom:0;left:0;right:0;z-index:300;background:var(--white);border-top:1px solid var(--ink-15);box-shadow:0 -4px 20px rgba(0,0,0,.06);display:flex;align-items:center;justify-content:center;gap:12px;padding:8px 44px 8px 16px;flex-wrap:wrap}
 .like-bar.hidden{display:none}
 .like-bar-text{font-size:13px;color:var(--ink-70)}
@@ -221,6 +232,9 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
   .hero { padding: 40px 20px 32px; }
   .hero h1 { font-size: 32px; }
   footer { padding-bottom: max(40px, env(safe-area-inset-bottom)); }
+  .like-bar{gap:8px;padding:8px 38px 8px 12px}
+  .like-bar-text{font-size:12px;width:100%;text-align:center;margin-bottom:-2px}
+  .like-btn,.share-btn{padding:6px 14px;font-size:12px}
 }
 </style>
 </head>
@@ -456,6 +470,18 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
     </div>
   </div>
 </div>
+
+<!-- ✨ 更新日誌（證明持續維護中）-->
+<section class="changelog">
+  <div class="changelog-inner">
+    <div class="changelog-head">
+      <span class="changelog-title">🛠 持續更新中</span>
+      <span class="changelog-sub">這個網站有人在細心維護 ✨</span>
+    </div>
+    <div id="changelogList"></div>
+    <button class="changelog-more" id="changelogMore" onclick="toggleChangelog()">看更多更新 ↓</button>
+  </div>
+</section>
 
 <footer>
   <div class="footer-inner">
@@ -1153,6 +1179,7 @@ const BAR_CLOSED_KEY = 'tz_bar_closed';
 function closeLikeBar() {
   document.getElementById('likeBar').classList.add('hidden');
   sessionStorage.setItem(BAR_CLOSED_KEY, '1');
+  adjustBarPadding();
 }
 
 // ✨ 價值兌現時機：使用者點了「前往」連結（代表真的找到想要的台灣製商品）
@@ -1166,6 +1193,7 @@ function onOutboundClick() {
     showToast('🙏 找到好物了嗎？覺得有幫助的話，順手按個讚吧！');
     const bar = document.getElementById('likeBar');
     bar.classList.remove('hidden');                              // 就算關過 bar，此刻重現一次
+    adjustBarPadding();
     bar.classList.add('pulse');
     setTimeout(() => bar.classList.remove('pulse'), 2200);
   }, 900);
@@ -1252,8 +1280,47 @@ async function doShare() {
   }
 }
 
+// ✨ 動態依「底部 bar 實際高度」墊出 body 底部留白，避免 bar 蓋住 footer（bar 換行變高也不怕）
+function adjustBarPadding() {
+  const bar = document.getElementById('likeBar');
+  if (!bar) return;
+  const h = bar.classList.contains('hidden') ? 0 : bar.offsetHeight;
+  document.body.style.paddingBottom = (h + 8) + 'px';
+}
+window.addEventListener('resize', adjustBarPadding);
+
+// ── 更新日誌（做法 A：靜態陣列，改版時順手加一行）──
+// 💡 未來若要升級成「從 Google Sheet 動態讀取」（做法 B），只要把下面這個陣列
+//    改成 fetch 該分頁的 CSV、再 map 成 {date, text} 同樣格式即可，renderChangelog 不用動。
+const CHANGELOG = [
+  { date: '2026/07/13', text: '優化手機版顯示，免責聲明與整體版面更完整' },
+  { date: '2026/07/11', text: '新增「按讚／分享」與 Threads 私訊推薦入口' },
+  { date: '2026/07/06', text: '子品類智慧歸群、微笑標章標示與卡片版面優化' },
+  { date: '2026/07/03', text: '修正資料欄位對齊，新增左側子品類分類樹' },
+  { date: '2026/06/30', text: '平台上線，收錄社群整理的台灣製造品牌目錄' },
+];
+const CHANGELOG_PREVIEW = 3;   // 預設顯示幾筆，其餘點「看更多」展開
+let changelogExpanded = false;
+
+function renderChangelog() {
+  const list = changelogExpanded ? CHANGELOG : CHANGELOG.slice(0, CHANGELOG_PREVIEW);
+  document.getElementById('changelogList').innerHTML = list.map(c =>
+    `<div class="cl-item"><span class="cl-date">${c.date}</span><span class="cl-text">${c.text}</span></div>`
+  ).join('');
+  const moreBtn = document.getElementById('changelogMore');
+  if (CHANGELOG.length <= CHANGELOG_PREVIEW) { moreBtn.style.display = 'none'; return; }
+  moreBtn.textContent = changelogExpanded ? '收合 ↑' : `看更多更新（共 ${CHANGELOG.length} 筆）↓`;
+}
+function toggleChangelog() {
+  changelogExpanded = !changelogExpanded;
+  renderChangelog();
+  adjustBarPadding();
+}
+
 loadData();
 initLikes();
+renderChangelog();
+adjustBarPadding();
 </script>
 </body>
 </html>
