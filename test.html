@@ -87,6 +87,7 @@ nav{display:flex;gap:4px;align-items:center}
 .sidebar-block{background:var(--white);border:1px solid var(--ink-15);border-radius:12px;padding:20px;margin-bottom:16px}
 .sb-title{font-family:'Noto Serif TC',serif;font-weight:700;font-size:13px;color:var(--ink);margin-bottom:14px;letter-spacing:1px}
 .cat-list{display:flex;flex-direction:column;gap:2px;max-height:calc(100vh - 130px);overflow-y:auto;padding-right:4px}
+.cat-scroll-hint{display:none}
 .cat-list::-webkit-scrollbar{width:6px}
 .cat-list::-webkit-scrollbar-thumb{background:var(--ink-15);border-radius:3px}
 .cat-item{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:7px;cursor:pointer;transition:all .2s;font-size:13px;color:var(--ink-70)}
@@ -237,6 +238,20 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
   .changelog-inner{flex-direction:column;gap:16px}
   .changelog-head{width:auto;padding-top:0}
   .changelog-sub br{display:none}
+  /* 手機版 header 精簡：隱藏小搜尋框(改用 hero 大搜尋框)與純裝飾連結，避免導覽列超出螢幕 */
+  header{padding:0 12px}
+  .header-inner{gap:8px;height:54px}
+  .header-search{display:none}
+  .nav-deco{display:none}
+  nav{gap:2px}
+  .nav-link{padding:6px 9px;font-size:12px}
+  .nav-cta{padding:7px 11px;font-size:12px}
+  /* 手機版側欄可捲動提示 */
+  .cat-scroll-hint{display:block;font-size:11px;color:var(--amber);background:var(--amber-lt);border-radius:8px;padding:6px 10px;margin-bottom:6px;text-align:center}
+  /* 手機版更新日誌條目縮小 */
+  .cl-item{padding:7px 0;font-size:12px;gap:10px}
+  .cl-date{font-size:11px;min-width:70px}
+  .changelog-title{font-size:16px}
   .like-bar-text{font-size:12px;width:100%;text-align:center;margin-bottom:-2px}
   .like-btn,.share-btn{padding:6px 14px;font-size:12px}
 }
@@ -263,8 +278,8 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
       <button class="header-search-btn" onclick="doSearch(document.getElementById('headerSearch').value)">⌕</button>
     </div>
     <nav>
-      <a href="#" class="nav-link">找品牌</a>
-      <a href="#" class="nav-link">品類</a>
+      <a href="#" class="nav-link nav-deco">找品牌</a>
+      <a href="#" class="nav-link nav-deco">品類</a>
       <a href="#" class="nav-link" onclick="if(typeof gtag !== 'undefined'){gtag('event', 'click_submit_brand', {'event_category': 'engagement', 'event_label': '推薦品牌'});} openSubmitModal('consumer');return false">推薦品牌</a>
       <a href="#" class="nav-cta nav-link" onclick="if(typeof gtag !== 'undefined'){gtag('event', 'click_submit_brand', {'event_category': 'engagement', 'event_label': '登錄廠商'});} openSubmitModal('brand');return false">登錄廠商</a>
     </nav>
@@ -318,6 +333,7 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
   <aside class="sidebar">
     <div class="sidebar-block">
       <div class="sb-title">📂 品類</div>
+      <div class="cat-scroll-hint">👆 品類清單可上下滑動 ↕</div>
       <div class="cat-list" id="catList"></div>
     </div>
 
