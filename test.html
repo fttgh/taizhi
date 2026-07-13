@@ -180,6 +180,8 @@ nav{display:flex;gap:4px;align-items:center}
 .changelog-head{flex-shrink:0;width:180px;padding-top:4px}
 .changelog-title{font-family:'Noto Serif TC',serif;font-weight:900;font-size:18px;color:var(--ink);margin-bottom:8px}
 .changelog-sub{font-size:12px;color:var(--ink-40);line-height:1.7}
+.changelog-report{display:inline-block;margin-top:14px;font-size:12px;color:var(--red);text-decoration:none;border:1px solid var(--ink-15);border-radius:20px;padding:6px 14px;transition:all .2s}
+.changelog-report:hover{border-color:var(--red);background:var(--red-lt)}
 .changelog-body{flex:1;min-width:0}
 .cl-item{display:flex;gap:14px;padding:9px 0;border-bottom:1px dashed var(--ink-15);font-size:13px}
 .cl-item:last-child{border-bottom:none}
@@ -226,7 +228,8 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
   .sb-title, .filter-group { display: none; }
   .disclaimer { margin-top: 12px; }
   .mobile-disclaimer-bar{display:block;background:var(--amber-lt);color:var(--amber);font-size:12px;line-height:1.6;padding:10px 16px;text-align:center;border-bottom:1px solid #F5CC7A;cursor:pointer}
-  .cat-list { flex-direction: column; gap: 2px; max-height: 46vh; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 6px; background: var(--white); border: 1px solid var(--ink-15); border-radius: 12px; }
+  .cat-box{background:var(--white);border:1px solid var(--ink-15);border-radius:12px;overflow:hidden;margin-bottom:12px}
+  .cat-list { flex-direction: column; gap: 2px; max-height: 46vh; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 6px; background: transparent; border: none; border-radius: 0; }
   .cat-item { white-space: nowrap; font-size: 14px; }
   .cat-item.active { background: var(--red-lt); color: var(--red); }
   .cat-item.active .cat-n { color: var(--red); }
@@ -247,11 +250,13 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
   .nav-link{padding:6px 9px;font-size:12px}
   .nav-cta{padding:7px 11px;font-size:12px}
   /* 手機版側欄可捲動提示 */
-  .cat-scroll-hint{display:block;font-size:11px;color:var(--amber);background:var(--amber-lt);border-radius:8px;padding:6px 10px;margin-bottom:6px;text-align:center}
+  .cat-scroll-hint{display:block;font-size:11px;color:var(--amber);background:var(--amber-lt);padding:7px 10px;text-align:center;border-bottom:1px solid #F5CC7A}
   /* 手機版更新日誌條目縮小 */
   .cl-item{padding:7px 0;font-size:12px;gap:10px}
   .cl-date{font-size:11px;min-width:70px}
   .changelog-title{font-size:16px}
+  /* 手機版 Modal 兩欄表單收合成單欄，避免右欄被切出螢幕 */
+  .form-row-2{grid-template-columns:1fr}
   .like-bar-text{font-size:12px;width:100%;text-align:center;margin-bottom:-2px}
   .like-btn,.share-btn{padding:6px 14px;font-size:12px}
 }
@@ -333,8 +338,10 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
   <aside class="sidebar">
     <div class="sidebar-block">
       <div class="sb-title">📂 品類</div>
-      <div class="cat-scroll-hint">👆 品類清單可上下滑動 ↕</div>
-      <div class="cat-list" id="catList"></div>
+      <div class="cat-box">
+        <div class="cat-scroll-hint">👆 可上下滑動看更多品類 ↕</div>
+        <div class="cat-list" id="catList"></div>
+      </div>
     </div>
 
     <div class="sidebar-block">
@@ -497,6 +504,7 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
     <div class="changelog-head">
       <div class="changelog-title">🛠 持續更新中</div>
       <div class="changelog-sub">這個網站<br>有人在細心維護 ✨</div>
+      <a href="#" class="changelog-report" onclick="if(typeof gtag!=='undefined'){gtag('event','click_system_feedback',{event_category:'engagement',event_label:'日誌區回報'});} window.location.href='mailto:'+'adssda889'+'@'+'gmail.com?subject='+encodeURIComponent('台製通網站問題回報／許願'); return false;">🐛 回報問題 / 許願品牌 →</a>
     </div>
     <div class="changelog-body">
       <div id="changelogList"></div>
@@ -830,7 +838,7 @@ function linkLabel(url) {
 }
 
 // ✨ 分頁載入：首屏只顯示前 PAGE_SIZE 張，避免 400+ 張卡片一次灌爆頁面（資訊過載 + 效能）
-const PAGE_SIZE = 24;
+const PAGE_SIZE = window.innerWidth <= 768 ? 12 : 24;   // 手機首屏 12 張、桌機 24 張，避免手機滑太久
 let visibleCount = PAGE_SIZE;
 function loadMore() { visibleCount += PAGE_SIZE; renderBrands(true); }
 
