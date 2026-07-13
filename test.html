@@ -175,10 +175,11 @@ nav{display:flex;gap:4px;align-items:center}
 .report-opt:hover,.report-opt.selected{border-color:var(--amber);background:var(--amber-lt);color:var(--amber)}
 .report-opt input{accent-color:var(--amber)}
 .changelog{background:var(--paper-2);border-top:1px solid var(--ink-15);padding:36px 24px}
-.changelog-inner{max-width:640px;margin:0 auto}
-.changelog-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:18px}
-.changelog-title{font-family:'Noto Serif TC',serif;font-weight:900;font-size:17px;color:var(--ink)}
-.changelog-sub{font-size:12px;color:var(--ink-40)}
+.changelog-inner{max-width:960px;margin:0 auto;display:flex;gap:40px;align-items:flex-start}
+.changelog-head{flex-shrink:0;width:180px;padding-top:4px}
+.changelog-title{font-family:'Noto Serif TC',serif;font-weight:900;font-size:18px;color:var(--ink);margin-bottom:8px}
+.changelog-sub{font-size:12px;color:var(--ink-40);line-height:1.7}
+.changelog-body{flex:1;min-width:0}
 .cl-item{display:flex;gap:14px;padding:9px 0;border-bottom:1px dashed var(--ink-15);font-size:13px}
 .cl-item:last-child{border-bottom:none}
 .cl-date{flex-shrink:0;font-family:'DM Mono',monospace;font-size:12px;color:var(--red);min-width:78px}
@@ -233,6 +234,9 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
   .hero h1 { font-size: 32px; }
   footer { padding-bottom: max(40px, env(safe-area-inset-bottom)); }
   .like-bar{gap:8px;padding:8px 38px 8px 12px}
+  .changelog-inner{flex-direction:column;gap:16px}
+  .changelog-head{width:auto;padding-top:0}
+  .changelog-sub br{display:none}
   .like-bar-text{font-size:12px;width:100%;text-align:center;margin-bottom:-2px}
   .like-btn,.share-btn{padding:6px 14px;font-size:12px}
 }
@@ -475,11 +479,13 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
 <section class="changelog">
   <div class="changelog-inner">
     <div class="changelog-head">
-      <span class="changelog-title">🛠 持續更新中</span>
-      <span class="changelog-sub">這個網站有人在細心維護 ✨</span>
+      <div class="changelog-title">🛠 持續更新中</div>
+      <div class="changelog-sub">這個網站<br>有人在細心維護 ✨</div>
     </div>
-    <div id="changelogList"></div>
-    <button class="changelog-more" id="changelogMore" onclick="toggleChangelog()">看更多更新 ↓</button>
+    <div class="changelog-body">
+      <div id="changelogList"></div>
+      <button class="changelog-more" id="changelogMore" onclick="toggleChangelog()">看更多更新 ↓</button>
+    </div>
   </div>
 </section>
 
