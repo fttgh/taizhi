@@ -1407,6 +1407,7 @@ window.addEventListener('resize', adjustBarPadding);
 // 💡 未來若要升級成「從 Google Sheet 動態讀取」（做法 B），只要把下面這個陣列
 //    改成 fetch 該分頁的 CSV、再 map 成 {date, text} 同樣格式即可，renderChangelog 不用動。
 const CHANGELOG = [
+  { date: '2026/07/18', text: '本週審核更新：微笑標章＋6、已驗證＋2，1 筆標章過期' },   // ← 07/18新增這一行
   { date: '2026/07/13', text: '優化手機版顯示，免責聲明與整體版面更完整' },
   { date: '2026/07/11', text: '新增「按讚／分享」與 Threads 私訊推薦入口' },
   { date: '2026/07/06', text: '子品類智慧歸群、微笑標章標示與卡片版面優化' },
