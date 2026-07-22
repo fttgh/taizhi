@@ -175,14 +175,14 @@ nav{display:flex;gap:4px;align-items:center}
 .report-opt{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--ink-15);border-radius:8px;cursor:pointer;font-size:13px;color:var(--ink-70);transition:all .2s}
 .report-opt:hover,.report-opt.selected{border-color:var(--amber);background:var(--amber-lt);color:var(--amber)}
 .report-opt input{accent-color:var(--amber)}
-.changelog{background:var(--paper-2);border-top:1px solid var(--ink-15);border-bottom:1px solid var(--ink-15);padding:36px 24px;display:flex;justify-content:center}
-.changelog-inner{max-width:680px;margin:0 auto;display:flex;gap:40px;align-items:flex-start}
+.changelog{background:var(--paper-2);border-top:1px solid var(--ink-15);padding:36px 24px}
+.changelog-inner{max-width:960px;margin:0 auto;display:flex;gap:40px;align-items:flex-start}
 .changelog-head{flex-shrink:0;width:180px;padding-top:4px}
 .changelog-title{font-family:'Noto Serif TC',serif;font-weight:900;font-size:18px;color:var(--ink);margin-bottom:8px}
 .changelog-sub{font-size:12px;color:var(--ink-40);line-height:1.7}
 .changelog-report{display:inline-block;margin-top:14px;font-size:12px;color:var(--red);text-decoration:none;border:1px solid var(--ink-15);border-radius:20px;padding:6px 14px;transition:all .2s}
 .changelog-report:hover{border-color:var(--red);background:var(--red-lt)}
-.changelog-body{flex:1;min-width:0;max-width:560px}
+.changelog-body{flex:1;min-width:0}
 .cl-item{display:flex;gap:14px;padding:9px 0;border-bottom:1px dashed var(--ink-15);font-size:13px}
 .cl-item:last-child{border-bottom:none}
 .cl-date{flex-shrink:0;font-family:'DM Mono',monospace;font-size:12px;color:var(--red);min-width:78px}
@@ -204,8 +204,8 @@ nav{display:flex;gap:4px;align-items:center}
 @keyframes barPulse{0%,100%{box-shadow:0 -4px 20px rgba(0,0,0,.06)}50%{box-shadow:0 -4px 24px rgba(217,119,87,.45)}}
 .like-bar.pulse{animation:barPulse 1s ease 2}
 body{padding-bottom:52px}
-footer{background:var(--ink);padding:40px 24px;margin-top:0}
-.footer-inner{width:90%;max-width:1140px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr;gap:40px}
+footer{background:var(--ink);padding:40px 24px;margin-top:60px}
+.footer-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px}
 @media(max-width:600px){.footer-inner{grid-template-columns:1fr}}
 .ft-block-title{font-family:'Noto Serif TC',serif;font-weight:700;font-size:13px;color:#fff;margin-bottom:12px;letter-spacing:1px}
 .ft-text{font-size:12px;color:rgba(255,255,255,.35);line-height:2}
@@ -404,26 +404,16 @@ footer{background:var(--ink);padding:40px 24px;margin-top:0}
       <button class="mtab" onclick="switchMTab(this,'brand')">廠商登錄</button>
     </div>
 
-    <!-- ✨ 子類建議清單：使用者可從選單挑選，也可自行輸入（子類種類繁多且依品類而異，故採可輸入式選單） -->
-    <datalist id="subcatOptions">
-      <option value="沙發"></option>
-      <option value="實木家具"></option>
-      <option value="巧拼地墊"></option>
-      <option value="地墊"></option>
-      <option value="寢具"></option>
-      <option value="毛巾"></option>
-      <option value="木製玩具"></option>
-      <option value="手工皂"></option>
-      <option value="保養品"></option>
-      <option value="帆布包"></option>
-    </datalist>
+    <!-- ✨ 子類建議清單：內容由 JS 依「目前選到的品類」動態生成（見 populateSubcatOptions）。
+         使用者仍可自行輸入任意子類；此清單只是引導網友優先挑既有子類，從源頭減少打字變體。 -->
+    <datalist id="subcatOptions"></datalist>
 
     <div class="form" id="consumerForm">
       <div class="form-row-2">
         <div class="field"><label>品牌名稱 *</label><input type="text" id="c_brand" placeholder="例：興隆毛巾"></div>
         <div class="field"><label>品類 *</label>
-          <select id="c_cat">
-            <option value="">選擇品類</option><option>生活用品</option><option>紡織寢具</option><option>工具五金</option><option>食品</option><option>保養美妝</option><option>服飾</option><option>母嬰用品</option><option>家具</option><option>寵物用品</option><option>戶外運動</option><option>清潔用品</option><option>醫療保健</option><option>工藝文創</option><option>廚房餐具</option><option>其他</option>
+          <select id="c_cat" onchange="populateSubcatOptions(this.value)">
+            <option value="">選擇品類</option>
           </select>
         </div>
       </div>
@@ -441,8 +431,8 @@ footer{background:var(--ink);padding:40px 24px;margin-top:0}
       </div>
       <div class="form-row-2">
         <div class="field"><label>品類 *</label>
-          <select id="b_cat">
-            <option value="">選擇品類</option><option>生活用品</option><option>紡織寢具</option><option>工具五金</option><option>食品</option><option>保養美妝</option><option>服飾</option><option>母嬰用品</option><option>家具</option><option>寵物用品</option><option>戶外運動</option><option>清潔用品</option><option>醫療保健</option><option>工藝文創</option><option>廚房餐具</option><option>其他</option>
+          <select id="b_cat" onchange="populateSubcatOptions(this.value)">
+            <option value="">選擇品類</option>
           </select>
         </div>
         <div class="field"><label>MIT 微笑標章</label>
@@ -597,12 +587,25 @@ const sanitize = (str) => {
   return str.replace(/</g, '&lt;').replace(/>/g, '&gt;').trim();
 };
 
+// ✨ 品類／子類空格正規化（防呆核心）
+// 目的：讓程式碼裡的品類字串（半形空格）與 Google Sheet 儲存格內容永遠對得上，
+// 不論 Sheet 是用全形空格（U+3000）、半形空格、還是不小心打了多個空格。
+// 做法：全形空格→半形、其他空白字元→半形、連續空白收斂成一個、去頭尾。
+// ⚠️ 此函式同時用於「資料讀取端」與「程式碼內建品類表」，兩邊都正規化才會一致。
+const normalizeCat = (str) => {
+  if (!str) return '';
+  return str
+    .replace(/\u3000/g, ' ')   // 全形空格 → 半形空格
+    .replace(/\s+/g, ' ')      // 多個空白（含 tab 等）收斂成單一半形空格
+    .trim();
+};
+
 // ── 引入 PapaParse 解析 CSV ──
 function processParsedData(data) {
   return data.slice(1).map((cols, idx) => {
     const name    = sanitize(cols[0] || '');
-    const cat     = sanitize(cols[1] || '其他');
-    const subCat  = sanitize(cols[2] || '');            // ✨ 新增：子類（C 欄）
+    const cat     = normalizeCat(sanitize(cols[1] || '其他'));  // ✨ 品類：正規化空格（全形/多重空格皆對齊）
+    const subCat  = normalizeCat(sanitize(cols[2] || ''));      // ✨ 子類（C 欄）：同樣正規化空格
     const origin  = sanitize(cols[3] || '');            // 製造產地（D 欄，原本錯讀 C 欄，已修正）
     const mitRaw  = sanitize((cols[4] || '').trim());   // MIT認證（E 欄，已修正）
     
@@ -651,6 +654,8 @@ async function loadData() {
         allBrands = processParsedData(results.data);
         updateStats();
         updateCatCounts();
+        populateCatSelects();   // ✨ 依最新資料重建表單品類選單
+        populateSubcatOptions('');   // ✨ 依最新資料生成子類建議（未選品類→全站子類）
         renderBrands();
       }
     });
@@ -663,6 +668,8 @@ async function loadData() {
       allBrands = backupData; 
       updateStats();
       updateCatCounts();
+      populateCatSelects();   // ✨ 依最新資料重建表單品類選單
+      populateSubcatOptions('');   // ✨ 依最新資料生成子類建議（未選品類→全站子類）
       renderBrands();
     } catch (backupErr) {
       console.error('❌ 備援檔也讀取失敗：', backupErr.message);
@@ -683,11 +690,88 @@ function updateStats() {
 
 // ✨ 補全的 Emoji 對照表
 const catEmoji = {
-  '生活用品':'🏠','紡織寢具':'🛏','工具五金':'🔧','食品':'🍱',
-  '保養美妝':'✨','服飾':'👕','戶外運動':'🚴','廚房餐具':'🍳',
-  '寵物用品':'🐾','兒童玩具':'🧸','家具':'🪑','清潔用品':'🧴',
-  '醫療保健':'💊','文具':'✏️','母嬰用品':'🍼','工藝文創':'🎨','其他':'📦'
+  '手作 工藝 飾品':'🎨','食品':'🍱','衣服 配件 鞋':'👕','生活用品':'🏠',
+  '保養美妝':'✨','母嬰用品':'🍼','家具':'🪑','3C 電器 其他':'📱',
+  '選物平台 通路':'🛒','文具 包材 物流':'✏️','寵物用品':'🐾','醫療保健':'💊',
+  '旅行 戶外 運動':'🏕','工具五金':'🔧','其他':'📦'
 };
+
+/* ═══════════════════════════════════════════════════════════════════
+   【品類選單・自動生成（終極方案）】
+   ───────────────────────────────────────────────────────────────────
+   表單品類下拉不再寫死在 HTML，改由這裡在資料載入後動態生成。
+   規則：以「欽定基準清單 BASE_CATEGORIES」為底、依序排在最前，
+        再把 Sheet 實際資料裡出現、但基準清單沒有的「新品類」自動補在後面。
+   好處：
+     ● 你日後在 Sheet 新增品類，網友表單會自動出現該選項，不用再改前端。
+     ● 即使某基準品類目前 0 筆資料，它仍會出現在選單（不會消失、網友仍可選）。
+   維護：只有想調整「預設顯示順序」或「新增一個目前資料還沒有的品類」時，
+        才需要動 BASE_CATEGORIES；純粹跟著資料跑的新品類則完全免維護。
+   ⚠️ 全形/半形空格差異由 normalizeCat 統一，故自動去重不會出現重複幽靈品類。
+   ═══════════════════════════════════════════════════════════════════ */
+
+// 欽定基準品類（顯示順序＝此陣列順序）。空格用半形，normalizeCat 會統一 Sheet 端差異。
+const BASE_CATEGORIES = [
+  '手作 工藝 飾品','食品','衣服 配件 鞋','生活用品','保養美妝','母嬰用品','家具',
+  '3C 電器 其他','選物平台 通路','文具 包材 物流','寵物用品','醫療保健','旅行 戶外 運動','工具五金'
+];
+
+// 依「基準清單 + 資料實際品類」組出最終選單清單（已正規化、去重、保留順序）
+function buildCategoryList() {
+  const seen = new Set();
+  const list = [];
+  const push = (raw) => {
+    const c = normalizeCat(raw);
+    if (c && !seen.has(c)) { seen.add(c); list.push(c); }
+  };
+  BASE_CATEGORIES.forEach(push);            // 先放欽定基準（固定在最前、順序照舊）
+  allBrands.forEach(b => push(b.cat));      // 再補資料裡出現、基準沒有的新品類
+  return list;
+}
+
+// 把最終品類清單注入兩份表單的 <select>（消費者推薦 c_cat／廠商登錄 b_cat）
+function populateCatSelects() {
+  const cats = buildCategoryList();
+  ['c_cat', 'b_cat'].forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    const prev = sel.value;   // 保留使用者已選的值（若正規化後仍存在則還原）
+    sel.innerHTML = '<option value="">選擇品類</option>' +
+      cats.map(c => `<option value="${c}">${c}</option>`).join('');
+    if (prev && cats.includes(normalizeCat(prev))) sel.value = normalizeCat(prev);
+  });
+}
+
+/* ── 子類建議清單・自動生成 ──────────────────────────────────────────
+   依「目前選到的品類」從實際資料撈出該品類底下的子類，注入 subcatOptions。
+   - 有選品類：只列該品類的子類（例：選家具→沙發/實木家具，不會混進手工皂）。
+   - 未選品類：列全站所有子類（讓還沒選品類的人也有東西可挑）。
+   - 會先經 groupSubCat 歸群（玉荷包/芒果→水果）、去重、濾掉空值與籠統詞，
+     並排除與母品類同名者，讓建議清單乾淨、又能引導網友挑既有子類收斂打字變體。
+   注意：子類仍是自由輸入，此清單只是建議，使用者要打新子類完全不受限。 */
+function buildSubcatList(cat) {
+  const scope = normalizeCat(cat);
+  const seen = new Set();
+  const list = [];
+  allBrands.forEach(b => {
+    if (scope && normalizeCat(b.cat) !== scope) return;      // 有指定品類就只收該品類的
+    const grouped = groupSubCat(b.cat, b.subCat);            // 先歸群（玉荷包/芒果→水果）
+    if (!grouped) return;                                    // 空值跳過
+    if (grouped === normalizeCat(b.cat)) return;             // 與母品類同名 → 視為未分類，跳過
+    if (isIgnoredSub(b.cat, grouped)) return;                // 籠統詞（如寵物用品的「寵物」）跳過
+    if (!seen.has(grouped)) { seen.add(grouped); list.push(grouped); }
+  });
+  return list.sort((a, b) => a.localeCompare(b, 'zh-TW'));
+}
+
+// 把子類建議清單注入共用的 <datalist id="subcatOptions">
+function populateSubcatOptions(cat) {
+  const dl = document.getElementById('subcatOptions');
+  if (!dl) return;
+  dl.innerHTML = buildSubcatList(cat)
+    .map(s => `<option value="${s}"></option>`).join('');
+}
+
 
 // ✨ 供 onclick 字串安全帶入（避免品類名含單引號時出錯）
 const q = (s) => (s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
@@ -731,7 +815,7 @@ const SUBCAT_GROUPS = {
     '穀物雜糧': ['米','豆','雜糧','穀物','麵','麵條']
   },
   // ↓↓ 以下為「同義詞收斂」用法：群組名就是標準名，成員列出各種打字寫法 ↓↓
-  '服飾':     { '鞋履': ['鞋','鞋子','皮鞋','靴','靴子','鞋履'] },
+  '衣服 配件 鞋': { '鞋履': ['鞋','鞋子','皮鞋','靴','靴子','鞋履'] },
   '母嬰用品': { '童鞋': ['鞋','鞋子','童鞋'] },
   '保養美妝': { '手工皂': ['香皂','肥皂','手工皂'] },
   '寵物用品': {
@@ -757,8 +841,8 @@ Object.entries(SUBCAT_GROUPS).forEach(([cat, groups]) => {
 
 // 取得子品類的「顯示用群組名」：有歸群對照則回群組名，否則回原值
 function groupSubCat(cat, sub) {
-  const s = (sub || '').trim();
-  const scoped = SUBCAT_GROUP_LOOKUP[(cat || '').trim()];
+  const s = normalizeCat(sub);
+  const scoped = SUBCAT_GROUP_LOOKUP[normalizeCat(cat)];
   return (scoped && scoped[s]) ? scoped[s] : s;
 }
 
@@ -770,8 +854,8 @@ const SUBCAT_IGNORE = {
   '食品':     ['食品','其他']
 };
 function isIgnoredSub(cat, grouped) {
-  const list = SUBCAT_IGNORE[(cat || '').trim()];
-  return !!(list && list.indexOf((grouped || '').trim()) !== -1);
+  const list = SUBCAT_IGNORE[normalizeCat(cat)];
+  return !!(list && list.indexOf(normalizeCat(grouped)) !== -1);
 }
 
 function updateCatCounts() {
@@ -795,7 +879,7 @@ function updateCatCounts() {
   let html = `<div class="cat-item cat-main active" onclick="filterCat(this,'全部')">全部 <span class="cat-n" id="catAllN">${allBrands.length}</span></div>`;
 
   Object.entries(tree).sort((a, b) => b[1].count - a[1].count).forEach(([cat, info]) => {
-    const emoji = catEmoji[cat] || '📦';
+    const emoji = catEmoji[normalizeCat(cat)] || '📦';
 
     // 只保留達門檻的子品類，依數量排序後取前 MAX_SUBS 個
     const subs = Object.entries(info.subs)
@@ -1323,7 +1407,6 @@ window.addEventListener('resize', adjustBarPadding);
 // 💡 未來若要升級成「從 Google Sheet 動態讀取」（做法 B），只要把下面這個陣列
 //    改成 fetch 該分頁的 CSV、再 map 成 {date, text} 同樣格式即可，renderChangelog 不用動。
 const CHANGELOG = [
-  { date: '2026/07/18', text: '本週審核更新：微笑標章＋6、已驗證＋2，1 筆標章過期' },   // ← 07/18新增這一行
   { date: '2026/07/13', text: '優化手機版顯示，免責聲明與整體版面更完整' },
   { date: '2026/07/11', text: '新增「按讚／分享」與 Threads 私訊推薦入口' },
   { date: '2026/07/06', text: '子品類智慧歸群、微笑標章標示與卡片版面優化' },
@@ -1348,6 +1431,7 @@ function toggleChangelog() {
   adjustBarPadding();
 }
 
+populateCatSelects();   // ✨ 先用基準品類墊一版，避免資料載入前/失敗時選單空白；資料到位後 loadData 內會再重建
 loadData();
 initLikes();
 renderChangelog();
