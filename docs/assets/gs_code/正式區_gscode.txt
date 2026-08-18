@@ -1,0 +1,400 @@
+/* ═══════════════════════════════════════════════════════════════════
+   【子品類治理・分工原則】（後端只做輕量清潔）
+   ───────────────────────────────────────────────────────────────────
+   子品類的「分類邏輯」（同義詞收斂、二級歸群）全部集中在前端 index.html
+   的 SUBCAT_GROUPS 表，於讀取時即時運算（可逆、新舊資料通吃、零風險）。
+
+   後端這裡刻意只保留「輕量、客觀、幾乎不用維護」的清潔：
+     - 去頭尾空白；
+     - 濾除與母品類同名的冗餘值（例：食品→食品 視為未分類）。
+   不放任何同義詞／歸群對照表，因為後端正規化不可逆、又救不了既有舊資料，
+   分類主力交給前端才好維護。→ 分類規則請見 index.html 的 SUBCAT_GROUPS。
+   ═══════════════════════════════════════════════════════════════════ */
+
+// 子品類清潔：去頭尾空白 + 濾除與母品類同名的冗餘值（不含任何會變動的分類邏輯）
+function normalizeSubCat(cat, sub) {
+  const s = (sub || '').trim();
+  if (!s || s === (cat || '').trim()) return '';   // 空值、或與母品類同名 → 視為未分類
+  return s;
+}
+
+function doPost(e) {
+  try {
+    let data = {};
+    if (e.postData && e.postData.type === 'application/json') {
+      data = JSON.parse(e.postData.contents);
+    } else {
+      data = e.parameter;
+    }
+
+    // ✨ 讀取目前按讚數（純讀取，不寫入、不受 rate limit / clientId 限制）
+    if (data.action === 'likeGet') {
+      return ContentService.createTextOutput(JSON.stringify({ success: true, likes: getLikeCount() }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // ✨ MVP 終極防護 1：Rate Limit (防洗版與防腳本)
+    const cache = CacheService.getScriptCache();
+    const clientId = data.clientId;
+
+    if (!clientId) {
+      throw new Error('未授權的請求來源 (Missing Token)'); 
+    }
+
+    if (cache.get(clientId)) {
+      throw new Error('請求太頻繁，請等待 30 秒後再試。'); 
+    }
+
+    // 將此 Token 鎖入快取 30 秒
+    cache.put(clientId, 'locked', 30);
+
+    const now = new Date();
+    const timestamp = Utilities.formatDate(now, 'Asia/Taipei', 'yyyy-MM-dd HH:mm:ss');
+    
+    // ✨ MVP 終極防護 2：嚴格限制 Action (白名單制)
+    if (data.action === 'report') {
+      // --- 處理回報資料 ---
+      const reportSheet = SpreadsheetApp.getActive().getSheetByName('回報');
+      if (!reportSheet) {
+        throw new Error('找不到回報工作表');
+      }
+
+      const brandName = data.brandName || '';
+      const details = data.details || '';
+
+      if (brandName.length > 50 || details.length > 1000) {
+        throw new Error('回報資料超過長度限制，拒絕寫入');
+      }
+
+      reportSheet.appendRow([
+        brandName,
+        data.reportType || '',
+        details,
+        timestamp
+      ]);
+      return ContentService.createTextOutput(JSON.stringify({ success: true })).setMimeType(ContentService.MimeType.JSON);
+
+    } else if (data.action === 'submit') {
+      // --- 處理新增品牌 ---
+      const sheet = SpreadsheetApp.getActive().getSheetByName('待審核');
+      if (!sheet) {
+        throw new Error('找不到待審核工作表');
+      }
+
+      let logoUrl = '';
+      const link = (data.link || '').trim();
+      const brandName = data.brandName || 'MIT';
+      
+      if (link && /^https?:\/\/.+/i.test(link)) {
+        try {
+          const domain = link.replace(/^(?:https?:\/\/)?(?:www\.)?/i, "").split('/')[0];
+          if (domain) {
+            logoUrl = 'https://logo.clearbit.com/' + domain;
+          }
+        } catch(err) {
+          logoUrl = ''; 
+        }
+      }
+
+      // 使用鎖定機制防止併發衝突
+      const lock = LockService.getScriptLock();
+      lock.waitLock(10000); // 最多等待 10 秒
+      
+      try {
+        // ── v2：E 一律「否」（微笑標章由 Cowork 依官方開放資料查證，§6）；
+        //        填表人自我申報改存入 J 備註，交給 Cowork/人工核對；類型移到 N 欄（內部）。
+        const selfDeclare = (data.mit || '').toString().substring(0, 30);  // 填表自我申報（未查證）
+        const initNote = selfDeclare
+          ? ('填表申報：' + selfDeclare + '（未查證，待Cowork核對）')
+          : '';
+        const bizType = (data.type || '消費者推薦').substring(0, 50);       // 類型 → N 欄
+
+        const newRowData = [
+          brandName.substring(0, 50),                     // A 品牌名稱
+          (data.category || '').substring(0, 50),         // B 品類
+          normalizeSubCat(data.category, data.subCat).substring(0, 50),  // C 子品類（已正規化）
+          (data.origin || '').substring(0, 100),          // D 製造產地
+          '否',                                            // E 微笑標章（一律否；由 Cowork 查證，§6）
+          link.substring(0, 500),                         // F 連結
+          (data.desc || '').substring(0, 1000),           // G 簡介
+          '待確認',                                        // H 狀態
+          logoUrl,                                         // I 圖片
+          initNote.substring(0, 1000),                     // J 備註／查證依據（填表自我申報，待 Cowork 查證；§1/§2）
+          timestamp                                        // K 時間戳記
+        ];
+
+        // ✨ 改用 appendRow（加到最後一列），不再用 insertRowAfter(1) 插入到最上面。
+        // 原因：insertRowAfter 會讓「待審核」表格裡所有既有列整批往下位移一列，
+        // 如果這時候剛好有人在勾選核取方塊放行（onEditInstallable 正在執行或排隊中），
+        // 它記住的列號會瞬間失效，導致抓錯列、搬錯資料、刪錯列（資料憑空消失的元兇）。
+        // 加到最後一列則完全不影響既有列的位置，兩邊流程不再互相干擾。
+        // 副作用：待審核清單會變成「舊的在上、新的在下」，如果想維持「新的在最上面」
+        // 方便審核，改用試算表的「資料→建立篩選器」依 K 欄（提交時間）遞減排序即可，
+        // 不需要再靠實體插入列來達成。
+        sheet.appendRow(newRowData);
+        const lastRow = sheet.getLastRow();
+
+        const checkboxRule = SpreadsheetApp.newDataValidation().requireCheckbox().build();
+        sheet.getRange(lastRow, 12).setDataValidation(checkboxRule); // 核取方塊在第 12 欄 (L)
+        sheet.getRange(lastRow, 12).setValue('FALSE');
+
+        // ── v2 新欄位（§10-1/§10-4）：只寫值；E/M/N 下拉改由 setupV2Validation() 一次性整欄套用 ──
+        sheet.getRange(lastRow, 13).setValue('待查');                // M 台灣製造查證（預設待查）
+        sheet.getRange(lastRow, 14).setValue(bizType);              // N 類型（內部，不上前台）
+      } finally {
+        lock.releaseLock();
+      }
+
+      return ContentService.createTextOutput(JSON.stringify({ success: true })).setMimeType(ContentService.MimeType.JSON);
+
+    } else if (data.action === 'like') {
+      // --- 處理按讚（遞增總數並回傳新值）---
+      const newCount = incrementLike();
+      return ContentService.createTextOutput(JSON.stringify({ success: true, likes: newCount })).setMimeType(ContentService.MimeType.JSON);
+
+        } else if (data.action === 'updateImage') {
+      // --- 只更新單一品牌的圖片連結（I欄，第9欄），其餘欄位一律不動；品牌名稱比對不分大小寫 ---
+      const brandName = (data.brandName || '').trim();
+      const imageUrl  = (data.imageUrl || '').trim();
+
+      if (!brandName) throw new Error('缺少品牌名稱');
+      if (!imageUrl || !/^https?:\/\/.+/i.test(imageUrl)) throw new Error('圖片網址格式錯誤');
+      if (imageUrl.length > 500) throw new Error('圖片網址過長，拒絕寫入');
+
+      const safetyCheck = verifyUrlSandbox(imageUrl);
+      if (!safetyCheck.isSafe) throw new Error('圖片網址未通過安全檢查：' + safetyCheck.reason);
+
+      const liveSheet = SpreadsheetApp.getActive().getSheetByName('工作表1');
+      if (!liveSheet) throw new Error('找不到工作表1');
+
+      const lock = LockService.getScriptLock();
+      lock.waitLock(10000);
+
+      try {
+        const lastRow = liveSheet.getLastRow();
+        if (lastRow < 2) throw new Error('工作表1沒有資料');
+
+        const targetNameLower = brandName.toLowerCase();
+        const names = liveSheet.getRange(2, 1, lastRow - 1, 1).getValues();
+        let targetRow = -1;
+        for (let i = 0; i < names.length; i++) {
+          const cellName = (names[i][0] || '').toString().trim();
+          if (cellName.toLowerCase() === targetNameLower) {
+            targetRow = i + 2;
+            break;
+          }
+        }
+
+        if (targetRow === -1) throw new Error('找不到品牌「' + brandName + '」，請確認名稱是否存在於A欄（不分大小寫比對）');
+
+        liveSheet.getRange(targetRow, 9).setValue(imageUrl);
+
+        return ContentService.createTextOutput(JSON.stringify({ success: true, row: targetRow }))
+          .setMimeType(ContentService.MimeType.JSON);
+      } finally {
+        lock.releaseLock();
+      }
+
+} else {
+      // 拒絕未知的 action
+      throw new Error('不合法的請求指令 (Invalid Action)');
+    }
+
+  } catch (err) {
+    console.error("後台解析發生錯誤：", err.toString());
+    return ContentService.createTextOutput(JSON.stringify({ success: false, error: err.toString() })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function doGet(e) {
+  return ContentService.createTextOutput(JSON.stringify({ status: 'ok', likes: getLikeCount() })).setMimeType(ContentService.MimeType.JSON);
+}
+
+// ── 按讚計數：存於「統計」工作表的 B1 儲存格（A1 放標籤），工作表不存在則自動建立 ──
+function getLikeSheet_() {
+  const ss = SpreadsheetApp.getActive();
+  let sheet = ss.getSheetByName('統計');
+  if (!sheet) {
+    sheet = ss.insertSheet('統計');
+    sheet.getRange('A1').setValue('總讚數');
+    sheet.getRange('B1').setValue(0);
+  }
+  return sheet;
+}
+
+function getLikeCount() {
+  try {
+    const v = getLikeSheet_().getRange('B1').getValue();
+    return Number(v) || 0;
+  } catch (err) {
+    return 0;
+  }
+}
+
+function incrementLike() {
+  // 用鎖避免併發時數字互相覆蓋
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const sheet = getLikeSheet_();
+    const cell = sheet.getRange('B1');
+    const next = (Number(cell.getValue()) || 0) + 1;
+    cell.setValue(next);
+    return next;
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+// ⚠️ 重要：此函式故意「不」命名為 onEdit。
+// 原因：函式內用到 UrlFetchApp（網址安全檢查）與 SpreadsheetApp.getUi()（跳警示視窗），
+// 這兩者都屬於「需要授權」的服務。若函式名稱直接叫 onEdit，Google 會把它當成
+// 「簡單觸發器」執行，簡單觸發器一律不能呼叫需授權服務，會在還沒開始執行任何
+// 程式碼之前就被靜默中止（不跳錯誤、不留紀錄），導致「勾選核取方塊後完全沒反應、
+// 資料沒搬進工作表1」。
+// 解法：改名 + 到 Apps Script 編輯器左側「觸發條件」頁手動新增一個
+// 「可安裝觸發器（Installable Trigger）」，指向這個函式，事件選「試算表 → 編輯時」，
+// 並在新增時完成一次帳號授權，之後才能正常呼叫 UrlFetchApp / Ui。
+function onEditInstallable(e) {
+  if (!e || !e.range) return;
+  const sheet = e.source.getActiveSheet();
+
+  // §10-2：只有 L 欄（第 12 欄）勾選才觸發搬移；M(13)/N(14) 為純資料欄，永不觸發。
+  if (sheet.getName() !== '待審核' || e.range.getColumn() !== 12) return;
+  if (e.value !== 'TRUE') return;
+  if (e.range.getRow() === 1) return;
+
+  // ✨ 加鎖：確保同一時間只有一次「掃描＋搬移＋刪除」在跑，
+  // 其他觸發會排隊等待，不會互相干擾。
+  const lock = LockService.getScriptLock();
+  const gotLock = lock.tryLock(15000);
+  if (!gotLock) {
+    Logger.log('⚠️ 取得鎖定逾時，這次觸發先略過，請重新勾選一次。');
+    return;
+  }
+
+  try {
+    // ✨ 核心修正：完全不使用 e.range.getRow() 記住的列號來搬移／刪除。
+    // 原因：只要在這次事件「發生」到「真正輪到執行」之間，有任何一次刪除
+    // （不管是別次核取方塊放行、還是網站表單新提交）發生在它前面，
+    // 記住的列號就會過期失效，導致抓錯列、漏搬、甚至誤刪。
+    // 改法：每次觸發都重新掃描整張「待審核」，抓出所有「核取方塊=TRUE
+    // 且狀態還不是已確認」的列，一次處理完，由下往上跑（陣列索引大到小），
+    // 這樣同一輪內刪除上面的列也不會影響還沒處理到的下面列。
+    // 效果：不管哪一顆核取方塊觸發、觸發當下列號多過期，最終都能抓到
+    // 「當下最新真實狀態」，也能順便把之前卡住沒處理成功的列一併補上。
+    const lastRow = sheet.getLastRow();
+    if (lastRow < 2) return;
+
+    const dataRange = sheet.getRange(2, 1, lastRow - 1, 14);  // A–N（含 v2 新增 M 台灣製造、N 類型）
+    const values = dataRange.getValues();
+
+    const ui = SpreadsheetApp.getUi();
+    const liveSheet = e.source.getSheetByName('工作表1');
+    if (!liveSheet) {
+      ui.alert('❌ 錯誤', '找不到名為「工作表1」的正式表單。', ui.ButtonSet.OK);
+      throw new Error('找不到工作表1工作表');
+    }
+
+    let movedCount = 0;
+
+    for (let i = values.length - 1; i >= 0; i--) {
+      const rowNum = i + 2;   // 陣列索引 0 對應實際第 2 列
+      const rowValues = values[i];
+      const brandName = (rowValues[0] || '').toString().trim();
+      const currentStatus = (rowValues[7] || '').toString().trim();
+      const currentCheckbox = rowValues[11];
+
+      if (currentCheckbox !== true && currentCheckbox !== 'TRUE') continue;   // 沒勾選，跳過
+      if (!brandName) {
+        Logger.log('⚠️ 第 ' + rowNum + ' 列品牌名稱為空，判定為無效資料，略過不處理。');
+        continue;
+      }
+      if (currentStatus === '已確認') continue;   // 已經處理過，跳過避免重複搬移
+
+      const rowData = rowValues.slice(0, 11);
+      const targetUrl = rowData[5];   // 連結索引 5（因子類插入 C 欄）
+      const safetyCheck = verifyUrlSandbox(targetUrl);
+
+      if (!safetyCheck.isSafe) {
+        sheet.getRange(rowNum, 12).setValue('FALSE');
+        sheet.getRange(rowNum, 1, 1, 12).setBackground('#ffe6e6');
+        ui.alert('⚠️ 系統攔截', '「' + brandName + '」的連結具有風險：\n\n' + safetyCheck.reason, ui.ButtonSet.OK);
+        continue;
+      }
+
+      rowData[7] = '已確認';   // 狀態索引 7（因子類插入 C 欄）
+      // ── v2：攜帶 M/N 到工作表1。L(索引11)留空白（正式表不使用核取方塊），M(12)、N(13) ──
+      const mVal = (rowValues[12] || '待查');   // M 台灣製造（索引 12）
+      const nVal = (rowValues[13] || '');       // N 類型（索引 13）
+      rowData.push('', mVal, nVal, '', '', '', nextSerial_());   // 對齊到工作表1 的 L(空白)、M、N、O、P、Q、R
+      liveSheet.appendRow(rowData);             // 寫入工作表1 A–R（E/M/N 下拉由 setupV2Validation 一次性整欄套用）
+      sheet.deleteRow(rowNum);
+      movedCount++;
+      Logger.log('✅ 已將「' + brandName + '」搬移至工作表1（原待審核第 ' + rowNum + ' 列）。');
+    }
+
+    if (movedCount > 0) {
+      e.source.toast('已成功搬移 ' + movedCount + ' 筆資料至正式表單！', '✅ 上架成功', 3);
+    }
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function verifyUrlSandbox(url) {
+  if (!url || url.trim() === '') return { isSafe: true }; 
+  
+  if (!/^https?:\/\/.+/i.test(url)) return { isSafe: false, reason: '網址格式錯誤' };
+
+  const blacklist = ['scam', 'free-gift', 'login-verify', 'bit.ly', 'is.gd', 'j.mp', 'reurl.cc'];
+  for (let i = 0; i < blacklist.length; i++) {
+    if (url.toLowerCase().includes(blacklist[i])) return { isSafe: false, reason: '觸發短網址或高風險詐騙字詞防護' };
+  }
+
+  try {
+    const response = UrlFetchApp.fetch(url, { muteHttpExceptions: true, followRedirects: false, timeout: 4000 });
+    const statusCode = response.getResponseCode();
+    
+    if (statusCode === 404) return { isSafe: false, reason: '網站已失效 (404 Not Found)' };
+    
+    if (statusCode === 301 || statusCode === 302) {
+      const redirectUrl = response.getHeaders()['Location'];
+      
+      if (redirectUrl && !/^https?:\/\/.+/i.test(redirectUrl)) return { isSafe: false, reason: '偵測到異常的隱藏轉址行為' };
+    }
+    return { isSafe: true };
+  } catch (err) {
+    return { isSafe: true };
+  }
+}
+
+// ── 一次性：對 工作表1／待審核 的 E/M/N 欄整欄套下拉（含未來新增列）──
+// 貼上本檔後執行一次即可；搬移／新增流程不再逐列套驗證，邏輯更接近原版、最安全。
+function setupV2Validation() {
+  const ss = SpreadsheetApp.getActive();
+  const N = 1000;   // 第 2～1001 列，涵蓋未來新增
+  const mitRule    = SpreadsheetApp.newDataValidation().requireValueInList(['是','否','過期'], true).build();
+  const twMadeRule = SpreadsheetApp.newDataValidation().requireValueInList(['是','否','待查'], true).build();
+  const typeRule   = SpreadsheetApp.newDataValidation().requireValueInList(['消費者推薦','廠商登錄'], true).build();
+  ['工作表1','待審核'].forEach(function (name) {
+    const sh = ss.getSheetByName(name);
+    if (!sh) { Logger.log('⚠️ 找不到分頁「' + name + '」，略過。'); return; }
+    sh.getRange(2, 5,  N).setDataValidation(mitRule);      // E 微笑標章
+    sh.getRange(2, 13, N).setDataValidation(twMadeRule);   // M 台灣製造
+    sh.getRange(2, 14, N).setDataValidation(typeRule);     // N 類型
+    Logger.log('已對「' + name + '」E/M/N 套整欄下拉（第2～' + (N + 1) + '列）。');
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   §10-6【未來・占位，暫不啟用】M 欄（台灣製造查證）自動化接口
+   ───────────────────────────────────────────────────────────────────
+   規格書 §5 已鎖定規則，未來開通時直接照做、不需改架構：
+     - 自動化僅在「官網明確標台灣製造 / MADE IN TAIWAN / MIT」時填 M＝是；
+     - 灰色地帶（只稱台灣品牌/設計、或官網宣稱但無明確產地）一律填 M＝待查，留人工；
+     - 自動化永不自行填 M＝否（否定判斷風險高，保留人工）。
+   實作位置：於 Cowork 端（Claude in Chrome）比對官網後寫入工作表1 的 M 欄，
+   不在本 Apps Script 觸發；本檔僅保留占位，提醒勿把 M 納入 L 欄放行搬移邏輯。
+   // 例：function autoFillTaiwanMade_(row) { …（尚未啟用）… }
+   ═══════════════════════════════════════════════════════════════════ */

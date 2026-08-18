@@ -1,0 +1,190 @@
+/* ═══════════════════════════════════════════════════════════════════
+   【R 欄流水號取號模組】nextSerial_()
+   ───────────────────────────────────────────────────────────────────
+   規格決策（2026/08/07 定案）：
+     - 號碼來源：PropertiesService 持久計數器（非掃描工作表最大值）
+     - 號碼格式：純整數 1, 2, 3…（寫入為數值型別，非文字）
+     - 絕不回收：刪除工作表1 任何列都不會讓號碼倒退或重複
+
+   為什麼不用「掃描 R 欄最大值 +1」：
+     若刪掉的正好是號碼最大的那一列，下一筆就會拿到同一個號碼，
+     舊資料的永久識別碼會被新品牌冒用。計數器只進不退，杜絕此問題。
+
+   併發安全：
+     nextSerial_() 目前只在 onEditInstallable 內被呼叫，而該函式全程
+     持有 LockService 的指令碼鎖，因此這裡不需要再加一層鎖。
+     ⚠️ 若未來從別處（排程、選單、doPost）呼叫，請自行在外層加鎖，
+     否則兩個執行緒可能讀到同一個 last 值而發出重複號碼。
+   ═══════════════════════════════════════════════════════════════════ */
+
+const SERIAL_PROP_KEY = 'TAIZHI_LAST_SERIAL';   // 指令碼屬性的鍵名
+const SERIAL_COL = 18;                           // R 欄 = 第 18 欄
+const LIVE_SHEET_NAME = '工作表1';
+
+/**
+ * 取得下一個流水號並立即持久化。
+ * @return {number} 新的流水號（純整數）
+ */
+function nextSerial_() {
+  const props = PropertiesService.getScriptProperties();
+  let last = Number(props.getProperty(SERIAL_PROP_KEY));
+
+  // 首次執行（屬性不存在或被清空）→ 以現有 R 欄最大值當種子，避免撞號。
+  if (!last || last < 0 || !isFinite(last)) {
+    last = seedSerialFromSheet_();
+  }
+
+  const next = last + 1;
+  props.setProperty(SERIAL_PROP_KEY, String(next));
+  return next;
+}
+
+/**
+ * 種子函式：掃描工作表1 現有 R 欄，回傳最大號碼。
+ * 只在計數器尚未初始化時執行一次；之後永不再讀工作表。
+ * @return {number} 現有最大號碼，全空或欄位不存在則回傳 0
+ */
+function seedSerialFromSheet_() {
+  const sh = SpreadsheetApp.getActive().getSheetByName(LIVE_SHEET_NAME);
+  if (!sh) return 0;
+
+  const lastRow = sh.getLastRow();
+  if (lastRow < 2) return 0;                       // 只有標題列或全空
+  if (sh.getMaxColumns() < SERIAL_COL) return 0;   // R 欄實體還不存在
+
+  const vals = sh.getRange(2, SERIAL_COL, lastRow - 1, 1).getValues();
+  let max = 0;
+  for (let i = 0; i < vals.length; i++) {
+    const n = Number(vals[i][0]);
+    if (isFinite(n) && n > max) max = n;
+  }
+  return max;
+}
+
+/**
+ * 確保工作表實體欄數足夠，不足則補足。
+ * ⚠️ 必須在 liveSheet.appendRow(rowData) 之前呼叫。
+ * 原因：appendRow 不會自動擴充欄位，rowData 有 18 個元素而工作表
+ *       只有 13 欄時會直接丟例外，症狀同樣是「勾了 L 沒反應」。
+ * @param {Sheet} sh 目標工作表
+ * @param {number} needed 需要的欄數
+ */
+function ensureColumns_(sh, needed) {
+  const max = sh.getMaxColumns();
+  if (max < needed) sh.insertColumnsAfter(max, needed - max);
+}
+
+/* ───────────────────────────────────────────────────────────────────
+   維運工具（手動執行用，平常不會被觸發器呼叫）
+   ─────────────────────────────────────────────────────────────────── */
+
+/** 查目前計數器停在哪個號碼（在編輯器直接執行，看執行記錄）。 */
+function debugShowSerialCounter() {
+  const v = PropertiesService.getScriptProperties().getProperty(SERIAL_PROP_KEY);
+  Logger.log('目前計數器 = ' + (v === null ? '（尚未初始化）' : v));
+  Logger.log('若現在重新種子，會取得 = ' + seedSerialFromSheet_());
+}
+
+/**
+ * 手動重設計數器。⚠️ 危險操作：設得比既有最大號碼小會造成重複號碼。
+ * 用法：把 newValue 改成你要的數字，執行一次，改回 null 以免誤觸。
+ */
+function debugResetSerialCounter() {
+  const newValue = null;   // ← 例如改成 120 代表下一筆會發 121
+  if (newValue === null) {
+    Logger.log('未指定 newValue，未執行任何變更。');
+    return;
+  }
+  PropertiesService.getScriptProperties().setProperty(SERIAL_PROP_KEY, String(newValue));
+  Logger.log('已將計數器設為 ' + newValue + '，下一筆將取得 ' + (Number(newValue) + 1));
+
+  /* ═══════════════════════════════════════════════════════════════════
+   【測試區專用】號碼區段隔離：把計數器抬到 900000
+   ───────────────────────────────────────────────────────────────────
+   貼在測試區 序號.gs 的最後面。☠️ 不要貼進正式區。
+
+   為什麼要做：
+     測試區與正式區共用同一套編號規則，兩邊各自從 344 往上遞增，
+     345～350 這個區段在兩邊代表完全不同的東西。萬一有人把測試區的
+     資料複製進正式區，號碼會撞在一起，而且沒有任何線索能辨識。
+     把測試區抬到 900001 起跳後，測試資料自帶標記，一眼可辨，
+     且永遠不可能與正式區號碼衝突（正式區不可能長到 90 萬筆）。
+
+   ⚠️ 這個設定會被 debugResetForRehearsal() 的 deleteProperty 靜默清掉，
+      清掉後下次取號會重新 seed 成 R 欄最大值，號碼默默退回 345 區段。
+      因此執行完本函式後，請把 taizi_last_serial.gs 整支從測試區刪除。
+
+   三道鎖：
+     1. 試算表名稱必須含「測試」
+     2. 目前計數器不得大於 TEST_BASE（防止號碼倒退造成重複發號）
+     3. CONFIRM 必須手動改成 true
+   ═══════════════════════════════════════════════════════════════════ */
+
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   【測試區專用】號碼區段隔離：把計數器抬到 900000
+   ───────────────────────────────────────────────────────────────────
+   貼在測試區 序號.gs 的最後面。☠️ 不要貼進正式區。
+
+   為什麼要做：
+     測試區與正式區共用同一套編號規則，兩邊各自從 344 往上遞增，
+     345～350 這個區段在兩邊代表完全不同的東西。萬一有人把測試區的
+     資料複製進正式區，號碼會撞在一起，而且沒有任何線索能辨識。
+     把測試區抬到 900001 起跳後，測試資料自帶標記，一眼可辨，
+     且永遠不可能與正式區號碼衝突（正式區不可能長到 90 萬筆）。
+
+   ⚠️ 這個設定會被 debugResetForRehearsal() 的 deleteProperty 靜默清掉，
+      清掉後下次取號會重新 seed 成 R 欄最大值，號碼默默退回 345 區段。
+      因此執行完本函式後，請把 taizi_last_serial.gs 整支從測試區刪除。
+
+   三道鎖：
+     1. 試算表名稱必須含「測試」
+     2. 目前計數器不得大於 TEST_BASE（防止號碼倒退造成重複發號）
+     3. CONFIRM 必須手動改成 true
+   ═══════════════════════════════════════════════════════════════════ */
+function setTestingSerialBase() {
+  const CONFIRM = false;                    // ← 看完預覽確認無誤，才改成 true
+  const TEST_BASE = 900000;                 // 測試區號碼起跳點（下一筆為 900001）
+  const EXPECT_NAME_CONTAINS = '測試';      // 檔名護欄關鍵字
+
+  const ss = SpreadsheetApp.getActive();
+  const ssName = ss.getName();
+
+  // ── 鎖 1：檔名護欄，防止在正式區誤觸 ──
+  if (ssName.indexOf(EXPECT_NAME_CONTAINS) === -1) {
+    Logger.log('☠️ 中止：目前試算表名稱為「' + ssName + '」，不含「' + EXPECT_NAME_CONTAINS + '」。');
+    Logger.log('   這支只能在測試區執行。若在正式區跑下去，下一筆真品牌會拿到 ' +
+               (TEST_BASE + 1) + ' 號，且計數器只進不退、無法還原。');
+    return;
+  }
+
+  const props = PropertiesService.getScriptProperties();
+  const current = props.getProperty(SERIAL_PROP_KEY);
+  const currentNum = Number(current);
+
+  Logger.log('─────── 變更預覽 ───────');
+  Logger.log('試算表：' + ssName);
+  Logger.log('指令碼屬性：' + SERIAL_PROP_KEY);
+  Logger.log('目前計數器 = ' + (current === null ? '（未初始化）' : current));
+  Logger.log('將設為 = ' + TEST_BASE + '　→　下一筆測試資料取得 ' + (TEST_BASE + 1));
+  Logger.log('不會動到：任何分頁、任何儲存格、R 欄既有號碼');
+  Logger.log('────────────────────────');
+
+  // ── 鎖 2：防止號碼倒退 ──
+  if (current !== null && isFinite(currentNum) && currentNum > TEST_BASE) {
+    Logger.log('⚠️ 中止：目前計數器 ' + currentNum + ' 已大於 ' + TEST_BASE + '。');
+    Logger.log('   設定下去等於讓號碼倒退，會重複發出已經用過的號碼。');
+    return;
+  }
+
+  // ── 鎖 3：手動確認 ──
+  if (!CONFIRM) {
+    Logger.log('🔍 CONFIRM = false，未變更任何設定。確認以上預覽無誤後改成 true 再執行。');
+    return;
+  }
+
+  props.setProperty(SERIAL_PROP_KEY, String(TEST_BASE));
+  Logger.log('✅ 已將測試區計數器設為 ' + TEST_BASE + '，下一筆測試資料為 ' + (TEST_BASE + 1) + '。');
+  Logger.log('   請把 CONFIRM 改回 false，並刪除 taizi_last_serial.gs。');
+}
