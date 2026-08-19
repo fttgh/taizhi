@@ -456,7 +456,7 @@ footer{background:var(--ink);padding:40px 24px;margin-top:60px}
   <div class="modal">
     <button class="modal-close" onclick="closeModal('reportModal')">✕</button>
     <div class="modal-title">⚠️ 回報品牌疑慮</div>
-    <div class="modal-sub" id="reportTarget">回報關於此品牌的疑慮，平台收到後將暫時下架並進行調查。</div>
+    <div class="modal-sub" id="reportTarget">回報關於此品牌的疑慮，平台收到後將盡快查證。</div>
     <div class="report-options">
       <label class="report-opt"><input type="radio" name="ropt" value="疑似非台灣製造"> 疑似非台灣製造</label>
       <label class="report-opt"><input type="radio" name="ropt" value="疑似中資品牌"> 疑似中資品牌</label>
@@ -1130,7 +1130,7 @@ function switchMTab(btn, type) {
 function openReport(name) {
   if (typeof gtag !== 'undefined') { gtag('event', 'click_report_card_error', {'event_category': 'engagement', 'event_label': name || '未指定品牌'}); }
   document.getElementById('reportTarget').textContent = name
-    ? `回報關於「${name}」的疑慮，平台收到後將下架待查。`
+    ? `回報關於「${name}」的疑慮，平台收到後將盡快查證。`
     : '發現任何品牌的資料有誤、連結失效或有疑慮，都歡迎在下方說明，平台收到後會盡快查核。';
   document.getElementById('reportModal').setAttribute('data-brand', name);
   openModal('reportModal');
